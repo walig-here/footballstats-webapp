@@ -2,6 +2,7 @@ from datetime import date
 
 from django.db import models
 from django.contrib.auth.models import User, Permission
+from api_server.constants import Metrics, MatchEvents
 
 
 class Country(models.Model):
@@ -19,10 +20,13 @@ class LeagueSeason(models.Model):
     name: models.CharField = models.CharField(max_length=255)
     league: models.ForeignKey = models.ForeignKey(League, models.PROTECT)
 
+    class Meta:
+        unique_together: list[str] = ["name", "league"]
+
 
 class Match(models.Model):
     game_date: models.DateField = models.DateField()
-    league_seaon: models.ForeignKey = models.ForeignKey(LeagueSeason, models.PROTECT)
+    league_season: models.ForeignKey = models.ForeignKey(LeagueSeason, models.PROTECT)
 
     def get_players(self) -> models.QuerySet["Player"]:
         raise NotImplementedError
@@ -37,6 +41,11 @@ class Match(models.Model):
         raise NotImplementedError
     
     def get_admin_actions(self) -> models.QuerySet["MatchAdminAction"]:
+        raise NotImplementedError
+
+    def calculate_metric(
+        self, metric_type: Metrics, target_event: MatchEvents, metric_params: list[int]
+    ) -> float:
         raise NotImplementedError
 
 
@@ -67,10 +76,12 @@ class Player(models.Model):
     def get_teams(self, start: date, end: date) -> models.QuerySet["Team"]:
         raise NotImplementedError
     
-    def get_events(self, start: date, end: date) -> models.QuerySet["MatchEvent"]:
-        raise NotImplementedError
-    
     def get_admin_actions(self) -> models.QuerySet["PlayerAdminAction"]:
+        raise NotImplementedError
+
+    def calculate_metric(
+        self, match_id: int, metric_type: Metrics, target_event: MatchEvents, metric_params: list[int]
+    ) -> float:
         raise NotImplementedError
 
 
@@ -92,8 +103,10 @@ class Team(models.Model):
     
     def get_admin_actions(self) -> models.QuerySet["TeamAdminAction"]:
         raise NotImplementedError
-    
-    def get_events(self, start: date, end: date) -> models.QuerySet["MatchEvent"]:
+
+    def calculate_metric(
+        self, match_id: int, metric_type: Metrics, target_event: MatchEvents, metric_params: list[int]
+    ) -> float:
         raise NotImplementedError
 
 

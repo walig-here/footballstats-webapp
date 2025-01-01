@@ -1,3 +1,7 @@
-from django.shortcuts import render
+import graphene
 
-# Create your views here.
+from api_server.graphql.query import Query
+from api_server.graphql.mutations import Mutation
+
+
+schema: graphene.Schema = graphene.Schema(query=Query, mutation=Mutation)
