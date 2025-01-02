@@ -83,8 +83,8 @@ class TeamMatchScore(graphene.ObjectType):
     def resolve_score(self, info: graphene.ResolveInfo) -> graphene.Int:
         raise NotImplementedError
     
-    id: graphene.Int = graphene.Int()
-    def resolve_id(self, info: graphene.ResolveInfo) -> int:
+    team_id: graphene.Int = graphene.Int()
+    def resolve_team_id(self, info: graphene.ResolveInfo) -> int:
         raise NotImplementedError
 
 

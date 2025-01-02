@@ -119,7 +119,7 @@ class PlayerInMatch(models.Model):
     player: models.ForeignKey = models.ForeignKey(Player, models.CASCADE)
     match: models.ForeignKey = models.ForeignKey(Match, models.CASCADE)
     team: models.ForeignKey = models.ForeignKey(Team, models.CASCADE)
-    minutes_player: models.FloatField = models.FloatField()
+    minutes_played: models.FloatField = models.FloatField()
 
 
 class EventType(models.Model):

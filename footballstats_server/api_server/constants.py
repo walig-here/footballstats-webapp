@@ -90,3 +90,9 @@ MATCH_SORT_ATTRIBUTES: list[str] = [
     "LEAGUE_COUNTRY_OF_ORIGIN_NAME",
     "DATE"
 ]
+
+# PERMISSIONS
+class PermissionType(Enum):
+    CREATE = 0
+    EDIT = 1
+    DELETE = 2

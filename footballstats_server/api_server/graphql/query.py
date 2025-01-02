@@ -3,9 +3,12 @@ from datetime import date
 import graphene
 from django.contrib.auth.models import User
 
-from api_server.models import Player, Team, Match
-from api_server.graphql._types.models import PlayerType, MatchType, TeamType, UserType
+from api_server.models import Player, Team, Match, Country, EventType
+from api_server.graphql._types.models import (
+    PlayerType, MatchType, TeamType, UserType, LeagueType, LeagueSeasonType, CountryType, EventTypeType
+)
 from api_server.graphql._types.utils import TextualFilterType, NumericalFilterType, MetricFilterType, SortingType
+from api_server.auth.query import AuthQuery
 
 
 class _PlayerQuery(graphene.ObjectType):
@@ -169,7 +172,25 @@ class _UserQuery(graphene.ObjectType):
         raise NotImplementedError
 
 
-class Query(_PlayerQuery, _MatchQuery, _TeamQuery, _UserQuery):
+class _LeagueQuery(graphene.ObjectType):
+    list_leagues: graphene.List = graphene.List(LeagueType)
+    def resolve_list_of_leagues(self, info: graphene.ResolveInfo) -> list[LeagueType]:
+        raise NotImplementedError
+
+    list_league_seasons: graphene.List = graphene.List(LeagueSeasonType, league_id=graphene.Int())
+    def resolve_list_league_seasons(self, info: graphene.ResolveInfo, league_id: int) -> list[LeagueSeasonType]:
+        raise NotImplementedError
+
+
+class Query(AuthQuery, _PlayerQuery, _MatchQuery, _TeamQuery, _UserQuery, _LeagueQuery):
     data_date_range: graphene.List = graphene.List(graphene.Date)
     def resolve_data_date_range(root, info: graphene.ResolveInfo) -> list[date]:
+        raise NotImplementedError
+
+    country_list: graphene.List = graphene.List(CountryType)
+    def resolve_country_list(root, info: graphene.ResolveInfo) -> list[Country]:
+        raise NotImplementedError
+
+    event_type_list: graphene.List = graphene.List(EventTypeType)
+    def resolve_event_type_list(root, info: graphene.ResolveInfo) -> list[EventType]:
         raise NotImplementedError
