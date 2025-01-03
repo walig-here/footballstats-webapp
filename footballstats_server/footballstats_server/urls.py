@@ -15,12 +15,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from graphene_django.views import GraphQLView
 
 from api_server.views import schema
+from file_server.views import upload_file
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api_server/", GraphQLView.as_view(graphiql=True, schema=schema))
-]
+    path("api_server/", GraphQLView.as_view(graphiql=True, schema=schema)),
+    path("upload_file/", upload_file)
+] 
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
