@@ -8,10 +8,9 @@ from api_server.graphql._types.models import (
     PlayerType, MatchType, TeamType, UserType, LeagueType, LeagueSeasonType, CountryType, EventTypeType
 )
 from api_server.graphql._types.utils import TextualFilterType, NumericalFilterType, MetricFilterType, SortingType
-from api_server.auth.query import AuthQuery
 
 
-class _PlayerQuery(graphene.ObjectType):
+class PlayerQuery(graphene.ObjectType):
     player_sorting_attributes = graphene.List(graphene.String)
     def resolve_player_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
         raise NotImplementedError
@@ -54,7 +53,7 @@ class _PlayerQuery(graphene.ObjectType):
         raise NotImplementedError
 
 
-class _MatchQuery(graphene.ObjectType):
+class MatchQuery(graphene.ObjectType):
     match_sorting_attributes = graphene.List(graphene.String)
     def resolve_match_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
         raise NotImplementedError
@@ -97,7 +96,7 @@ class _MatchQuery(graphene.ObjectType):
         raise NotImplementedError
 
 
-class _TeamQuery(graphene.ObjectType):
+class TeamQuery(graphene.ObjectType):
     team_sorting_attributes = graphene.List(graphene.String)
     def resolve_team_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
         raise NotImplementedError
@@ -140,7 +139,7 @@ class _TeamQuery(graphene.ObjectType):
         raise NotImplementedError
 
 
-class _UserQuery(graphene.ObjectType):
+class UserQuery(graphene.ObjectType):
     user_sorting_attributes = graphene.List(graphene.String)
     def resolve_user_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
         raise NotImplementedError
@@ -172,7 +171,7 @@ class _UserQuery(graphene.ObjectType):
         raise NotImplementedError
 
 
-class _LeagueQuery(graphene.ObjectType):
+class LeagueQuery(graphene.ObjectType):
     list_leagues: graphene.List = graphene.List(LeagueType)
     def resolve_list_of_leagues(self, info: graphene.ResolveInfo) -> list[LeagueType]:
         raise NotImplementedError
@@ -182,7 +181,7 @@ class _LeagueQuery(graphene.ObjectType):
         raise NotImplementedError
 
 
-class Query(AuthQuery, _PlayerQuery, _MatchQuery, _TeamQuery, _UserQuery, _LeagueQuery):
+class MiscellaneousQuery(graphene.ObjectType):
     data_date_range: graphene.List = graphene.List(graphene.Date)
     def resolve_data_date_range(root, info: graphene.ResolveInfo) -> list[date]:
         raise NotImplementedError

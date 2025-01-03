@@ -3,6 +3,59 @@ from django import forms
 from api_server.models import Team, League, LeagueSeason, Match, PlayerInMatch, Player, Country, MatchEvent
 
 
+class ModifyEventForm(forms.Form):
+    class Meta:
+        model = MatchEvent
+        fields = ("player", "occurrence_minute")
+
+    event_id = forms.IntegerField(required=True)
+
+
+class RemoveEventForm(forms.Form):
+    event_id= forms.IntegerField(required=True)
+
+
+class RemovePlayerFromTeam(forms.Form):
+    player_id = forms.IntegerField(required=True)
+    match_id = forms.IntegerField(required=True)
+
+
+class ModifyLeagueSeasonForm(forms.ModelForm):
+    class Meta:
+        model = LeagueSeason
+        fields = ("name", )
+
+    league_season_id = forms.IntegerField(required=True)
+
+
+class ModifyLeagueForm(forms.ModelForm):
+    class Meta:
+        model = League
+        fields = "__all__"
+
+    league_id = forms.IntegerField(required=True)
+
+
+class ModifyCountryForm(forms.ModelForm):
+    class Meta:
+        model = Country
+        fields = "__all__"
+
+    country_id = forms.IntegerField()
+
+
+class RemoveTeamForm(forms.Form):
+    team_id = forms.IntegerField(required=True)
+
+
+class ModifyTeamForm(forms.ModelForm):
+    class Meta:
+        model = Team
+        fields = "__all__"
+
+    team_id = forms.IntegerField(required=True)
+
+
 class ModifyMatchForm(forms.ModelForm):
     class Meta:
         model = Match
@@ -11,11 +64,7 @@ class ModifyMatchForm(forms.ModelForm):
     match_id = forms.IntegerField(required=True)
 
 
-class RemoveMatchForm(forms.ModelForm):
-    class Meta:
-        model = Match
-        fields = ()
-
+class RemoveMatchForm(forms.Form):
     match_id = forms.IntegerField(required=True)
 
 
@@ -33,11 +82,7 @@ class RemovePlayerFromMatchForm(forms.ModelForm):
         fields = ("player", "match")
 
 
-class RemovePlayerForm(forms.ModelForm):
-    class Meta:
-        model = Player
-        fields = ()
-
+class RemovePlayerForm(forms.Form):
     player_id = forms.IntegerField(required=True)
 
 
