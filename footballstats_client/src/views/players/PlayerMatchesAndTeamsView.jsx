@@ -1,3 +1,5 @@
 export default function PlayerMatchesAndTeamsView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Mecze i drużyny zawodnika</h1>
+    );
 }

@@ -1,3 +1,5 @@
 export default function ModifyCountryView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Modyfikacja kraju</h1>
+    );
 }

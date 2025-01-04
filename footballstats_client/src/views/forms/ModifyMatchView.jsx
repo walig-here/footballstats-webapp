@@ -1,3 +1,5 @@
 export default function ModifyMatchView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Modyfikacja meczu</h1>
+    );
 }

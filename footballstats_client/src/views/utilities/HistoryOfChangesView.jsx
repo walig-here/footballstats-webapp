@@ -1,3 +1,5 @@
 export default function HistoryOfChangesView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Historia zmian</h1>
+    );
 }

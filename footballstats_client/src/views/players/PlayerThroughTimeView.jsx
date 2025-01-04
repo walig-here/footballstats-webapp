@@ -1,3 +1,5 @@
 export default function PlayerThroughTimeView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Zawodnik w czasie</h1>
+    );
 }

@@ -1,3 +1,5 @@
 export default function AllTeamsListView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Wszystkie drużyny</h1>
+    );
 }

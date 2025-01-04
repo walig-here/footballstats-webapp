@@ -1,3 +1,5 @@
 export default function AddMatchView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Dodawanie meczu</h1>
+    );
 }

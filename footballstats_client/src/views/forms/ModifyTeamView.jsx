@@ -1,3 +1,5 @@
 export default function ModifyTeamView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Modyfikacja drużyny</h1>
+    );
 }

@@ -1,3 +1,5 @@
 export default function GenerateRegistrationTokenView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Generowanie tokenów rejestracji</h1>
+    );
 }

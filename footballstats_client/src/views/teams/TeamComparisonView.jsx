@@ -1,3 +1,5 @@
 export default function TeamComparisonView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Porównanie drużyny</h1>
+    );
 }

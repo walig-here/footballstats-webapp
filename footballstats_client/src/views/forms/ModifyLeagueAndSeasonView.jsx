@@ -1,3 +1,5 @@
 export default function ModifyLeagueAndSeasonView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Modyfikacja ligi i sezonu</h1>
+    );
 }

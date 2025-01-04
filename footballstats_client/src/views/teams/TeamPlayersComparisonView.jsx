@@ -1,3 +1,5 @@
 export default function TeamPlayersComparisonView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Porównanie reprezentantów drużyny</h1>
+    );
 }

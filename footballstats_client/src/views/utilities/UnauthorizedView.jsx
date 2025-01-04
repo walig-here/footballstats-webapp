@@ -1,3 +1,5 @@
 export default function UnauthorizedView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Brak uprawnień</h1>
+    );
 }

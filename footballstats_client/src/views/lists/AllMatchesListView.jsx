@@ -1,3 +1,5 @@
 export default function AllMatchesListView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Wszystkie mecze</h1>
+    );
 }

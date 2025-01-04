@@ -1,3 +1,5 @@
 export default function TeamThroughTimeView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Drużyna w czasie</h1>
+    );
 }

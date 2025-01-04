@@ -1,3 +1,5 @@
 export default function LoginAndRegistrationView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Logowanie i rejestracja</h1>
+    );
 }

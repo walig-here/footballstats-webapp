@@ -1,3 +1,5 @@
 export default function PlayerDataView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Dane zawodnika</h1>
+    );
 }

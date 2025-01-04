@@ -1,3 +1,5 @@
 export default function AllAdminsListView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Administratorzy</h1>
+    );
 }

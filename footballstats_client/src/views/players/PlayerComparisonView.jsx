@@ -1,3 +1,5 @@
 export default function PlayerComparisonView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Porównanie zawodnika</h1>
+    );
 }

@@ -1,3 +1,5 @@
 export default function ModifyPlayerContributionInMatchView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Modyfikacja uczestnictwa zawodnika w meczu</h1>
+    );
 }

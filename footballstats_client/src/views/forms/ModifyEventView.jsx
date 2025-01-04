@@ -1,3 +1,5 @@
 export default function ModifyEventView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Modyfikacja zdarzenia</h1>
+    );
 }

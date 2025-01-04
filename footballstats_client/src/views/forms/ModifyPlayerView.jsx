@@ -1,3 +1,5 @@
 export default function ModifyPlayerView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Modyfikacja zawodnika</h1>
+    );
 }

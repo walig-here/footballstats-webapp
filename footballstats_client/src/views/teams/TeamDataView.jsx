@@ -1,3 +1,5 @@
 export default function TeamDataView() {
-    throw Error("Not implemented")
+    return (
+        <h1>Dane drużyny</h1>
+    );
 }
