@@ -1,3 +1,5 @@
+import './main.css'
+
 import { Route, Routes } from "react-router";
 
 import HomeView from "./views/utilities/HomeView.jsx";

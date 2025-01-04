@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,:host{
+    --md-sys-color-background:248 250 244;
+    --md-sys-color-on-background:25 28 25;
+    --md-sys-color-surface:248 250 244;
+    --md-sys-color-surface-dim:216 219 213;
+    --md-sys-color-surface-bright:248 250 244;
+    --md-sys-color-surface-container-lowest:255 255 255;
+    --md-sys-color-surface-container-low:242 244 239;
+    --md-sys-color-surface-container:236 239 233;
+    --md-sys-color-surface-container-high:231 233 227;
+    --md-sys-color-surface-container-highest:225 227 222;
+    --md-sys-color-on-surface:25 28 25;
+    --md-sys-color-surface-variant:220 229 218;
+    --md-sys-color-on-surface-variant:64 73 65;
+    --md-sys-color-inverse-surface:46 49 46;
+    --md-sys-color-inverse-on-surface:239 241 236;
+    --md-sys-color-outline:112 121 113;
+    --md-sys-color-outline-variant:192 201 191;
+    --md-sys-color-shadow:0 0 0;
+    --md-sys-color-scrim:0 0 0;
+    --md-sys-color-surface-tint:46 106 68;
+    --md-sys-color-primary:22 85 49;
+    --md-sys-color-on-primary:255 255 255;
+    --md-sys-color-primary-container:62 122 83;
+    --md-sys-color-on-primary-container:255 255 255;
+    --md-sys-color-inverse-primary:150 213 166;
+    --md-sys-color-secondary:77 100 82;
+    --md-sys-color-on-secondary:255 255 255;
+    --md-sys-color-secondary-container:209 235 212;
+    --md-sys-color-on-secondary-container:56 78 61;
+    --md-sys-color-tertiary:34 75 120;
+    --md-sys-color-on-tertiary:255 255 255;
+    --md-sys-color-tertiary-container:74 111 159;
+    --md-sys-color-on-tertiary-container:255 255 255;
+    --md-sys-color-error:186 26 26;
+    --md-sys-color-on-error:255 255 255;
+    --md-sys-color-error-container:255 218 214;
+    --md-sys-color-on-error-container:65 0 2;
+}
