@@ -1,4 +1,4 @@
-from django.http import HttpRequest, HttpResponse, FileResponse
+from django.http import HttpRequest, JsonResponse, FileResponse
 from django.views import View
 from django import forms
 
@@ -18,7 +18,6 @@ class ServeImageView(View):
         raise NotImplementedError
 
 
-# Create your views here.
 class UploadImageView(View):
-    def post(self, request: HttpRequest) -> HttpResponse:
+    def post(self, request: HttpRequest, file_path: str) -> JsonResponse:
         raise NotImplementedError
