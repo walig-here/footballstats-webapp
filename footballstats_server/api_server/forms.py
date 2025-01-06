@@ -3,7 +3,7 @@ from django import forms
 from api_server.models import Team, League, LeagueSeason, Match, PlayerInMatch, Player, Country, MatchEvent
 
 
-class ModifyEventForm(forms.Form):
+class ModifyEventForm(forms.ModelForm):
     class Meta:
         model = MatchEvent
         fields = ("player", "occurrence_minute")
@@ -105,6 +105,7 @@ class AddNewPlayerToMatchForm(forms.ModelForm):
 
     match_id = forms.IntegerField(required=True)
     team_id = forms.IntegerField(required=True)
+    minutes_played = forms.FloatField(required=True)
 
 
 class ModifyPlayerMatchContributionForm(forms.ModelForm):

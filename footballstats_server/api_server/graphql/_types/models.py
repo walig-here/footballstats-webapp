@@ -1,21 +1,27 @@
 from datetime import date
 
 import graphene
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.db.models import Model
 from graphene_django import DjangoObjectType
 
 from api_server.models import (
-    Player, Team, Match, LeagueSeason, League, MatchEvent, MatchAdminAction, EventType, Country, TeamAdminAction,
+    Player, Team, Match, LeagueSeason, League, MatchEvent, MatchAdminAction, EventType, Country, TeamAdminAction, PlayerAdminAction,
     AdminAction
 )
 from api_server.graphql._types.utils import MetricType
 
 
+class AdminActionTypeType(DjangoObjectType):
+    class Meta:
+        model = Permission
+        fields = ("name", )
+
+
 class CountryType(DjangoObjectType):
     class Meta:
         model: Model = Country
-        fields: tuple[str] = ("name", "flag_url")
+        fields: tuple[str] = "__all__"
 
 
 class EventTypeType(DjangoObjectType):
@@ -24,10 +30,20 @@ class EventTypeType(DjangoObjectType):
         fields: str = "__all__"
 
 
+class MetricHistoryPointType(graphene.ObjectType):
+    value = graphene.Float()
+    def resolve_value(self, info: graphene.ResolveInfo) -> graphene.Float:
+        raise NotImplementedError
+
+    time = graphene.Date()
+    def resolve_time(self, info: graphene.ResolveInfo) -> graphene.Date:
+        raise NotImplementedError
+
+
 class MatchEventType(DjangoObjectType):
     class Meta:
         model: Model = MatchEvent
-        fields: str = "__all__"
+        exclude: str = ("match", "id")
 
 
 class LeagueType(DjangoObjectType):
@@ -42,10 +58,20 @@ class LeagueSeasonType(DjangoObjectType):
         fields: str = "__all__"
 
 
+class PlayerAdminActionType(DjangoObjectType):
+    class Meta:
+        model = PlayerAdminAction
+        exclude: str = ("player", "id")
+
+
 class PlayerType(DjangoObjectType):
     class Meta:
         model: Model = Player
         fields: str = "__all__"
+
+    admin_actions: graphene.List = graphene.List(PlayerAdminActionType)
+    def resolve_admin_actions(self, info: graphene.ResolveInfo) -> graphene.List:
+        raise NotImplementedError
 
     calculate_metric: graphene.Float = graphene.Float(
         start_date=graphene.Date(), 
@@ -64,7 +90,7 @@ class PlayerType(DjangoObjectType):
         raise NotImplementedError
 
     metric_history: graphene.List = graphene.List(
-        graphene.Float,
+        MetricHistoryPointType,
         start_date=graphene.Date(), 
         end_date=graphene.Date(),
         metric=MetricType(required=True)
@@ -91,13 +117,13 @@ class TeamMatchScore(graphene.ObjectType):
 class AdminActionType(DjangoObjectType):
     class Meta:
         model: Model = AdminAction
-        fields: str = "__all__"
+        fields: str = ("action_type", "user", "action_date")
 
 
 class MatchAdminActionType(DjangoObjectType):
     class Meta:
         model: Model = MatchAdminAction
-        fields: str = "__all__"
+        exclude: str = ("match", "id")
 
 
 class MatchType(DjangoObjectType):
@@ -133,7 +159,7 @@ class MatchType(DjangoObjectType):
 class TeamAdminActionType(DjangoObjectType):
     class Meta:
         model: Model = TeamAdminAction
-        fields: str = "__all__"
+        exclude: str = ("team", "id")
 
 
 class TeamType(DjangoObjectType):
@@ -162,7 +188,7 @@ class TeamType(DjangoObjectType):
         raise NotImplementedError
 
     metric_history: graphene.List = graphene.List(
-        graphene.Float,
+        MetricHistoryPointType,
         start_date=graphene.Date(), 
         end_date=graphene.Date(),
         metric=MetricType(required=True)

@@ -150,8 +150,6 @@ class UserQuery(graphene.ObjectType):
 
     users_list: graphene.List = graphene.List(
         UserType,
-        start_date=graphene.Date(), 
-        end_date=graphene.Date(),
         page=graphene.Int(),
         textual_filters=graphene.List(TextualFilterType, default_value=[]),
         numerical_filters=graphene.List(NumericalFilterType, default_value=[]),
@@ -172,11 +170,11 @@ class UserQuery(graphene.ObjectType):
 
 
 class LeagueQuery(graphene.ObjectType):
-    list_leagues: graphene.List = graphene.List(LeagueType)
+    leagues_list: graphene.List = graphene.List(LeagueType)
     def resolve_list_of_leagues(self, info: graphene.ResolveInfo) -> list[LeagueType]:
         raise NotImplementedError
 
-    list_league_seasons: graphene.List = graphene.List(LeagueSeasonType, league_id=graphene.Int())
+    league_seasons_list: graphene.List = graphene.List(LeagueSeasonType, league_id=graphene.Int())
     def resolve_list_league_seasons(self, info: graphene.ResolveInfo, league_id: int) -> list[LeagueSeasonType]:
         raise NotImplementedError
 
@@ -190,6 +188,6 @@ class MiscellaneousQuery(graphene.ObjectType):
     def resolve_country_list(root, info: graphene.ResolveInfo) -> list[Country]:
         raise NotImplementedError
 
-    event_type_list: graphene.List = graphene.List(EventTypeType)
+    event_types_list: graphene.List = graphene.List(EventTypeType)
     def resolve_event_type_list(root, info: graphene.ResolveInfo) -> list[EventType]:
         raise NotImplementedError

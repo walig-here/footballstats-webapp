@@ -21,11 +21,11 @@ from django.urls import path
 from graphene_django.views import GraphQLView
 
 from api_server.views import schema
-from file_server.views import upload_file
+from file_server.views import UploadImageView, ServeImageView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api_server/", GraphQLView.as_view(graphiql=True, schema=schema)),
-    path("upload_file/", upload_file)
-] 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("upload_file/", UploadImageView.as_view()),
+    path("files/<path:file_path>/", ServeImageView.as_view())
+]
