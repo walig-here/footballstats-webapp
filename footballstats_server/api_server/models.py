@@ -6,14 +6,14 @@ from api_server.constants import Metrics, MatchEvents
 
 
 class Country(models.Model):
-    name: models.CharField = models.CharField(max_length=255)
-    flag_url: models.CharField = models.CharField(max_length=255, blank=True)
+    name: models.CharField = models.CharField(max_length=255, unique=True)
+    flag_url: models.CharField = models.CharField(max_length=255, blank=True, null=True)
 
 
 class League(models.Model):
     name: models.CharField = models.CharField(max_length=255, unique=True)
     country_of_origin: models.ForeignKey = models.ForeignKey(Country, models.PROTECT)
-    logo_url: models.CharField = models.CharField(max_length=255, blank=True)
+    logo_url: models.CharField = models.CharField(max_length=255, blank=True, null=True)
 
 
 class LeagueSeason(models.Model):
@@ -29,6 +29,9 @@ class Match(models.Model):
     league_season: models.ForeignKey = models.ForeignKey(LeagueSeason, models.PROTECT)
 
     def get_players(self) -> models.QuerySet["Player"]:
+        """
+        Returns all players that participate in match.
+        """
         raise NotImplementedError
 
     def get_teams(self) -> models.QuerySet["Team"]:

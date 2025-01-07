@@ -1,0 +1,1077 @@
+[
+{
+    "model": "auth.permission",
+    "pk": 1,
+    "fields": {
+        "name": "Can add log entry",
+        "content_type": 1,
+        "codename": "add_logentry"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 2,
+    "fields": {
+        "name": "Can change log entry",
+        "content_type": 1,
+        "codename": "change_logentry"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 3,
+    "fields": {
+        "name": "Can delete log entry",
+        "content_type": 1,
+        "codename": "delete_logentry"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 4,
+    "fields": {
+        "name": "Can view log entry",
+        "content_type": 1,
+        "codename": "view_logentry"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 5,
+    "fields": {
+        "name": "Can add permission",
+        "content_type": 2,
+        "codename": "add_permission"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 6,
+    "fields": {
+        "name": "Can change permission",
+        "content_type": 2,
+        "codename": "change_permission"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 7,
+    "fields": {
+        "name": "Can delete permission",
+        "content_type": 2,
+        "codename": "delete_permission"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 8,
+    "fields": {
+        "name": "Can view permission",
+        "content_type": 2,
+        "codename": "view_permission"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 9,
+    "fields": {
+        "name": "Can add group",
+        "content_type": 3,
+        "codename": "add_group"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 10,
+    "fields": {
+        "name": "Can change group",
+        "content_type": 3,
+        "codename": "change_group"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 11,
+    "fields": {
+        "name": "Can delete group",
+        "content_type": 3,
+        "codename": "delete_group"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 12,
+    "fields": {
+        "name": "Can view group",
+        "content_type": 3,
+        "codename": "view_group"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 13,
+    "fields": {
+        "name": "Can add user",
+        "content_type": 4,
+        "codename": "add_user"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 14,
+    "fields": {
+        "name": "Can change user",
+        "content_type": 4,
+        "codename": "change_user"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 15,
+    "fields": {
+        "name": "Can delete user",
+        "content_type": 4,
+        "codename": "delete_user"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 16,
+    "fields": {
+        "name": "Can view user",
+        "content_type": 4,
+        "codename": "view_user"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 17,
+    "fields": {
+        "name": "Can add content type",
+        "content_type": 5,
+        "codename": "add_contenttype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 18,
+    "fields": {
+        "name": "Can change content type",
+        "content_type": 5,
+        "codename": "change_contenttype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 19,
+    "fields": {
+        "name": "Can delete content type",
+        "content_type": 5,
+        "codename": "delete_contenttype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 20,
+    "fields": {
+        "name": "Can view content type",
+        "content_type": 5,
+        "codename": "view_contenttype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 21,
+    "fields": {
+        "name": "Can add session",
+        "content_type": 6,
+        "codename": "add_session"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 22,
+    "fields": {
+        "name": "Can change session",
+        "content_type": 6,
+        "codename": "change_session"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 23,
+    "fields": {
+        "name": "Can delete session",
+        "content_type": 6,
+        "codename": "delete_session"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 24,
+    "fields": {
+        "name": "Can view session",
+        "content_type": 6,
+        "codename": "view_session"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 25,
+    "fields": {
+        "name": "Can add admin action",
+        "content_type": 7,
+        "codename": "add_adminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 26,
+    "fields": {
+        "name": "Can change admin action",
+        "content_type": 7,
+        "codename": "change_adminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 27,
+    "fields": {
+        "name": "Can delete admin action",
+        "content_type": 7,
+        "codename": "delete_adminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 28,
+    "fields": {
+        "name": "Can view admin action",
+        "content_type": 7,
+        "codename": "view_adminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 29,
+    "fields": {
+        "name": "Can add country",
+        "content_type": 8,
+        "codename": "add_country"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 30,
+    "fields": {
+        "name": "Modyfikacja danych własnych kraju",
+        "content_type": 8,
+        "codename": "change_country"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 31,
+    "fields": {
+        "name": "Can delete country",
+        "content_type": 8,
+        "codename": "delete_country"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 32,
+    "fields": {
+        "name": "Can view country",
+        "content_type": 8,
+        "codename": "view_country"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 33,
+    "fields": {
+        "name": "Can add event type",
+        "content_type": 9,
+        "codename": "add_eventtype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 34,
+    "fields": {
+        "name": "Can change event type",
+        "content_type": 9,
+        "codename": "change_eventtype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 35,
+    "fields": {
+        "name": "Can delete event type",
+        "content_type": 9,
+        "codename": "delete_eventtype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 36,
+    "fields": {
+        "name": "Can view event type",
+        "content_type": 9,
+        "codename": "view_eventtype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 37,
+    "fields": {
+        "name": "Can add league",
+        "content_type": 10,
+        "codename": "add_league"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 38,
+    "fields": {
+        "name": "Modyfikacja danych własnych ligi",
+        "content_type": 10,
+        "codename": "change_league"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 39,
+    "fields": {
+        "name": "Can delete league",
+        "content_type": 10,
+        "codename": "delete_league"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 40,
+    "fields": {
+        "name": "Can view league",
+        "content_type": 10,
+        "codename": "view_league"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 41,
+    "fields": {
+        "name": "Can add league season",
+        "content_type": 11,
+        "codename": "add_leagueseason"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 42,
+    "fields": {
+        "name": "Can change league season",
+        "content_type": 11,
+        "codename": "change_leagueseason"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 43,
+    "fields": {
+        "name": "Can delete league season",
+        "content_type": 11,
+        "codename": "delete_leagueseason"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 44,
+    "fields": {
+        "name": "Can view league season",
+        "content_type": 11,
+        "codename": "view_leagueseason"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 45,
+    "fields": {
+        "name": " Dodanie do systemu meczu",
+        "content_type": 12,
+        "codename": "add_match"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 46,
+    "fields": {
+        "name": "Modyfikacja danych własnych meczu",
+        "content_type": 12,
+        "codename": "change_match"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 47,
+    "fields": {
+        "name": " Usunięcie z systemu meczu",
+        "content_type": 12,
+        "codename": "delete_match"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 48,
+    "fields": {
+        "name": "Can view match",
+        "content_type": 12,
+        "codename": "view_match"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 49,
+    "fields": {
+        "name": "Can add match admin action",
+        "content_type": 13,
+        "codename": "add_matchadminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 50,
+    "fields": {
+        "name": "Can change match admin action",
+        "content_type": 13,
+        "codename": "change_matchadminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 51,
+    "fields": {
+        "name": "Can delete match admin action",
+        "content_type": 13,
+        "codename": "delete_matchadminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 52,
+    "fields": {
+        "name": "Can view match admin action",
+        "content_type": 13,
+        "codename": "view_matchadminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 53,
+    "fields": {
+        "name": "Dodanie do meczu zawodnika",
+        "content_type": 14,
+        "codename": "add_player"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 54,
+    "fields": {
+        "name": "Modyfikacja danych własnych zawodnika",
+        "content_type": 14,
+        "codename": "change_player"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 55,
+    "fields": {
+        "name": "Usunięcie z systemu zawodnika",
+        "content_type": 14,
+        "codename": "delete_player"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 56,
+    "fields": {
+        "name": "Can view player",
+        "content_type": 14,
+        "codename": "view_player"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 57,
+    "fields": {
+        "name": "Dodanie do meczu zdarzenia",
+        "content_type": 15,
+        "codename": "add_matchevent"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 58,
+    "fields": {
+        "name": "Modyfikacja danych własnych zdarzenia",
+        "content_type": 15,
+        "codename": "change_matchevent"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 59,
+    "fields": {
+        "name": " Usunięcie z meczu zdarzenia",
+        "content_type": 15,
+        "codename": "delete_matchevent"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 60,
+    "fields": {
+        "name": "Can view match event",
+        "content_type": 15,
+        "codename": "view_matchevent"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 61,
+    "fields": {
+        "name": "Can add player admin action",
+        "content_type": 16,
+        "codename": "add_playeradminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 62,
+    "fields": {
+        "name": "Can change player admin action",
+        "content_type": 16,
+        "codename": "change_playeradminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 63,
+    "fields": {
+        "name": "Can delete player admin action",
+        "content_type": 16,
+        "codename": "delete_playeradminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 64,
+    "fields": {
+        "name": "Can view player admin action",
+        "content_type": 16,
+        "codename": "view_playeradminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 65,
+    "fields": {
+        "name": "Dodanie do meczu drużyny",
+        "content_type": 17,
+        "codename": "add_team"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 66,
+    "fields": {
+        "name": "Modyfikacja danych własnych drużyny",
+        "content_type": 17,
+        "codename": "change_team"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 67,
+    "fields": {
+        "name": "Usunięcie z systemu drużyny",
+        "content_type": 17,
+        "codename": "delete_team"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 68,
+    "fields": {
+        "name": "Can view team",
+        "content_type": 17,
+        "codename": "view_team"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 69,
+    "fields": {
+        "name": "Can add player in match",
+        "content_type": 18,
+        "codename": "add_playerinmatch"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 70,
+    "fields": {
+        "name": "Zmiana danych nt uczestnictwa zawodnika w meczu",
+        "content_type": 18,
+        "codename": "change_playerinmatch"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 71,
+    "fields": {
+        "name": "Usunięcie z meczu zawodnika",
+        "content_type": 18,
+        "codename": "delete_playerinmatch"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 72,
+    "fields": {
+        "name": "Can view player in match",
+        "content_type": 18,
+        "codename": "view_playerinmatch"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 73,
+    "fields": {
+        "name": "Can add team admin action",
+        "content_type": 19,
+        "codename": "add_teamadminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 74,
+    "fields": {
+        "name": "Can change team admin action",
+        "content_type": 19,
+        "codename": "change_teamadminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 75,
+    "fields": {
+        "name": "Can delete team admin action",
+        "content_type": 19,
+        "codename": "delete_teamadminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 76,
+    "fields": {
+        "name": "Can view team admin action",
+        "content_type": 19,
+        "codename": "view_teamadminaction"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 77,
+    "fields": {
+        "name": "Can add refresh token",
+        "content_type": 20,
+        "codename": "add_refreshtoken"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 78,
+    "fields": {
+        "name": "Can change refresh token",
+        "content_type": 20,
+        "codename": "change_refreshtoken"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 79,
+    "fields": {
+        "name": "Can delete refresh token",
+        "content_type": 20,
+        "codename": "delete_refreshtoken"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 80,
+    "fields": {
+        "name": "Can view refresh token",
+        "content_type": 20,
+        "codename": "view_refreshtoken"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 81,
+    "fields": {
+        "name": "Zmiana kraju pochodzenia zawodnika",
+        "content_type": 14,
+        "codename": "change_country_player"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 82,
+    "fields": {
+        "name": "Zmiana kraju pochodzenia drużyny",
+        "content_type": 17,
+        "codename": "change_country_team"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 83,
+    "fields": {
+        "name": "Zmiana kraju pochodzenia ligi",
+        "content_type": 10,
+        "codename": "change_country_league"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 84,
+    "fields": {
+        "name": "Zmiana przypisanego meczowi sezonu i ligi",
+        "content_type": 12,
+        "codename": "change_league_season"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 85,
+    "fields": {
+        "name": "Usunięcie z meczu drużyny",
+        "content_type": 17,
+        "codename": "delete_team_from_match"
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+        "name": "Creators",
+        "permissions": [
+            45,
+            57,
+            53,
+            65
+        ]
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
+        "name": "Modifiers",
+        "permissions": [
+            30,
+            83,
+            38,
+            84,
+            46,
+            58,
+            81,
+            54,
+            70,
+            82,
+            66
+        ]
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 3,
+    "fields": {
+        "name": "Removers",
+        "permissions": [
+            47,
+            59,
+            55,
+            71,
+            67,
+            85
+        ]
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$870000$2LFVHr5JZMFyNJBRbWq1EQ$k0eQ9VHGmqXisxWAg43jPdcBJqz9x583WVC74EqMbaQ=",
+        "last_login": null,
+        "is_superuser": true,
+        "username": "owner",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2025-01-07T19:56:26.553Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 1,
+    "fields": {
+        "app_label": "admin",
+        "model": "logentry"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 2,
+    "fields": {
+        "app_label": "auth",
+        "model": "permission"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 3,
+    "fields": {
+        "app_label": "auth",
+        "model": "group"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 4,
+    "fields": {
+        "app_label": "auth",
+        "model": "user"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 5,
+    "fields": {
+        "app_label": "contenttypes",
+        "model": "contenttype"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 6,
+    "fields": {
+        "app_label": "sessions",
+        "model": "session"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 7,
+    "fields": {
+        "app_label": "api_server",
+        "model": "adminaction"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 8,
+    "fields": {
+        "app_label": "api_server",
+        "model": "country"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 9,
+    "fields": {
+        "app_label": "api_server",
+        "model": "eventtype"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 10,
+    "fields": {
+        "app_label": "api_server",
+        "model": "league"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 11,
+    "fields": {
+        "app_label": "api_server",
+        "model": "leagueseason"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 12,
+    "fields": {
+        "app_label": "api_server",
+        "model": "match"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 13,
+    "fields": {
+        "app_label": "api_server",
+        "model": "matchadminaction"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 14,
+    "fields": {
+        "app_label": "api_server",
+        "model": "player"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 15,
+    "fields": {
+        "app_label": "api_server",
+        "model": "matchevent"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 16,
+    "fields": {
+        "app_label": "api_server",
+        "model": "playeradminaction"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 17,
+    "fields": {
+        "app_label": "api_server",
+        "model": "team"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 18,
+    "fields": {
+        "app_label": "api_server",
+        "model": "playerinmatch"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 19,
+    "fields": {
+        "app_label": "api_server",
+        "model": "teamadminaction"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 20,
+    "fields": {
+        "app_label": "refresh_token",
+        "model": "refreshtoken"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 1,
+    "fields": {
+        "name": "Podanie nieskuteczne"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 2,
+    "fields": {
+        "name": "Podanie skuteczne"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 3,
+    "fields": {
+        "name": "Rzut rożny"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 4,
+    "fields": {
+        "name": "Żółta kartka"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 5,
+    "fields": {
+        "name": "Czerwona kartka"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 6,
+    "fields": {
+        "name": "Zdobycie gola"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 7,
+    "fields": {
+        "name": "Strzał niecelny"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 8,
+    "fields": {
+        "name": "Strzał celny"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 9,
+    "fields": {
+        "name": "Obrona"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 10,
+    "fields": {
+        "name": "Zwycięstwo"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 11,
+    "fields": {
+        "name": "Remis"
+    }
+},
+{
+    "model": "api_server.eventtype",
+    "pk": 12,
+    "fields": {
+        "name": "Przegrana"
+    }
+}
+]
