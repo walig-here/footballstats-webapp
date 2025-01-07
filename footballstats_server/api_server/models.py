@@ -66,9 +66,9 @@ class MatchAdminAction(models.Model):
 class Player(models.Model):
     name: models.CharField = models.CharField(max_length=255)
     surname: models.CharField = models.CharField(max_length=255)
-    nickname: models.CharField = models.CharField(max_length=255, blank=True)
+    nickname: models.CharField = models.CharField(max_length=255, blank=True, null=True)
     country_of_origin: models.ForeignKey = models.ForeignKey(Country, models.PROTECT)
-    profile_photo_url: models.CharField = models.CharField(max_length=255, blank=True)
+    profile_photo_url: models.CharField = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         unique_together: list[str] = ["name", "surname"]
@@ -96,7 +96,7 @@ class PlayerAdminAction(models.Model):
 class Team(models.Model):
     name: models.CharField = models.CharField(max_length=255, unique=True)
     country_of_origin: models.ForeignKey = models.ForeignKey(Country, models.PROTECT)
-    logo_url: models.CharField = models.CharField(max_length=255, blank=True)
+    logo_url: models.CharField = models.CharField(max_length=255, blank=True, null=True)
 
     def get_matches(self, start: date, end: date) -> models.QuerySet[Match]:
         raise NotImplementedError
