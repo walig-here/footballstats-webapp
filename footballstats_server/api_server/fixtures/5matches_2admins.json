@@ -844,7 +844,10 @@
         "is_staff": false,
         "is_active": false,
         "date_joined": "2023-12-31T23:00:00Z",
-        "groups": [],
+        "groups": [
+            1,
+            2
+        ],
         "user_permissions": []
     }
 },
@@ -862,7 +865,9 @@
         "is_staff": false,
         "is_active": false,
         "date_joined": "2024-05-31T22:00:00Z",
-        "groups": [],
+        "groups": [
+            3
+        ],
         "user_permissions": []
     }
 },
@@ -1315,6 +1320,193 @@
     "fields": {
         "game_date": "2022-04-29",
         "league_season": 7
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 1,
+    "fields": {
+        "action_type": 45,
+        "user": 2,
+        "action_date": "2024-02-01"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 2,
+    "fields": {
+        "action_type": 46,
+        "user": 2,
+        "action_date": "2024-02-10"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 3,
+    "fields": {
+        "action_type": 45,
+        "user": 2,
+        "action_date": "2024-02-13"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 4,
+    "fields": {
+        "action_type": 58,
+        "user": 2,
+        "action_date": "2024-02-13"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 5,
+    "fields": {
+        "action_type": 45,
+        "user": 2,
+        "action_date": "2024-03-21"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 6,
+    "fields": {
+        "action_type": 45,
+        "user": 2,
+        "action_date": "2024-06-27"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 7,
+    "fields": {
+        "action_type": 71,
+        "user": 3,
+        "action_date": "2024-07-13"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 8,
+    "fields": {
+        "action_type": 38,
+        "user": 2,
+        "action_date": "2024-10-14"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 9,
+    "fields": {
+        "action_type": 59,
+        "user": 3,
+        "action_date": "2024-10-14"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 10,
+    "fields": {
+        "action_type": 45,
+        "user": 2,
+        "action_date": "2024-11-11"
+    }
+},
+{
+    "model": "api_server.adminaction",
+    "pk": 12,
+    "fields": {
+        "action_type": 83,
+        "user": 1,
+        "action_date": "2024-11-11"
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 1,
+    "fields": {
+        "admin_action": 1,
+        "match": 2
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 2,
+    "fields": {
+        "admin_action": 2,
+        "match": 2
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 3,
+    "fields": {
+        "admin_action": 3,
+        "match": 4
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 4,
+    "fields": {
+        "admin_action": 4,
+        "match": 2
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 5,
+    "fields": {
+        "admin_action": 5,
+        "match": 6
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 6,
+    "fields": {
+        "admin_action": 6,
+        "match": 7
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 7,
+    "fields": {
+        "admin_action": 7,
+        "match": 4
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 8,
+    "fields": {
+        "admin_action": 8,
+        "match": 2
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 9,
+    "fields": {
+        "admin_action": 9,
+        "match": 6
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 10,
+    "fields": {
+        "admin_action": 10,
+        "match": 9
+    }
+},
+{
+    "model": "api_server.matchadminaction",
+    "pk": 11,
+    "fields": {
+        "admin_action": 12,
+        "match": 9
     }
 },
 {

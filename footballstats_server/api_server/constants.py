@@ -5,18 +5,18 @@ OBJECTS_PER_PAGE: int = 25
 
 # MATCH EVENTS
 class MatchEvents(Enum):
-    FAILED_PASS = "FAILED_PASS"
-    SUCCESSFUL_PASS = "SUCCESSFUL_PASS"
-    CORNER = "CORNER"
-    YELLOW_CARD = "YELLOW_CARD"
-    RED_CARD = "RED_CARD"
-    GOAL = "GOAL"
-    SHOT_ON_TARGET = "SHOT_ON_TARGET"
-    SHOT_NOT_ON_TARGET = "SHOT_NOT_ON_TARGET"
-    DEFENSE = "DEFENSE"
-    WIN = "WIN"
-    DEFEAT = "DEFEAT"
-    DRAW = "DRAW"
+    FAILED_PASS = 1
+    SUCCESSFUL_PASS = 2
+    CORNER = 3
+    YELLOW_CARD = 4
+    RED_CARD = 5
+    GOAL = 6
+    SHOT_ON_TARGET = 7
+    SHOT_NOT_ON_TARGET = 8
+    DEFENSE = 9
+    WIN = 10
+    DEFEAT = 11
+    DRAW = 12
 
 # METRICS
 class Metrics(Enum):
@@ -30,6 +30,8 @@ class Metrics(Enum):
 class MetricMatchScope(Enum):
     METRIC_FOR_ALL_MATCHES: int = -1
     METRIC_FOR_MATCHES_PLAYED_FOR_TEAM: int = -2
+
+METRIC_UNDEFINED_VALUE: float = -1
 
 # FILTERS
 class NumericFilteringCriteria(Enum):
@@ -96,3 +98,6 @@ class PermissionType(Enum):
     CREATE = 0
     EDIT = 1
     DELETE = 2
+
+
+MATCH_LENGTH_MINUTES: float = 90.0
