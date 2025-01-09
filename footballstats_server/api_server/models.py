@@ -1,4 +1,6 @@
+from copy import deepcopy
 from datetime import date
+from decimal import Decimal
 
 from django.db import models
 from django.contrib.auth.models import User, Permission
@@ -79,6 +81,10 @@ class Match(models.Model):
         - `target_event` (`MatchEvents`): Targeted match event type.
         - `metric_params` (`list[str]`): Metric's parameters values.
         
+        Return:
+        - `-1.0`: When value of metric is undefined.
+        - `> -1.0`: Metric value. 
+        
         Raises
         - `ValueError`: When invalid metric parameters were passed.
         """
@@ -106,7 +112,7 @@ class Match(models.Model):
             case Metrics.AVERAGE:
                 return self.calculate_metric(Metrics.SUM, target_event, []) / MATCH_LENGTH_MINUTES
             case Metrics.MINUTES_UNTIL:
-                minutes_until_value: float | None = (
+                minutes_until_value: Decimal | None = (
                     MatchEvent.objects
                     .filter(match_id=self.pk, event_type_id=target_event.value)
                     .aggregate(min_occurrence_minute=models.Min('occurrence_minute'))['min_occurrence_minute']
@@ -167,8 +173,7 @@ class Player(models.Model):
         """
         return Team.objects.filter(
             playerinmatch__player=self.pk, 
-            playerinmatch__match__game_date__gte=start, 
-            playerinmatch__match__game_date__lte=end
+            playerinmatch__match__game_date__range=(start, end)
         ).distinct()
     
     def get_admin_actions(self) -> models.QuerySet["PlayerAdminAction"]:
@@ -196,25 +201,51 @@ class Player(models.Model):
         - `target_event` (`MatchEvents`): Targeted match event type.
         - `metric_params` (`list[str]`): Metric's parameters values.
         
+        Return:
+        - `-1.0`: When value of metric is undefined.
+        - `> -1.0`: Metric value. 
+        
         Raises
         - `ValueError`: When invalid metric parameters were passed.
         """
+        NOT_NEEDED_PARAMS_ERROR: str = f"Not needed metric params passed. Passed params: {metric_params}"
+
+        if len(metric_params) > 0 and metric_type not in (Metrics.ODDS_FOR_MORE_THAN, Metrics.ODDS_IN_TIME_RANGE):
+            raise ValueError(NOT_NEEDED_PARAMS_ERROR)
+
+        def _calculate_odds_for_more_than(amount: int) -> float:
+            all_matches: models.QuerySet[Match] = self.get_matches(start, end)
+            if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                all_matches = all_matches.filter(pk=match_id)
+            if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                all_matches = all_matches.filter(playerinmatch__team=team_id, playerinmatch__player=self.pk)
+            targeted_matches_count: int = (
+                all_matches
+                .filter(matchevent__event_type=target_event.value, matchevent__player=self.pk)
+                .annotate(event_count=models.Count('matchevent'))
+                .filter(event_count__gt=amount)
+                .count()
+            )
+            all_matches_count: int = all_matches.count()
+            if all_matches_count == 0:
+                return 0.0
+            return targeted_matches_count / all_matches_count * 100.0
+        
         match metric_type:
             case Metrics.SUM:
-                targeted_player_events = MatchEvent.objects.filter(
+                player_target_events: models.QuerySet[MatchEvent] = MatchEvent.objects.filter(
                     player=self.pk, 
                     event_type=target_event.value,
-                    match__game_date__gte=start,
-                    match__game_date__lte=end
+                    match__game_date__range=(start, end)
                 )
                 if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
-                    targeted_player_events = targeted_player_events.filter(match=match_id)
+                    player_target_events = player_target_events.filter(match=match_id)
                 if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
-                    targeted_player_events = targeted_player_events.filter(
+                    player_target_events = player_target_events.filter(
                         match__playerinmatch__player=self.pk,
                         match__playerinmatch__team=team_id
                     )
-                return targeted_player_events.count()
+                return player_target_events.count()
             case Metrics.AVERAGE:
                 targeted_player_events_count: float = self.calculate_metric(
                     start, end, match_id, team_id, Metrics.SUM, target_event, []
@@ -229,12 +260,66 @@ class Player(models.Model):
                         playerinmatch__team=team_id
                     )
 
-                total_minutes_played: float = float(
+                total_minutes_played: Decimal | None = (
                     PlayerInMatch.objects
                     .filter(player_id=self.pk, match__in=targeted_matches)
                     .aggregate(total_minutes=models.Sum('minutes_played'))['total_minutes']
                 )
-                return targeted_player_events_count / total_minutes_played
+                if total_minutes_played is None or total_minutes_played == 0.0:
+                    return 0.0
+                return targeted_player_events_count / float(total_minutes_played)
+            case Metrics.ODDS_FOR:
+                return _calculate_odds_for_more_than(0)
+            case Metrics.ODDS_FOR_MORE_THAN:
+                if len(metric_params) != 1:
+                    raise ValueError(NOT_NEEDED_PARAMS_ERROR)
+                return _calculate_odds_for_more_than(int(metric_params[0]))
+            case Metrics.MINUTES_UNTIL:
+                player_target_events: models.QuerySet[MatchEvent] = MatchEvent.objects.filter(
+                    player=self.pk, 
+                    event_type=target_event.value,
+                    match__game_date__range=(start, end)
+                )
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                    player_target_events = player_target_events.filter(match=match_id)
+                if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                    player_target_events = player_target_events.filter(
+                        match__playerinmatch__player=self.pk,
+                        match__playerinmatch__team=team_id
+                    )
+                minutes_until: Decimal | None = (
+                    player_target_events
+                    .aggregate(min_occurrence_minute=models.Min('occurrence_minute'))['min_occurrence_minute']
+                )
+                return float(minutes_until) if minutes_until is not None else METRIC_UNDEFINED_VALUE
+            case Metrics.ODDS_IN_TIME_RANGE:
+                if len(metric_params) != 2:
+                    raise ValueError(NOT_NEEDED_PARAMS_ERROR)
+                lower_bound: float = float(metric_params[0])
+                upper_bound: float = float(metric_params[1])
+                
+                player_target_events: models.QuerySet[MatchEvent] = MatchEvent.objects.filter(
+                    player=self.pk, 
+                    match__game_date__range=(start, end),
+                    event_type=target_event.value
+                )
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                    player_target_events = player_target_events.filter(match=match_id)
+                if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                    player_target_events = player_target_events.filter(
+                        match__playerinmatch__player=self.pk,
+                        match__playerinmatch__team=team_id
+                    )
+
+                player_target_events_from_range: models.QuerySet[MatchEvent] = (
+                    player_target_events.filter(occurrence_minute__range=(lower_bound, upper_bound))
+                )
+                player_target_events_count: int = player_target_events.count()
+                return (
+                    player_target_events_from_range.count() / player_target_events_count 
+                    if player_target_events_count != 0
+                    else 0.0
+                )
 
 
 class PlayerAdminAction(models.Model):
@@ -282,13 +367,25 @@ class PlayerInMatch(models.Model):
 
 @receiver(models.signals.post_delete, sender=PlayerInMatch)
 def _on_player_in_match_deleted(sender: models.base.Model, instance: PlayerInMatch, **kwargs: dict[str]) -> None:
-    try:
-        Match.objects.get(pk=instance.match.pk)
-    except Match.DoesNotExist as e:
-        return
-    players_in_team: int = PlayerInMatch.objects.filter(team=instance.team, match=instance.match).count()
-    if players_in_team == 0:
-        instance.match.delete()
+    def _delete_matches_with_empty_teams() -> None:
+        try:
+            Match.objects.get(pk=instance.match.pk)
+        except Match.DoesNotExist:
+            return
+        players_in_team: int = PlayerInMatch.objects.filter(team=instance.team, match=instance.match).count()
+        if players_in_team == 0:
+            instance.match.delete()
+
+    def _delete_players_with_no_matches() -> None:
+        try:
+            Player.objects.get(pk=instance.player.pk)
+        except Player.DoesNotExist:
+            return
+        if len(instance.player.get_matches(date.min, date.max)) == 0:
+            instance.player.delete()
+    
+    _delete_matches_with_empty_teams()
+    _delete_players_with_no_matches()
 
 
 class EventType(models.Model):

@@ -3,8 +3,8 @@ from django.forms.models import model_to_dict
 
 from api_server.constants import MatchEvents, Metrics, METRIC_UNDEFINED_VALUE
 from api_server.models import Match, Player, Team, MatchEvent
-from api_server.tests.unit.__data__ import Match as data
-from api_server.tests.unit.testconf import create_match_with_no_events
+from api_server.tests.integration.__data__ import Match as data
+from api_server.tests.integration.testconf import create_match_with_no_events
 
 
 class TestMatch(TestCase):
