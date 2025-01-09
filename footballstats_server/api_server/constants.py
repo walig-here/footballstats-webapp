@@ -27,9 +27,9 @@ class Metrics(Enum):
     MINUTES_UNTIL = 4
     ODDS_IN_TIME_RANGE = 5
 
-class MetricMatchScope(Enum):
+class MetricScope(Enum):
     METRIC_FOR_ALL_MATCHES: int = -1
-    METRIC_FOR_MATCHES_PLAYED_FOR_TEAM: int = -2
+    METRIC_FOR_ANY_TEAM: int = -2
 
 METRIC_UNDEFINED_VALUE: float = -1
 

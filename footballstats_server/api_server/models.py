@@ -2,8 +2,9 @@ from datetime import date
 
 from django.db import models
 from django.contrib.auth.models import User, Permission
+from django.dispatch import receiver
 
-from api_server.constants import Metrics, MatchEvents, MATCH_LENGTH_MINUTES, METRIC_UNDEFINED_VALUE
+from api_server.constants import Metrics, MatchEvents, MATCH_LENGTH_MINUTES, METRIC_UNDEFINED_VALUE, MetricScope
 
 
 class Country(models.Model):
@@ -13,13 +14,13 @@ class Country(models.Model):
 
 class League(models.Model):
     name: models.CharField = models.CharField(max_length=255, unique=True)
-    country_of_origin: models.ForeignKey = models.ForeignKey(Country, models.PROTECT)
+    country_of_origin: Country = models.ForeignKey(Country, models.PROTECT)
     logo_url: models.CharField = models.CharField(max_length=255, blank=True, null=True)
 
 
 class LeagueSeason(models.Model):
     name: models.CharField = models.CharField(max_length=255)
-    league: models.ForeignKey = models.ForeignKey(League, models.PROTECT)
+    league: League = models.ForeignKey(League, models.PROTECT)
 
     class Meta:
         unique_together: list[str] = ["name", "league"]
@@ -27,7 +28,7 @@ class LeagueSeason(models.Model):
 
 class Match(models.Model):
     game_date: models.DateField = models.DateField()
-    league_season: models.ForeignKey = models.ForeignKey(LeagueSeason, models.PROTECT)
+    league_season: LeagueSeason = models.ForeignKey(LeagueSeason, models.PROTECT)
 
     def get_players(self) -> models.QuerySet["Player"]:
         """
@@ -134,49 +135,116 @@ class Match(models.Model):
 
 
 class AdminAction(models.Model):
-    action_type: models.ForeignKey = models.ForeignKey(Permission, models.PROTECT)
-    user: models.ForeignKey = models.ForeignKey(User, models.CASCADE)
+    action_type: Permission = models.ForeignKey(Permission, models.PROTECT)
+    user: User = models.ForeignKey(User, models.CASCADE)
     action_date: models.DateField = models.DateField()
 
 
 class MatchAdminAction(models.Model):
-    admin_action: models.OneToOneField = models.OneToOneField(AdminAction, models.CASCADE)
-    match: models.ForeignKey = models.ForeignKey(Match, models.CASCADE)
+    admin_action: AdminAction = models.OneToOneField(AdminAction, models.CASCADE)
+    match: Match = models.ForeignKey(Match, models.CASCADE)
 
 
 class Player(models.Model):
     name: models.CharField = models.CharField(max_length=255)
     surname: models.CharField = models.CharField(max_length=255)
     nickname: models.CharField = models.CharField(max_length=255, blank=True, null=True)
-    country_of_origin: models.ForeignKey = models.ForeignKey(Country, models.PROTECT)
+    country_of_origin: Country = models.ForeignKey(Country, models.PROTECT)
     profile_photo_url: models.CharField = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         unique_together: list[str] = ["name", "surname"]
 
     def get_matches(self, start: date, end: date) -> models.QuerySet[Match]:
-        raise NotImplementedError
+        """
+        Returns all matches from given date range that player participated in.
+        """
+        return Match.objects.filter(playerinmatch__player_id=self.pk, game_date__gte=start, game_date__lte=end)
 
     def get_teams(self, start: date, end: date) -> models.QuerySet["Team"]:
-        raise NotImplementedError
+        """
+        Returns all teams from given date range that player participated in.
+        """
+        return Team.objects.filter(
+            playerinmatch__player=self.pk, 
+            playerinmatch__match__game_date__gte=start, 
+            playerinmatch__match__game_date__lte=end
+        ).distinct()
     
     def get_admin_actions(self) -> models.QuerySet["PlayerAdminAction"]:
-        raise NotImplementedError
+        """
+        Returns all admin actions performed against the player.
+        """
+        return PlayerAdminAction.objects.filter(player=self.pk)
 
     def calculate_metric(
-        self, match_id: int, metric_type: Metrics, target_event: MatchEvents, metric_params: list[int]
+        self, 
+        start: date, 
+        end: date,
+        match_id: int, 
+        team_id: int, 
+        metric_type: Metrics, 
+        target_event: MatchEvents, 
+        metric_params: list[int], 
     ) -> float:
-        raise NotImplementedError
+        """
+        Calculates a value for given metric type that targets some kind of match event.
+        Calculations are based on matches' event.
+        
+        Params
+        - `metric_type` (`Metrics`): Metric type.
+        - `target_event` (`MatchEvents`): Targeted match event type.
+        - `metric_params` (`list[str]`): Metric's parameters values.
+        
+        Raises
+        - `ValueError`: When invalid metric parameters were passed.
+        """
+        match metric_type:
+            case Metrics.SUM:
+                targeted_player_events = MatchEvent.objects.filter(
+                    player=self.pk, 
+                    event_type=target_event.value,
+                    match__game_date__gte=start,
+                    match__game_date__lte=end
+                )
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                    targeted_player_events = targeted_player_events.filter(match=match_id)
+                if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                    targeted_player_events = targeted_player_events.filter(
+                        match__playerinmatch__player=self.pk,
+                        match__playerinmatch__team=team_id
+                    )
+                return targeted_player_events.count()
+            case Metrics.AVERAGE:
+                targeted_player_events_count: float = self.calculate_metric(
+                    start, end, match_id, team_id, Metrics.SUM, target_event, []
+                )
+
+                targeted_matches: models.QuerySet[Match] = self.get_matches(start, end).values('id')
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                    targeted_matches = targeted_matches.filter(pk=match_id)
+                if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                    targeted_matches = targeted_matches.filter(
+                        playerinmatch__player=self.pk,
+                        playerinmatch__team=team_id
+                    )
+
+                total_minutes_played: float = float(
+                    PlayerInMatch.objects
+                    .filter(player_id=self.pk, match__in=targeted_matches)
+                    .aggregate(total_minutes=models.Sum('minutes_played'))['total_minutes']
+                )
+                return targeted_player_events_count / total_minutes_played
 
 
 class PlayerAdminAction(models.Model):
     admin_action: models.OneToOneField = models.OneToOneField(AdminAction, models.CASCADE)
-    player: models.ForeignKey = models.ForeignKey(Player, models.CASCADE)
+    player: Player = models.ForeignKey(Player, models.CASCADE)
 
 
 class Team(models.Model):
     name: models.CharField = models.CharField(max_length=255, unique=True)
-    country_of_origin: models.ForeignKey = models.ForeignKey(Country, models.PROTECT)
+    country_of_origin: Country = models.ForeignKey(Country, models.PROTECT)
     logo_url: models.CharField = models.CharField(max_length=255, blank=True, null=True)
 
     def get_matches(self, start: date, end: date) -> models.QuerySet[Match]:
@@ -189,21 +257,38 @@ class Team(models.Model):
         raise NotImplementedError
 
     def calculate_metric(
-        self, match_id: int, metric_type: Metrics, target_event: MatchEvents, metric_params: list[int]
+        self, 
+        start: date, 
+        end: date,
+        match_id: int, 
+        metric_type: Metrics, 
+        target_event: MatchEvents,
+        metric_params: list[int]
     ) -> float:
         raise NotImplementedError
 
 
 class TeamAdminAction(models.Model):
-    admin_action: models.OneToOneField = models.OneToOneField(AdminAction, models.CASCADE)
-    team: models.ForeignKey = models.ForeignKey(Team, models.CASCADE)
+    admin_action: AdminAction = models.OneToOneField(AdminAction, models.CASCADE)
+    team: Team = models.ForeignKey(Team, models.CASCADE)
 
 
 class PlayerInMatch(models.Model):
-    player: models.ForeignKey = models.ForeignKey(Player, models.CASCADE)
-    match: models.ForeignKey = models.ForeignKey(Match, models.CASCADE)
-    team: models.ForeignKey = models.ForeignKey(Team, models.CASCADE)
+    player: Player = models.ForeignKey(Player, models.CASCADE)
+    match: Match = models.ForeignKey(Match, models.CASCADE)
+    team: Team = models.ForeignKey(Team, models.CASCADE)
     minutes_played: models.DecimalField = models.DecimalField(decimal_places=3, max_digits=10)
+
+
+@receiver(models.signals.post_delete, sender=PlayerInMatch)
+def _on_player_in_match_deleted(sender: models.base.Model, instance: PlayerInMatch, **kwargs: dict[str]) -> None:
+    try:
+        Match.objects.get(pk=instance.match.pk)
+    except Match.DoesNotExist as e:
+        return
+    players_in_team: int = PlayerInMatch.objects.filter(team=instance.team, match=instance.match).count()
+    if players_in_team == 0:
+        instance.match.delete()
 
 
 class EventType(models.Model):
@@ -211,7 +296,7 @@ class EventType(models.Model):
 
 
 class MatchEvent(models.Model):
-    player: models.ForeignKey = models.ForeignKey(Player, models.CASCADE)
-    match: models.ForeignKey = models.ForeignKey(Match, models.CASCADE)
+    player: Player = models.ForeignKey(Player, models.CASCADE)
+    match: Match = models.ForeignKey(Match, models.CASCADE)
     occurrence_minute: models.DecimalField = models.DecimalField(decimal_places=3, max_digits=10)
-    event_type: models.ForeignKey = models.ForeignKey(EventType, models.PROTECT)
+    event_type: EventType = models.ForeignKey(EventType, models.PROTECT)
