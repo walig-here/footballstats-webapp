@@ -1,7 +1,13 @@
 from datetime import date
 from django.db import models
 
-from api_server.models import Match, Player, MatchEvent, PlayerInMatch, Team
+from api_server.models import Match, Player, MatchEvent, PlayerInMatch, Team, Country, League
+
+
+def delete_all_objects_referencing_country(country: Country) -> None:
+    Player.objects.filter(country_of_origin=country).delete()
+    Team.objects.filter(country_of_origin=country).delete()
+    League.objects.filter(country_of_origin=country).delete()
 
 
 def delete_all_events_for_team(team: Team) -> None:

@@ -7,6 +7,16 @@ from django.dispatch import receiver
 
 from api_server.constants import Metrics, MatchEvents, MATCH_LENGTH_MINUTES, METRIC_UNDEFINED_VALUE, MetricScope
 
+def _delete_country_if_it_is_not_referenced_by_any_object(country: "Country") -> None:
+    country_of_origin: Country = Country.objects.get(pk=country.pk)
+    objects_referencing_team_country: int = (
+        League.objects.filter(country_of_origin=country_of_origin).count() +
+        Team.objects.filter(country_of_origin=country_of_origin).count() +
+        Player.objects.filter(country_of_origin=country_of_origin).count()
+    )
+    if objects_referencing_team_country == 0:
+        country_of_origin.delete()
+
 
 class Country(models.Model):
     name: models.CharField = models.CharField(max_length=255, unique=True)
@@ -19,12 +29,27 @@ class League(models.Model):
     logo_url: models.CharField = models.CharField(max_length=255, blank=True, null=True)
 
 
+@receiver(models.signals.post_delete, sender=League)
+def _after_delete_on_league(sender: models.base.Model, instance: League, **kwargs: dict[str]) -> None:
+    try:
+        _delete_country_if_it_is_not_referenced_by_any_object(instance.country_of_origin)
+    except Country.DoesNotExist:
+        return
+
+
 class LeagueSeason(models.Model):
     name: models.CharField = models.CharField(max_length=255)
     league: League = models.ForeignKey(League, models.PROTECT)
 
     class Meta:
         unique_together: list[str] = ["name", "league"]
+
+
+@receiver(models.signals.post_delete, sender=LeagueSeason)
+def _after_delete_on_league_season(sender: models.base.Model, instance: LeagueSeason, **kwargs: dict[str]) -> None:
+    league: League = instance.league
+    if LeagueSeason.objects.filter(league=league).count() == 0:
+        league.delete()
 
 
 class Match(models.Model):
@@ -139,6 +164,16 @@ class Match(models.Model):
                 ).count() / all_target_events_count
             case _:
                 raise NotImplementedError
+
+
+@receiver(models.signals.post_delete, sender=Match)
+def _after_delete_on_match(sender: models.base.Model, instance: Match, **kwargs: dict[str]) -> None:
+    try:
+        season: LeagueSeason = instance.league_season
+    except LeagueSeason.DoesNotExist:
+        return
+    if Match.objects.filter(league_season=season).count() == 0:
+        season.delete()
 
 
 class AdminAction(models.Model):
@@ -325,6 +360,14 @@ class Player(models.Model):
                 raise NotImplementedError
 
 
+@receiver(models.signals.post_delete, sender=Player)
+def _after_delete_on_player(sender: models.base.Model, instance: Player, **kwargs: dict[str]) -> None:
+    try:
+        _delete_country_if_it_is_not_referenced_by_any_object(instance.country_of_origin)
+    except Country.DoesNotExist:
+        return
+
+
 class PlayerAdminAction(models.Model):
     admin_action: models.OneToOneField = models.OneToOneField(AdminAction, models.CASCADE)
     player: Player = models.ForeignKey(Player, models.CASCADE)
@@ -501,6 +544,13 @@ class Team(models.Model):
                 raise NotImplementedError
 
 
+@receiver(models.signals.post_delete, sender=Team)
+def _after_delete_on_team(sender: models.base.Model, instance: Team, **kwargs: dict[str]) -> None:
+    try:
+        _delete_country_if_it_is_not_referenced_by_any_object(instance.country_of_origin)
+    except Country.DoesNotExist:
+        return
+
 class TeamAdminAction(models.Model):
     admin_action: AdminAction = models.OneToOneField(AdminAction, models.CASCADE)
     team: Team = models.ForeignKey(Team, models.CASCADE)
@@ -514,7 +564,7 @@ class PlayerInMatch(models.Model):
 
 
 @receiver(models.signals.post_delete, sender=PlayerInMatch)
-def _on_player_in_match_deleted(sender: models.base.Model, instance: PlayerInMatch, **kwargs: dict[str]) -> None:
+def _after_delete_on_player_in_match(sender: models.base.Model, instance: PlayerInMatch, **kwargs: dict[str]) -> None:
     def _delete_matches_with_empty_teams() -> None:
         try:
             Match.objects.get(pk=instance.match.pk)
