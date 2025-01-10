@@ -1,8 +1,21 @@
-from api_server.models import Match, Player, MatchEvent, PlayerInMatch
+from django.db import models
+
+from api_server.models import Match, Player, MatchEvent, PlayerInMatch, Team
+
+
+def delete_all_events_for_team(team: Team) -> None:
+    MatchEvent.objects.filter(
+        match__playerinmatch__team=team,
+        match__playerinmatch__player_id=models.F('player_id')
+    ).delete()
 
 
 def delete_all_matches_for_player(player: Player) -> None:
     PlayerInMatch.objects.filter(player=player).delete()
+
+
+def delete_all_matches_for_team(team: Team) -> None:
+    PlayerInMatch.objects.filter(team=team).delete()
 
 
 def make_player_play_for_0_minutes_total(player: Player) -> None:
