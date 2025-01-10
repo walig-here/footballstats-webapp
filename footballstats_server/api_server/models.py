@@ -522,10 +522,10 @@ def _on_player_in_match_deleted(sender: models.base.Model, instance: PlayerInMat
             return
         try:
             Team.objects.get(pk=instance.team.pk)
+            players_in_team: int = PlayerInMatch.objects.filter(team=instance.team, match=instance.match).count()
+            if players_in_team == 0:
+                instance.match.delete()
         except Team.DoesNotExist:
-            instance.match.delete()
-        players_in_team: int = PlayerInMatch.objects.filter(team=instance.team, match=instance.match).count()
-        if players_in_team == 0:
             instance.match.delete()
 
     def _delete_players_with_no_matches() -> None:

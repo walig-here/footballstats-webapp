@@ -442,8 +442,11 @@ class Test__calculate_metric__average(TestCase):
         self.assertAlmostEqual(actual, 399 / (1 * MATCH_LENGTH_MINUTES))
 
     def test_when_team_has_no_events_and_all_matches_targeted_then_return_0(self):
+        print("Fetching team")
         team: Team = Team.objects.get(pk=ID_TEAM_WITH_MULTIPLE_MATCHES)
+        print("Deleting team's events")
         delete_all_events_for_team(team)
+        print("Calculating metric")
         actual: float = team.calculate_metric(
             date.min,
             date.max,

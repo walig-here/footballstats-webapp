@@ -1,0 +1,1 @@
+py footballstats_server\manage.py test api_server file_server --verbosity=2 --timing

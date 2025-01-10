@@ -1,14 +1,12 @@
+from datetime import date
 from django.db import models
 
 from api_server.models import Match, Player, MatchEvent, PlayerInMatch, Team
 
 
 def delete_all_events_for_team(team: Team) -> None:
-    MatchEvent.objects.filter(
-        match__playerinmatch__team=team,
-        match__playerinmatch__player_id=models.F('player_id')
-    ).delete()
-
+    team_players: models.QuerySet[Player] = team.get_players(date.min, date.max)
+    MatchEvent.objects.filter(player__in=team_players).delete()
 
 def delete_all_matches_for_player(player: Player) -> None:
     PlayerInMatch.objects.filter(player=player).delete()

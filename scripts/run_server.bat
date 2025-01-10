@@ -1,0 +1,1 @@
+py footballstats_server\manage.py runserver
