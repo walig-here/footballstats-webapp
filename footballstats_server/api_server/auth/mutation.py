@@ -9,6 +9,14 @@ from api_server import constants
 
 
 class _RegisterUser(graphene.Mutation):
+    """
+    Registers new administrator's account with given username and password.
+    
+    Params
+    - `username` (`str`): New admin's username. Must be uniq and not blank!
+    - `password` (`str`): New admin's password.
+    - `registration_token`: 
+    """
     class Arguments:
         username = graphene.String(required=True)
         password = graphene.String(required=True)

@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 from django.test import SimpleTestCase
 from graphene.test import Client as GraphQlClient
 
-from api_server.auth.query import _RegistrationTokenStorage
+from api_server.auth._registration_tokens import RegistrationTokenStorage
 from api_server.views import schema
 from api_server.tests.__data__.auth import query as global_data
 from api_server.tests.integration.__data__.auth import query as data
@@ -16,7 +16,7 @@ from api_server.tests import testconf as global_testconf
 class Test__can_generate_registration_token(SimpleTestCase):
     def setUp(self):
         self.client: GraphQlClient = GraphQlClient(schema)
-        self.token_storage: _RegistrationTokenStorage = _RegistrationTokenStorage()
+        self.token_storage: RegistrationTokenStorage = RegistrationTokenStorage()
         self.token_storage.tokens.clear()
         self.token_storage.tokens.append(("not_expired_token", datetime(2025, 1, 6)))
         self.token_storage.tokens.append(("92f3dcfc-6457-4248-8a29-18b164a2a29", datetime(2025, 1, 1)))
