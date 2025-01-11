@@ -40,12 +40,12 @@ class Test__RegistryTokenStorage__use_token(SimpleTestCase):
 
         self.assertIn(("valid_expired_token", datetime(2025, 1, 3)), self.token_storage.tokens)
 
-    def test_when_token_invalid_then_return_False_False(self):
+    def test_when_token_invalid_then_return_False_True(self):
         self.token_storage.tokens.append(("token", datetime(2025, 1, 3)))
 
-        self.token_storage.use_token("invalid_token")
+        status: tuple[bool, bool] = self.token_storage.use_token("invalid-token")
 
-        self.assertIn(("token", datetime(2025, 1, 3)), self.token_storage.tokens)
+        self.assertEqual(status, (False, True))
 
     def test_when_token_invalid_then_not_remove_anything_from_storage(self):
         self.token_storage.tokens.append(("expired_token", datetime(2025, 1, 3)))
@@ -87,6 +87,11 @@ class Test__RegistryTokenStorage__add_token(SimpleTestCase):
     def setUp(self):
         self.token_storage: RegistrationTokenStorage = RegistrationTokenStorage()
         self.token_storage.tokens.clear()
+
+    def test_when_token_is_not_str_then_raise_ValueError(self):
+        token: int = 1
+        with self.assertRaises(ValueError):
+            self.token_storage.add_token(token)
 
     def test_when_storage_is_empty_then_add_token_with_its_expiration_date(self):
         token: str = "token"

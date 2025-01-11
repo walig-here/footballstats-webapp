@@ -23,7 +23,12 @@ class RegistrationTokenStorage:
         Return
         - `True`: When registration token has been properly added to storage.
         - `False`: When token couldn't have been added to storage because its not uniq.
+
+        Raise
+        - `ValueError`: When provided token is not a `str`.
         """
+        if type(token) is not str:
+            raise ValueError("Provided token is not a str!")
         if any([token == token_data[0] for token_data in self.tokens]):
             return False
         expiration_date: datetime = datetime.now() + timedelta(hours=TOKEN_EXPIRATION_TIME_HOURS)
@@ -48,9 +53,9 @@ class RegistrationTokenStorage:
                 continue
             if token_data[1] < datetime.now():
                 return (True, False)
-            self.tokens.clear()
+            self.tokens.remove(token_data)
             return (True, True)
-        return (False, False)
+        return (False, True)
 
     def delete_expired_tokens(self) -> int:
         """

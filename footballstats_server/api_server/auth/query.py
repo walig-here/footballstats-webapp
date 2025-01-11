@@ -26,8 +26,7 @@ class AuthQuery(graphene.ObjectType):
         token_storage.delete_expired_tokens()
         new_token: str = ""
         while True:
-            new_token = uuid.uuid4()
-            print(new_token)
+            new_token = str(uuid.uuid4())
             if token_storage.add_token(new_token):
                 break
         return new_token

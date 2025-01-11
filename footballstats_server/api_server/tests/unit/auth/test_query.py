@@ -1,4 +1,5 @@
 from unittest.mock import patch, MagicMock
+from uuid import UUID
 
 from django.test import SimpleTestCase
 from graphene.test import Client as GraphQlClient
@@ -13,7 +14,7 @@ class Test__AuthQuery__generate_registration_token(SimpleTestCase):
         self.client: GraphQlClient = GraphQlClient(schema)
 
     @patch("api_server.auth.query.RegistrationTokenStorage.add_token", return_value=True)
-    @patch("api_server.auth.query.uuid.uuid4", return_value="92f3dcfc-6457-4248-8a29-18b164a2a29a")
+    @patch("api_server.auth.query.uuid.uuid4", return_value=UUID("92f3dcfc-6457-4248-8a29-18b164a2a29a"))
     def test_when_owner_queries_for_token_then_return_them_token(self, mock_uuid4: MagicMock, mock_add_token: MagicMock):
         response: dict = self.client.execute(
             data.GENERATE_REGISTRATION_TOKEN_REQUEST, 
