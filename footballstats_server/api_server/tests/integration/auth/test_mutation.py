@@ -14,6 +14,45 @@ from api_server.tests.__data__.auth import mutation as global_data
 from api_server.tests.integration.__data__.auth import mutation as data
 
 
+class Test__RevokePermission__User(TestCase):
+    fixtures = ["5matches_2admins"]
+
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema)
+
+    def test_owner_can_grant_permission_to_user_when_request_is_valid(self):
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        target_user = User.objects.get(username="Adam")
+        user_permissions: list[str] = list(target_user.get_group_permissions())
+        user_permissions.sort()
+
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__VALID_INPUTS)
+        self.assertEqual(
+            [group.name for group in target_user.groups.all().order_by('name')],
+            []
+        )
+        self.assertEqual(user_permissions, [])
+
+    def test_owner_can_revoke_not_given_permission_from_user(self):
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__USER_DOES_NOT_HAVE_THIS_PERMISSION,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        target_user = User.objects.get(username="Adam")
+        user_permissions: list[str] = list(target_user.get_group_permissions())
+        user_permissions.sort()
+
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__USER_DOES_NOT_HAVE_THIS_PERMISSION)
+        self.assertEqual(
+            [group.name for group in target_user.groups.all().order_by('name')],
+            ['Removers']
+        )
+        self.assertEqual(user_permissions, global_data.REMOVERS_ADMIN_ACTION_TYPES)
+
+
 class Test__GrantPermission__User(TestCase):
     fixtures = ["5matches_2admins"]
 

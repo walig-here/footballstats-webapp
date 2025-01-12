@@ -1,3 +1,142 @@
+REVOKE_PERMISSION_REQUEST__VALID_INPUTS: str = """\
+mutation{
+    revokePermission(
+        permission: DELETE
+        username: "Adam",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ) {
+        ok,
+        messages
+    }
+}
+"""
+REVOKE_PERMISSION_RESPONSE__VALID_INPUTS: dict = {
+    "data": {
+        "revokePermission": {
+            "ok": True,
+            "messages": []
+        }
+    }
+}
+
+REVOKE_PERMISSION_RESPONSE__NOT_OWNER: dict = {
+    'errors': [
+        {
+            'message': 'You do not have permission to perform this action',
+            'locations': [
+                {
+                    'line': 2, 
+                    'column': 5
+                }
+            ],
+            'path': [
+                'revokePermission'
+            ]
+        }
+    ],
+    'data': {
+        'revokePermission': None
+    }
+}
+
+REVOKE_PERMISSION_REQUEST__USER_DOES_NOT_HAVE_THIS_PERMISSION: str = """\
+mutation{
+    revokePermission(
+        permission: CREATE
+        username: "Adam",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ) {
+        ok,
+        messages
+    }
+}
+"""
+REVOKE_PERMISSION_RESPONSE__USER_DOES_NOT_HAVE_THIS_PERMISSION: dict = {
+    "data": {
+        "revokePermission": {
+            "ok": True,
+            "messages": []
+        }
+    }
+}
+
+REVOKE_PERMISSION_REQUEST__USER_DOES_NOT_EXIST: str = """\
+mutation{
+    revokePermission(
+        permission: DELETE
+        username: "Unknown User",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ) {
+        ok,
+        messages
+    }
+}
+"""
+REVOKE_PERMISSION_RESPONSE__USER_DOES_NOT_EXIST: dict = {
+    "data": {
+        "revokePermission": {
+            "ok": False,
+            "messages": ["Given user doesn't exist!"]
+        }
+    }
+}
+
+REVOKE_PERMISSION_REQUEST__PERMISSION_DOES_NOT_EXIST: str = """\
+mutation{
+    revokePermission(
+        permission: NOT_EXISTING_PERMISSION
+        username: "Jerzy",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ) {
+        ok,
+        messages
+    }
+}
+"""
+REVOKE_PERMISSION_RESPONSE__PERMISSION_DOES_NOT_EXIST: dict = {
+    "data": None,
+    'errors': [
+        {
+            'locations': [
+                {'column': 21, 'line': 3}
+            ],
+            'message': "Value 'NOT_EXISTING_PERMISSION' does not exist in 'PermissionType' enum."
+        }
+    ]
+}
+
+REVOKE_PERMISSION_REQUEST__REVOKE_OWNER_PERMISSION: str = """\
+mutation{
+    revokePermission(
+        permission: DELETE
+        username: "owner",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ) {
+        ok,
+        messages
+    }
+}
+"""
+REVOKE_PERMISSION_RESPONSE__REVOKE_OWNER_PERMISSION: dict = {
+    "data": {
+        "revokePermission": {
+            "ok": False,
+            "messages": ["Can't change owner's permissions!"]
+        }
+    }
+}
+
+REMOVERS_ADMIN_ACTION_TYPES: list[str] = [
+    "api_server.delete_match",
+    "api_server.delete_matchevent",
+    "api_server.delete_player",
+    "api_server.delete_playerinmatch",
+    "api_server.delete_team",
+    "api_server.delete_team_from_match",
+]
+
+# ========= GrantPermission ==========
+
 GRANT_PERMISSION_REQUEST__VALID_INPUTS: str = """\
 mutation{
     grantPermission(

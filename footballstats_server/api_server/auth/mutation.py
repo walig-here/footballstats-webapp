@@ -107,7 +107,7 @@ class _GrantPermission(graphene.Mutation):
         Grants given permission to user registered in system.
         
         Params
-        - `username` (`str`): Username of admins whose permissions would be modified.
+        - `username` (`str`): Username of admin whose permissions would be modified.
         - `permission` (`PermissionType`): One of available permission types.
         
         Return
@@ -136,15 +136,46 @@ class _GrantPermission(graphene.Mutation):
 
 
 class _RevokePermission(graphene.Mutation):
+    """
+    Revokes given permission from user registered in system.
+    
+    Params
+    - `username` (`str`): Username of admin whose permissions would be modified.
+    - `permission` (`PermissionType`): One of available permission types.
+    
+    Return
+    - Object that contains following fields:
+        - `ok`: Information wether permission modification succeeded.
+        - `message`: Additional information about errors that occurred during the process.
+    """
     class Arguments:
         username = graphene.String(required=True)
         permission = graphene.Enum.from_enum(constants.PermissionType)()
+        token=graphene.String(required=True)
 
     ok = graphene.Boolean()
     messages = graphene.List(graphene.String)
 
-    def mutate(root, info: graphene.ResolveInfo, username: str, permission: constants.PermissionType):
-        raise NotImplementedError
+    @superuser_required
+    def mutate(root, info: graphene.ResolveInfo, username: str, permission: constants.PermissionType, **kwargs):
+        user_exist: bool = _is_username_claimed(username)
+        is_not_owner: bool = username != constants.OWNER_USERNAME
+        
+        messages: list[str] = []
+        if not user_exist:
+            messages.append(ERROR_USER_NOT_EXISTS)
+        if not is_not_owner:
+            messages.append(ERROR_TRIED_TO_CHANGE_OWNER_PERMISSIONS)
+        
+        ok: bool = all([user_exist, is_not_owner])
+        if not ok:
+            return _RevokePermission(ok=False, messages=messages)
+
+        target_user: User = User.objects.get(username=username)
+        target_group: Group = Group.objects.get(pk=permission.value)
+        target_group.user_set.remove(target_user)
+        
+        return _RevokePermission(ok=True, messages=[])
 
 
 class _RemoveUser(graphene.Mutation):

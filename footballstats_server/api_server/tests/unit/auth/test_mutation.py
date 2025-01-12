@@ -9,6 +9,105 @@ from api_server.tests.__data__.auth import mutation as global_data
 
 
 @patch("api_server.auth.mutation.User.objects.get")
+@patch("api_server.auth.mutation.Group.objects.get")
+@patch("api_server.auth.mutation._is_username_claimed")
+class Test__RevokePermission(SimpleTestCase):
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema)
+
+    def test_when_owner_provides_valid_username_and_permission_then_return_success_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_get_group: MagicMock,
+        mock_get_user: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__VALID_INPUTS)
+
+    def test_when_admin_tries_to_revoke_permission_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_get_group: MagicMock,
+        mock_get_user: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__NOT_OWNER)
+
+    def test_when_viewer_tries_to_revoke_permission_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_get_group: MagicMock,
+        mock_get_user: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__NOT_OWNER)
+
+    def test_when_owner_tries_to_revoke_permission_that_user_does_not_have_then_return_success_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_get_group: MagicMock,
+        mock_get_user: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__USER_DOES_NOT_HAVE_THIS_PERMISSION,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__USER_DOES_NOT_HAVE_THIS_PERMISSION)
+
+    def test_when_owner_tries_to_revoke_permission_from_not_existing_user_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_get_group: MagicMock,
+        mock_get_user: MagicMock
+    ):
+        mock_is_username_claimed.return_value = False
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__USER_DOES_NOT_EXIST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__USER_DOES_NOT_EXIST)
+
+    def test_when_owner_tries_to_revoke_permission_that_does_not_exist_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_get_group: MagicMock,
+        mock_get_user: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__PERMISSION_DOES_NOT_EXIST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__PERMISSION_DOES_NOT_EXIST)
+
+    def test_when_owner_tries_to_revoke_owner_permission_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_get_group: MagicMock,
+        mock_get_user: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.REVOKE_PERMISSION_REQUEST__REVOKE_OWNER_PERMISSION,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.REVOKE_PERMISSION_RESPONSE__REVOKE_OWNER_PERMISSION)
+
+
+@patch("api_server.auth.mutation.User.objects.get")
 @patch("api_server.auth.mutation.Group.objects.filter")
 @patch("api_server.auth.mutation._is_username_claimed")
 class Test__GrantPermission(SimpleTestCase):
