@@ -8,8 +8,107 @@ from api_server.tests import testconf as global_testconf
 from api_server.tests.__data__.auth import mutation as global_data
 
 
-@patch("api_server.auth.mutation.RegistrationTokenStorage.use_token", return_value=(False, True))
-@patch("api_server.auth.mutation._is_username_claimed", return_value=True)
+@patch("api_server.auth.mutation.User.objects.get")
+@patch("api_server.auth.mutation.Group.objects.filter")
+@patch("api_server.auth.mutation._is_username_claimed")
+class Test__GrantPermission(SimpleTestCase):
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema)
+
+    def test_when_owner_provides_valid_username_and_permission_then_return_success_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_user_get: MagicMock,
+        mock_group_filter: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.GRANT_PERMISSION_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.GRANT_PERMISSION_RESPONSE__VALID_INPUTS)
+
+    def test_when_admin_provides_valid_username_and_permission_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_user_get: MagicMock,
+        mock_group_filter: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.GRANT_PERMISSION_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+        self.assertEqual(response, global_data.GRANT_PERMISSION_RESPONSE__NOT_OWNER)
+
+    def test_when_viewer_provides_valid_username_and_permission_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_user_get: MagicMock,
+        mock_group_filter: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.GRANT_PERMISSION_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, global_data.GRANT_PERMISSION_RESPONSE__NOT_OWNER)
+
+    def test_when_owner_provided_permission_that_user_already_has_then_return_success_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_user_get: MagicMock,
+        mock_group_filter: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.GRANT_PERMISSION_REQUEST__ALREADY_GIVEN_PERMISSION,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.GRANT_PERMISSION_RESPONSE__ALREADY_GIVEN_PERMISSION)
+
+    def test_when_owner_provided_permission_that_doesnt_exist_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_user_get: MagicMock,
+        mock_group_filter: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.GRANT_PERMISSION_REQUEST__NOT_EXISTING_PERMISSION,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.GRANT_PERMISSION_RESPONSE__NOT_EXISTING_PERMISSION)
+
+    def test_when_owner_provided_permission_to_not_existing_user_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_user_get: MagicMock,
+        mock_group_filter: MagicMock
+    ):
+        mock_is_username_claimed.return_value = False
+        response: dict = self.client.execute(
+            global_data.GRANT_PERMISSION_REQUEST__NOT_EXISTING_USER,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.GRANT_PERMISSION_RESPONSE__NOT_EXISTING_USER)
+
+    def test_when_owner_provided_permission_to_owner_then_return_error_response(
+        self,
+        mock_is_username_claimed: MagicMock,
+        mock_user_get: MagicMock,
+        mock_group_filter: MagicMock
+    ):
+        mock_is_username_claimed.return_value = True
+        response: dict = self.client.execute(
+            global_data.GRANT_PERMISSION_REQUEST__TARGETS_OWNER,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.GRANT_PERMISSION_RESPONSE__TARGETS_OWNER)
+
+
+@patch("api_server.auth.mutation.RegistrationTokenStorage.use_token")
+@patch("api_server.auth.mutation._is_username_claimed")
 @patch("api_server.auth.mutation.User")
 class Test__RegisterUser(SimpleTestCase):
     def setUp(self):

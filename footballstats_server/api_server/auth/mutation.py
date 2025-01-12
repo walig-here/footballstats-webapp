@@ -4,7 +4,9 @@ Authentication and authorization
 import graphene
 import graphql_jwt
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, GroupManager
+from django.db.models import QuerySet
+from graphql_jwt.decorators import superuser_required
 
 from api_server import constants
 from api_server.auth._registration_tokens import RegistrationTokenStorage
@@ -14,6 +16,8 @@ ERROR_USERNAME_NOT_UNIQ: str = "Provided username is not uniq!"
 ERROR_USERNAME_BLANK: str = "Provided username is empty!"
 ERROR_REGISTRATION_TOKEN_INVALID: str = "Provided registration token is invalid!"
 ERROR_REGISTRATION_TOKEN_EXPIRED: str = "Provided registration token is expired!"
+ERROR_USER_NOT_EXISTS: str = "Given user doesn't exist!"
+ERROR_TRIED_TO_CHANGE_OWNER_PERMISSIONS: str = "Can't change owner's permissions!"
 
 
 def _is_username_claimed(username: str) -> bool:
@@ -78,7 +82,7 @@ class _RegisterUser(graphene.Mutation):
 
         ok: bool = all([username_uniq, username_not_blank, token_valid, token_not_expired])
         if ok:
-            new_user: User = User(username=username)
+            new_user: User = User(username=username, is_active=True)
             new_user.set_password(password)
             new_user.save()
         
@@ -92,12 +96,43 @@ class _GrantPermission(graphene.Mutation):
     class Arguments:
         username = graphene.String(required=True)
         permission = graphene.Enum.from_enum(constants.PermissionType)()
+        token=graphene.String(required=True)
 
-    ok = graphene.Boolean()
+    ok = graphene.Boolean(required=True)
     messages = graphene.List(graphene.String)
 
-    def mutate(root, info: graphene.ResolveInfo, username: str, permission: constants.PermissionType):
-        raise NotImplementedError
+    @superuser_required
+    def mutate(root, info: graphene.ResolveInfo, username: str, permission: constants.PermissionType, **kwargs):
+        """
+        Grants given permission to user registered in system.
+        
+        Params
+        - `username` (`str`): Username of admins whose permissions would be modified.
+        - `permission` (`PermissionType`): One of available permission types.
+        
+        Return
+        - Object that contains following fields:
+            - `ok`: Information wether permission modification succeeded.
+            - `message`: Additional information about errors that occurred during the process.
+        """
+        user_exist: bool = _is_username_claimed(username)
+        not_targets_owner: bool = username != constants.OWNER_USERNAME
+        
+        messages: list[str] = []
+        if not user_exist:
+            messages.append(ERROR_USER_NOT_EXISTS)
+        if not not_targets_owner:
+            messages.append(ERROR_TRIED_TO_CHANGE_OWNER_PERMISSIONS)
+        
+        ok: bool = all([user_exist, not_targets_owner])
+        if not ok:
+            return _GrantPermission(ok=ok, messages=messages)
+
+        target_user: User = User.objects.get(username=username)
+        target_permission_group: Group = Group.objects.filter(pk=permission.value).first()
+        target_permission_group.user_set.add(target_user)
+        
+        return _GrantPermission(ok=all([user_exist, not_targets_owner]), messages=messages)
 
 
 class _RevokePermission(graphene.Mutation):

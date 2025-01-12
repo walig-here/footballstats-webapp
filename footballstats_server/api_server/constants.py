@@ -95,9 +95,11 @@ MATCH_SORT_ATTRIBUTES: list[str] = [
 
 # PERMISSIONS
 class PermissionType(Enum):
-    CREATE = 0
-    EDIT = 1
-    DELETE = 2
+    CREATE = 1
+    EDIT = 2
+    DELETE = 3
 
 
 MATCH_LENGTH_MINUTES: float = 90.0
+
+OWNER_USERNAME: str = "owner"
