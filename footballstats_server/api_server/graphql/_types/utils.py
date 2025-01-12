@@ -5,7 +5,7 @@ import api_server.constants as constants
 
 class SortingType(graphene.InputObjectType):
     target_attribute_name: graphene.String = graphene.String()
-    direction: graphene.Enum = graphene.Enum("SortingDirectionType", [("ASCENDING", 0), ("DESCENDING", 1)])()
+    direction: graphene.Enum = graphene.Enum.from_enum(constants.SortingDirection)()
 
 
 class NumericFilteringCriteriaType(graphene.Enum):

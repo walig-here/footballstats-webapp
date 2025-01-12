@@ -450,7 +450,7 @@ class Team(models.Model):
                 .filter(event_count__gt=amount)
             )
 
-            if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+            if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                 all_matches = all_matches.filter(pk=match_id)
                 targeted_matches = targeted_matches.filter(id=match_id)
 
@@ -470,7 +470,7 @@ class Team(models.Model):
                         match__playerinmatch__player_id=models.F('player_id')
                     )
                 )
-                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                     team_targeted_events = team_targeted_events.filter(match=match_id)
                 return team_targeted_events.count()
             case Metrics.AVERAGE:
@@ -479,7 +479,7 @@ class Team(models.Model):
                 )
 
                 targeted_matches: models.QuerySet[Match] = self.get_matches(start, end)
-                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                     targeted_matches = targeted_matches.filter(pk=match_id)
                 
                 targeted_matches_count: int = targeted_matches.count()
@@ -504,7 +504,7 @@ class Team(models.Model):
                         match__playerinmatch__player_id=models.F('player_id')
                     )
                 )
-                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                     team_targeted_events = team_targeted_events.filter(match=match_id)
                 
                 minutes_until: Decimal | None = (
@@ -527,7 +527,7 @@ class Team(models.Model):
                         match__playerinmatch__player_id=models.F('player_id')
                     )
                 )
-                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                     team_targeted_events_from_match = team_targeted_events_from_match.filter(match=match_id)
 
                 team_targeted_events_from_range: models.QuerySet[MatchEvent] = (

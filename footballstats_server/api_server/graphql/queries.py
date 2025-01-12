@@ -2,6 +2,7 @@ from datetime import date
 
 import graphene
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 
 from api_server import constants
 from api_server.models import Player, Team, Match, Country, EventType
@@ -51,9 +52,8 @@ class PlayerQuery(graphene.ObjectType):
         end_date=graphene.Date(),
         page=graphene.Int(),
         textual_filters=graphene.List(TextualFilterType, default_value=[]),
-        numerical_filters=graphene.List(NumericalFilterType, default_value=[]),
         metric_filters=graphene.List(MetricFilterType, default_value=[]),
-        sorting=SortingType(default_value=SortingType(target_attribute_name="SURNAME", direction=0)),
+        sorting=SortingType(default_value=None),
         representing_team=graphene.Int(default_value=None),
         playing_in_match=graphene.Int(default_value=None),
         ids=graphene.List(graphene.Int, default_value=[])
@@ -65,14 +65,56 @@ class PlayerQuery(graphene.ObjectType):
         end_date: date,
         page: int,
         textual_filters: list[TextualFilterType],
-        numerical_filters: list[NumericalFilterType],
         metric_filters: list[MetricFilterType],
-        sorting: list[SortingType],
+        sorting: SortingType,
         representing_team: int | None,
         playing_in_match: int | None,
         ids: list[int]
     ) -> list[Player]:
-        raise NotImplementedError
+        first: int = constants.OBJECTS_PER_PAGE * page
+        last: int = first + constants.OBJECTS_PER_PAGE
+
+        players = Player.objects.all()
+        if representing_team is not None:
+            team = Team.objects.get(pk=representing_team)
+            players = team.get_players(start_date, end_date)
+            if playing_in_match is not None:
+                match = Match.objects.get(pk=playing_in_match)
+                players = players.filter(id__in=match.get_players().values("id"))
+        elif playing_in_match is not None:
+            match = Match.objects.get(pk=playing_in_match)
+            players = match.get_players()
+
+        for textual_filter in textual_filters:
+            match textual_filter.filtering_criteria:
+                case constants.TextualFilteringCriteria.TEXTUAL_FULL_TEXT_SEARCH:
+                    players = players.filter(
+                        **{f"{textual_filter.target_attribute_name}__startswith": textual_filter.filter_params[0]}
+                    )
+                case constants.TextualFilteringCriteria.TEXTUAL_IN_SET:
+                    players = players.filter(
+                        **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
+                    )
+                case constants.TextualFilteringCriteria.TEXTUAL_NOT_IN_SET:
+                    players = players.exclude(
+                        **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
+                    )
+                case _:
+                    raise ValueError("Provided filtering criteria does not exist!")
+
+        sorting_expression: str = (
+            (
+                f"{'-' if sorting.direction == constants.SortingDirection.DESCENDING else "-"}"
+                f"{sorting.target_attribute_name}"
+            )
+            if sorting is not None else "surname"
+        )
+
+        if players.count() < first:
+            return []
+        elif players.count() > constants.OBJECTS_PER_PAGE:
+            return players.order_by(sorting_expression, 'id')[first: last]
+        return players.order_by(sorting_expression, 'id')
 
 
 class MatchQuery(graphene.ObjectType):
