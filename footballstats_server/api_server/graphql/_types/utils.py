@@ -17,7 +17,7 @@ class NumericFilteringCriteriaType(graphene.Enum):
 class MetricType(graphene.InputObjectType):
     metric_type: graphene.Enum = graphene.Enum.from_enum(constants.Metrics)()
     target_match_event: graphene.Enum = graphene.Enum.from_enum(constants.MatchEvents)()
-    metric_params: graphene.List = graphene.List(graphene.Float)
+    metric_params: graphene.List = graphene.List(graphene.String)
 
 
 class MetricFilterType(graphene.InputObjectType):

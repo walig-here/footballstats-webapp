@@ -251,9 +251,9 @@ class Player(models.Model):
 
         def _calculate_odds_for_more_than(amount: int) -> float:
             all_matches: models.QuerySet[Match] = self.get_matches(start, end)
-            if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+            if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                 all_matches = all_matches.filter(pk=match_id)
-            if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+            if team_id != MetricScope.METRIC_FOR_ANY_TEAM.value:
                 all_matches = all_matches.filter(playerinmatch__team=team_id, playerinmatch__player=self.pk)
             targeted_matches_count: int = (
                 all_matches
@@ -274,9 +274,9 @@ class Player(models.Model):
                     event_type=target_event.value,
                     match__game_date__range=(start, end)
                 )
-                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                     player_target_events = player_target_events.filter(match=match_id)
-                if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                if team_id != MetricScope.METRIC_FOR_ANY_TEAM.value:
                     player_target_events = player_target_events.filter(
                         match__playerinmatch__player=self.pk,
                         match__playerinmatch__team=team_id
@@ -288,9 +288,9 @@ class Player(models.Model):
                 )
 
                 targeted_matches: models.QuerySet[Match] = self.get_matches(start, end).values('id')
-                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                     targeted_matches = targeted_matches.filter(pk=match_id)
-                if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                if team_id != MetricScope.METRIC_FOR_ANY_TEAM.value:
                     targeted_matches = targeted_matches.filter(
                         playerinmatch__player=self.pk,
                         playerinmatch__team=team_id
@@ -316,9 +316,9 @@ class Player(models.Model):
                     event_type=target_event.value,
                     match__game_date__range=(start, end)
                 )
-                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                     player_target_events = player_target_events.filter(match=match_id)
-                if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                if team_id != MetricScope.METRIC_FOR_ANY_TEAM.value:
                     player_target_events = player_target_events.filter(
                         match__playerinmatch__player=self.pk,
                         match__playerinmatch__team=team_id
@@ -339,9 +339,9 @@ class Player(models.Model):
                     match__game_date__range=(start, end),
                     event_type=target_event.value
                 )
-                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES:
+                if match_id != MetricScope.METRIC_FOR_ALL_MATCHES.value:
                     player_target_events = player_target_events.filter(match=match_id)
-                if team_id != MetricScope.METRIC_FOR_ANY_TEAM:
+                if team_id != MetricScope.METRIC_FOR_ANY_TEAM.value:
                     player_target_events = player_target_events.filter(
                         match__playerinmatch__player=self.pk,
                         match__playerinmatch__team=team_id
@@ -352,7 +352,7 @@ class Player(models.Model):
                 )
                 player_target_events_count: int = player_target_events.count()
                 return (
-                    player_target_events_from_range.count() / player_target_events_count 
+                    player_target_events_from_range.count() / player_target_events_count * 100.0
                     if player_target_events_count != 0
                     else 0.0
                 )

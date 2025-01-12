@@ -49,7 +49,7 @@ class Test__Player__odds_for_more_than(TestCase):
             date.min,
             date.max,
             2, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR_MORE_THAN, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["25"]
@@ -61,8 +61,8 @@ class Test__Player__odds_for_more_than(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR_MORE_THAN, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["25"]
@@ -74,7 +74,7 @@ class Test__Player__odds_for_more_than(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
             4, 
             Metrics.ODDS_FOR_MORE_THAN, 
             MatchEvents.SUCCESSFUL_PASS, 
@@ -87,8 +87,8 @@ class Test__Player__odds_for_more_than(TestCase):
         actual_sum: float = player.calculate_metric(
             date(1980, 1, 1),
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR_MORE_THAN, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["25"]
@@ -101,8 +101,8 @@ class Test__Player__odds_for_more_than(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR_MORE_THAN, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["25"]
@@ -115,8 +115,8 @@ class Test__Player__odds_for_more_than(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES,
-            MetricScope.METRIC_FOR_ANY_TEAM,
+            MetricScope.METRIC_FOR_ALL_MATCHES.value,
+            MetricScope.METRIC_FOR_ANY_TEAM.value,
             Metrics.ODDS_FOR_MORE_THAN,
             MatchEvents.SUCCESSFUL_PASS,
             ["25"]
@@ -128,8 +128,8 @@ class Test__Player__odds_for_more_than(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.min,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR_MORE_THAN, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["25"]
@@ -142,8 +142,8 @@ class Test__Player__odds_for_more_than(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.ODDS_FOR_MORE_THAN, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["24", "14"]
@@ -155,8 +155,8 @@ class Test__Player__odds_for_more_than(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.ODDS_FOR_MORE_THAN, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 []
@@ -168,8 +168,8 @@ class Test__Player__odds_for_more_than(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.ODDS_FOR_MORE_THAN, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["a"]
@@ -185,7 +185,7 @@ class Test__Player__minutes_until(TestCase):
             date.min,
             date.max,
             2, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.MINUTES_UNTIL, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -197,8 +197,8 @@ class Test__Player__minutes_until(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.MINUTES_UNTIL, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -210,7 +210,7 @@ class Test__Player__minutes_until(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
             4, 
             Metrics.MINUTES_UNTIL, 
             MatchEvents.SUCCESSFUL_PASS, 
@@ -223,8 +223,8 @@ class Test__Player__minutes_until(TestCase):
         actual_sum: float = player.calculate_metric(
             date(1980, 1, 1),
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.MINUTES_UNTIL, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -237,8 +237,8 @@ class Test__Player__minutes_until(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.MINUTES_UNTIL, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -251,8 +251,8 @@ class Test__Player__minutes_until(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES,
-            MetricScope.METRIC_FOR_ANY_TEAM,
+            MetricScope.METRIC_FOR_ALL_MATCHES.value,
+            MetricScope.METRIC_FOR_ANY_TEAM.value,
             Metrics.MINUTES_UNTIL,
             MatchEvents.SUCCESSFUL_PASS,
             []
@@ -264,8 +264,8 @@ class Test__Player__minutes_until(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.min,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.MINUTES_UNTIL, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -278,8 +278,8 @@ class Test__Player__minutes_until(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.MINUTES_UNTIL, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["parameter"]
@@ -295,51 +295,51 @@ class Test__Player__odds_in_time_range(TestCase):
             date.min,
             date.max,
             2, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_IN_TIME_RANGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["15", "55"]
         )
-        self.assertAlmostEqual(actual, 11.0 / 28.0)
+        self.assertAlmostEqual(actual, 11.0 / 28.0 * 100)
 
     def test_when_player_has_events_and_all_matches_targeted_then_return_value(self):
         player: Player = Player.objects.get(pk=ID_PLAYER_WITH_MULTIPLE_TEAMS)
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_IN_TIME_RANGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["15", "55"]
         )
-        self.assertAlmostEqual(actual, 19.0 / 52.0)
+        self.assertAlmostEqual(actual, 19.0 / 52.0 * 100)
 
     def test_when_player_has_events_and_all_team_matches_targeted_then_return_value(self):
         player: Player = Player.objects.get(pk=ID_PLAYER_WITH_MULTIPLE_TEAMS)
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
             4, 
             Metrics.ODDS_IN_TIME_RANGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["15", "55"]
         )
-        self.assertAlmostEqual(actual, 11.0 / 28.0)
+        self.assertAlmostEqual(actual, 11.0 / 28.0 * 100)
 
     def test_when_player_has_events_and_all_matches_targeted_with_date_filter_then_return_value(self):
         player: Player = Player.objects.get(pk=ID_PLAYER_WITH_MULTIPLE_TEAMS)
         actual_sum: float = player.calculate_metric(
             date(1980, 1, 1),
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_IN_TIME_RANGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["15", "55"]
         )
-        self.assertAlmostEqual(actual_sum, 8.0 / 24.0)
+        self.assertAlmostEqual(actual_sum, 8.0 / 24.0 * 100)
 
     def test_when_player_has_no_events_all_matches_targeted_then_return_0(self):
         player: Player = Player.objects.get(pk=ID_PLAYER_WITH_MULTIPLE_TEAMS)
@@ -347,8 +347,8 @@ class Test__Player__odds_in_time_range(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_IN_TIME_RANGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["15", "55"]
@@ -361,21 +361,21 @@ class Test__Player__odds_in_time_range(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES,
-            MetricScope.METRIC_FOR_ANY_TEAM,
+            MetricScope.METRIC_FOR_ALL_MATCHES.value,
+            MetricScope.METRIC_FOR_ANY_TEAM.value,
             Metrics.ODDS_IN_TIME_RANGE,
             MatchEvents.SUCCESSFUL_PASS,
             ["15", "55"]
         )
-        self.assertAlmostEqual(actual, 19.0 / 52.0)
+        self.assertAlmostEqual(actual, 19.0 / 52.0 * 100)
 
     def test_when_player_no_matches_targeted_then_return_0(self):
         player: Player = Player.objects.get(pk=ID_PLAYER_WITH_MULTIPLE_TEAMS)
         actual: float = player.calculate_metric(
             date.min,
             date.min,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_IN_TIME_RANGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["15", "55"]
@@ -388,8 +388,8 @@ class Test__Player__odds_in_time_range(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.ODDS_IN_TIME_RANGE, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["15", "55", "66"]
@@ -401,8 +401,8 @@ class Test__Player__odds_in_time_range(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.ODDS_IN_TIME_RANGE, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["15"]
@@ -414,8 +414,8 @@ class Test__Player__odds_in_time_range(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.ODDS_IN_TIME_RANGE, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["15", "a"]
@@ -426,8 +426,8 @@ class Test__Player__odds_in_time_range(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.min,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_IN_TIME_RANGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             ["55", "15"]
@@ -444,7 +444,7 @@ class Test__Player__odds_for(TestCase):
             date.min,
             date.max,
             2, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -456,8 +456,8 @@ class Test__Player__odds_for(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -469,7 +469,7 @@ class Test__Player__odds_for(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
             4, 
             Metrics.ODDS_FOR, 
             MatchEvents.SUCCESSFUL_PASS, 
@@ -482,8 +482,8 @@ class Test__Player__odds_for(TestCase):
         actual_sum: float = player.calculate_metric(
             date(1980, 1, 1),
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -496,8 +496,8 @@ class Test__Player__odds_for(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -510,8 +510,8 @@ class Test__Player__odds_for(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES,
-            MetricScope.METRIC_FOR_ANY_TEAM,
+            MetricScope.METRIC_FOR_ALL_MATCHES.value,
+            MetricScope.METRIC_FOR_ANY_TEAM.value,
             Metrics.ODDS_FOR,
             MatchEvents.SUCCESSFUL_PASS,
             []
@@ -523,8 +523,8 @@ class Test__Player__odds_for(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.min,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.ODDS_FOR, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -537,8 +537,8 @@ class Test__Player__odds_for(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.ODDS_FOR, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["parameter"]
@@ -554,7 +554,7 @@ class Test__Player__average(TestCase):
             date.min,
             date.max,
             2, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.AVERAGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -566,8 +566,8 @@ class Test__Player__average(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.AVERAGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -579,8 +579,8 @@ class Test__Player__average(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            4, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            4,
             Metrics.AVERAGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -592,8 +592,8 @@ class Test__Player__average(TestCase):
         actual_sum: float = player.calculate_metric(
             date(1980, 1, 1),
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.AVERAGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -606,8 +606,8 @@ class Test__Player__average(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.AVERAGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -620,8 +620,8 @@ class Test__Player__average(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.AVERAGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -633,8 +633,8 @@ class Test__Player__average(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.min,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.AVERAGE, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -647,8 +647,8 @@ class Test__Player__average(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.AVERAGE, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["parameter"]
@@ -664,7 +664,7 @@ class Test__Player__sum(TestCase):
             date.min,
             date.max,
             2, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.SUM, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -676,8 +676,8 @@ class Test__Player__sum(TestCase):
         actual_sum: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.SUM, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -689,7 +689,7 @@ class Test__Player__sum(TestCase):
         actual_sum: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
             4, 
             Metrics.SUM, 
             MatchEvents.SUCCESSFUL_PASS, 
@@ -702,8 +702,8 @@ class Test__Player__sum(TestCase):
         actual_sum: float = player.calculate_metric(
             date(1980, 1, 1),
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.SUM, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -716,8 +716,8 @@ class Test__Player__sum(TestCase):
         actual_sum: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.SUM, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -730,8 +730,8 @@ class Test__Player__sum(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.max,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.SUM, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -743,8 +743,8 @@ class Test__Player__sum(TestCase):
         actual: float = player.calculate_metric(
             date.min,
             date.min,
-            MetricScope.METRIC_FOR_ALL_MATCHES, 
-            MetricScope.METRIC_FOR_ANY_TEAM, 
+            MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            MetricScope.METRIC_FOR_ANY_TEAM.value, 
             Metrics.SUM, 
             MatchEvents.SUCCESSFUL_PASS, 
             []
@@ -757,8 +757,8 @@ class Test__Player__sum(TestCase):
             player.calculate_metric(
                 date.min,
                 date.max,
-                MetricScope.METRIC_FOR_ALL_MATCHES, 
-                MetricScope.METRIC_FOR_ANY_TEAM, 
+                MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                MetricScope.METRIC_FOR_ANY_TEAM.value, 
                 Metrics.SUM, 
                 MatchEvents.SUCCESSFUL_PASS, 
                 ["parameter"]

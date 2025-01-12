@@ -5,6 +5,7 @@ from django.contrib.auth.models import User, Permission
 from django.db.models import Model
 from graphene_django import DjangoObjectType
 
+from api_server import constants
 from api_server.models import (
     Player, Team, Match, LeagueSeason, League, MatchEvent, MatchAdminAction, EventType, Country, TeamAdminAction, PlayerAdminAction,
     AdminAction
@@ -32,12 +33,7 @@ class EventTypeType(DjangoObjectType):
 
 class MetricHistoryPointType(graphene.ObjectType):
     value = graphene.Float()
-    def resolve_value(self, info: graphene.ResolveInfo) -> graphene.Float:
-        raise NotImplementedError
-
     time = graphene.Date()
-    def resolve_time(self, info: graphene.ResolveInfo) -> graphene.Date:
-        raise NotImplementedError
 
 
 class MatchEventType(DjangoObjectType):
@@ -71,12 +67,13 @@ class PlayerType(DjangoObjectType):
 
     admin_actions: graphene.List = graphene.List(PlayerAdminActionType)
     def resolve_admin_actions(self, info: graphene.ResolveInfo) -> graphene.List:
-        raise NotImplementedError
+        return PlayerAdminAction.objects.filter(player=self.id)
 
     calculate_metric: graphene.Float = graphene.Float(
         start_date=graphene.Date(), 
         end_date=graphene.Date(),
-        match=graphene.Int(required=True), 
+        match=graphene.Int(required=True),
+        team=graphene.Int(required=True),
         metric=MetricType(required=True),
     )
     def resolve_calculate_metric(
@@ -85,9 +82,12 @@ class PlayerType(DjangoObjectType):
         start_date: date,
         end_date: date,
         match: int,
+        team: int,
         metric: MetricType,
     ) -> float:
-        raise NotImplementedError
+        return Player.objects.get(pk=self.id).calculate_metric(
+            start_date, end_date, match, team, metric.metric_type,  metric.target_match_event, metric.metric_params
+        )
 
     metric_history: graphene.List = graphene.List(
         MetricHistoryPointType,
@@ -101,8 +101,31 @@ class PlayerType(DjangoObjectType):
         start_date: date,
         end_date: date,
         metric: MetricType
-    ) -> list[float]:
-        raise NotImplementedError
+    ) -> list[MetricHistoryPointType]:
+        player: Player = Player.objects.get(pk=self.id)
+
+        dates: list[date] = [
+            match.game_date
+            for match in player.get_matches(start_date, end_date)
+        ]
+        dates.insert(0, start_date)
+        dates.append(end_date)
+
+        return [
+            MetricHistoryPointType(
+                value=player.calculate_metric(
+                    start_date, 
+                    current_date,
+                    constants.MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                    constants.MetricScope.METRIC_FOR_ANY_TEAM.value, 
+                    metric.metric_type,  
+                    metric.target_match_event, 
+                    metric.metric_params
+                ),
+                time=current_date
+            )
+            for current_date in dates
+        ]
 
 class TeamMatchScore(graphene.ObjectType):
     score: graphene.Int = graphene.Int()

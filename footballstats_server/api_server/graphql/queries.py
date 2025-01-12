@@ -3,6 +3,7 @@ from datetime import date
 import graphene
 from django.contrib.auth.models import User
 
+from api_server import constants
 from api_server.models import Player, Team, Match, Country, EventType
 from api_server.graphql._types.models import (
     PlayerType, MatchType, TeamType, UserType, LeagueType, LeagueSeasonType, CountryType, EventTypeType
@@ -13,15 +14,36 @@ from api_server.graphql._types.utils import TextualFilterType, NumericalFilterTy
 class PlayerQuery(graphene.ObjectType):
     player_sorting_attributes = graphene.List(graphene.String)
     def resolve_player_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        raise NotImplementedError
+        """
+        Returns names of all player's attributes that could be used for sorting.
+        
+        Return
+        - `list[str]`: Names of all player's attributes that could be used for sorting.
+        """
+        return constants.PLAYER_SORT_ATTRIBUTES
 
     player_filtering_attributes = graphene.List(graphene.String)
     def resolve_player_filtering_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        raise NotImplementedError
+        """
+        Returns names of all player's attributes that could be used for filtering.
+        
+        Return
+        - `list[str]`: Names of all player's attributes that could be used for filtering.
+        """
+        return constants.PLAYER_FILTER_ATTRIBUTES
 
     player = graphene.Field(PlayerType, id=graphene.Int())
     def resolve_player(root, info: graphene.ResolveInfo, id: int) -> Player:
-        raise NotImplementedError
+        """
+        Returns data of a single player with a given id.
+        
+        Param
+        - `id` (`str`): Player's identifier.
+        
+        Return
+        - `Player`: Player's data.
+        """
+        return Player.objects.get(pk=id)
 
     players_list = graphene.List(
         PlayerType,

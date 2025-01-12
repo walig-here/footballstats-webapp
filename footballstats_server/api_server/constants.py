@@ -73,25 +73,25 @@ MATCH_FILTER_ATTRIBUTES: list[str] = [
 ]
 
 # SORTING
-USER_SORT_ATTRIBUTES: list[str] = [
+USER_SORT_ATTRIBUTES: tuple[str] = (
     "USERNAME"
-]
-PLAYER_SORT_ATTRIBUTES: list[str] = [
+)
+PLAYER_SORT_ATTRIBUTES: tuple[str] = (
     "NAME",
     "SURNAME",
     "NICKNAME",
     "COUNTRY_OF_ORIGIN_NAME",
-]
-TEAM_SORT_ATTRIBUTES: list[str] = [
+)
+TEAM_SORT_ATTRIBUTES: tuple[str] = (
     "NAME",
     "COUNTRY_OF_ORIGIN_NAME"
-]
-MATCH_SORT_ATTRIBUTES: list[str] = [
+)
+MATCH_SORT_ATTRIBUTES: tuple[str] = (
     "LEAGUE_NAME",
     "SEASON_NAME",
     "LEAGUE_COUNTRY_OF_ORIGIN_NAME",
     "DATE"
-]
+)
 
 # PERMISSIONS
 class PermissionType(Enum):
