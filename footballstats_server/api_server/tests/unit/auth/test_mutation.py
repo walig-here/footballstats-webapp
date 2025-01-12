@@ -4,8 +4,51 @@ from django.test import SimpleTestCase
 from graphene.test import Client as GraphQlClient
 
 from api_server.views import schema
+from api_server.models import User
 from api_server.tests import testconf as global_testconf
 from api_server.tests.__data__.auth import mutation as global_data
+
+
+@patch("api_server.auth.mutation.User.objects.get")
+class Test__RemoveUser(SimpleTestCase):
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema)
+
+    def test_when_owner_provides_valid_username_then_return_success_response(self, mock_get_user: MagicMock):
+        response: dict = self.client.execute(
+            global_data.REMOVE_USER_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.REMOVE_USER_RESPONSE__VALID_INPUTS)
+
+    def test_when_admin_tries_to_remove_user_then_return_error_response(self, mock_get_user: MagicMock):
+        response: dict = self.client.execute(
+            global_data.REMOVE_USER_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+        self.assertEqual(response, global_data.REMOVE_USER_RESPONSE__NOT_OWNER)
+
+    def test_when_viewer_tries_to_remove_user_then_return_error_response(self, mock_get_user: MagicMock):
+        response: dict = self.client.execute(
+            global_data.REMOVE_USER_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, global_data.REMOVE_USER_RESPONSE__NOT_OWNER)
+
+    def test_when_owner_tries_to_remove_not_existing_user_then_return_success_response(self, mock_get_user: MagicMock):
+        mock_get_user.side_effect = User.DoesNotExist
+        response: dict = self.client.execute(
+            global_data.REMOVE_USER_REQUEST__NOT_EXISTING_USER,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.REMOVE_USER_RESPONSE__NOT_EXISTING_USER)
+
+    def test_when_owner_tries_to_remove_its_own_account_then_return_error_response(self, mock_get_user: MagicMock):
+        response: dict = self.client.execute(
+            global_data.REMOVE_USER_REQUEST__REMOVE_OWNER,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        self.assertEqual(response, global_data.REMOVE_USER_RESPONSE__REMOVE_OWNER)
 
 
 @patch("api_server.auth.mutation.User.objects.get")

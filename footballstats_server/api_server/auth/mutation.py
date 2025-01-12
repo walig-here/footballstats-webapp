@@ -18,6 +18,7 @@ ERROR_REGISTRATION_TOKEN_INVALID: str = "Provided registration token is invalid!
 ERROR_REGISTRATION_TOKEN_EXPIRED: str = "Provided registration token is expired!"
 ERROR_USER_NOT_EXISTS: str = "Given user doesn't exist!"
 ERROR_TRIED_TO_CHANGE_OWNER_PERMISSIONS: str = "Can't change owner's permissions!"
+ERROR_TRIED_TO_REMOVE_OWNER: str = "Can't remove owner's account!"
 
 
 def _is_username_claimed(username: str) -> bool:
@@ -104,7 +105,7 @@ class _GrantPermission(graphene.Mutation):
     @superuser_required
     def mutate(root, info: graphene.ResolveInfo, username: str, permission: constants.PermissionType, **kwargs):
         """
-        Grants given permission to user registered in system.
+        Grants given permission to administrator registered in system.
         
         Params
         - `username` (`str`): Username of admin whose permissions would be modified.
@@ -137,7 +138,7 @@ class _GrantPermission(graphene.Mutation):
 
 class _RevokePermission(graphene.Mutation):
     """
-    Revokes given permission from user registered in system.
+    Revokes given permission from administrator registered in system.
     
     Params
     - `username` (`str`): Username of admin whose permissions would be modified.
@@ -179,14 +180,37 @@ class _RevokePermission(graphene.Mutation):
 
 
 class _RemoveUser(graphene.Mutation):
+    """
+    Removes given registered administrator from the system.
+    
+    Params
+    - `username` (`str`): Username of admin whose account is going to be deleted.
+    
+    Return
+    - Object that contains following fields:
+        - `ok`: Information wether removal succeeded.
+        - `message`: Additional information about errors that occurred during the process.
+    """
     class Arguments:
         username = graphene.String(required=True)
+        token=graphene.String(required=True)
 
     ok = graphene.Boolean()
     messages = graphene.List(graphene.String)
 
-    def mutate(root, info: graphene.ResolveInfo, username: str):
-        raise NotImplementedError
+    @superuser_required
+    def mutate(root, info: graphene.ResolveInfo, username: str, **kwargs):
+        is_not_owner: bool = username != constants.OWNER_USERNAME
+        
+        if not is_not_owner:
+            return _RemoveUser(ok=False, messages=[ERROR_TRIED_TO_REMOVE_OWNER])
+
+        try:
+            User.objects.get(username=username).delete()
+        except User.DoesNotExist:
+            pass
+
+        return _RemoveUser(ok=True, messages=[])
 
 
 class AuthMutation(graphene.ObjectType):

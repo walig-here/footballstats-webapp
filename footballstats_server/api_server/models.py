@@ -178,7 +178,7 @@ def _after_delete_on_match(sender: models.base.Model, instance: Match, **kwargs:
 
 class AdminAction(models.Model):
     action_type: Permission = models.ForeignKey(Permission, models.PROTECT)
-    user: User = models.ForeignKey(User, models.CASCADE)
+    user: User = models.ForeignKey(User, models.SET_NULL, null=True)
     action_date: models.DateField = models.DateField()
 
 

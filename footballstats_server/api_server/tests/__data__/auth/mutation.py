@@ -1,3 +1,85 @@
+REMOVE_USER_REQUEST__VALID_INPUTS: str = """\
+mutation{
+    removeUser(
+        username: "Jerzy",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ) {
+        ok,
+        messages
+    }
+}
+"""
+REMOVE_USER_RESPONSE__VALID_INPUTS: dict = {
+    "data": {
+        "removeUser": {
+            "ok": True,
+            "messages": []
+        }
+    }
+}
+
+REMOVE_USER_RESPONSE__NOT_OWNER: dict = {
+    'errors': [
+        {
+            'message': 'You do not have permission to perform this action',
+            'locations': [
+                {
+                    'line': 2, 
+                    'column': 5
+                }
+            ],
+            'path': [
+                'removeUser'
+            ]
+        }
+    ],
+    'data': {
+        'removeUser': None
+    }
+}
+
+REMOVE_USER_REQUEST__NOT_EXISTING_USER: str = """\
+mutation{
+    removeUser(
+        username: "UnknownUser",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ) {
+        ok,
+        messages
+    }
+}
+"""
+REMOVE_USER_RESPONSE__NOT_EXISTING_USER: dict = {
+    "data": {
+        "removeUser": {
+            "ok": True,
+            "messages": []
+        }
+    }
+}
+
+REMOVE_USER_REQUEST__REMOVE_OWNER: str = """\
+mutation{
+    removeUser(
+        username: "owner",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ) {
+        ok,
+        messages
+    }
+}
+"""
+REMOVE_USER_RESPONSE__REMOVE_OWNER: dict = {
+    "data": {
+        "removeUser": {
+            "ok": False,
+            "messages": ["Can't remove owner's account!"]
+        }
+    }
+}
+
+# ========= RevokePermission ==========
+
 REVOKE_PERMISSION_REQUEST__VALID_INPUTS: str = """\
 mutation{
     revokePermission(

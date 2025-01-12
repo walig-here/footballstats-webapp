@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from graphene.test import Client as GraphQlClient
 
+from api_server.models import AdminAction
 from api_server.views import schema
 from api_server.auth._registration_tokens import RegistrationTokenStorage
 from api_server.auth.mutation import _is_username_claimed
@@ -12,6 +13,49 @@ from api_server.auth.mutation import _is_username_claimed
 from api_server.tests import testconf as global_testconf
 from api_server.tests.__data__.auth import mutation as global_data
 from api_server.tests.integration.__data__.auth import mutation as data
+
+
+class Test__RemoveUser__User__AdminAction(TestCase):
+    fixtures = ["5matches_2admins"]
+
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema)
+
+    def test_owner_can_remove_user_when_valid_username_provided(self):
+        response: dict = self.client.execute(
+            global_data.REMOVE_USER_REQUEST__VALID_INPUTS,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        actual_users: tuple[dict] = tuple(User.objects.all().values('username'))
+        actual_admin_actions: tuple[dict] = tuple(AdminAction.objects.all().order_by('id').values())
+
+        self.assertEqual(response, global_data.REMOVE_USER_RESPONSE__VALID_INPUTS)
+        self.assertEqual(actual_users, data.USERS_AFTER_DELETING_USER)
+        self.assertEqual(actual_admin_actions, data.ADMIN_ACTIONS_AFTER_DELETING_USER)
+
+    def test_owner_cant_remove_its_own_account(self):
+        response: dict = self.client.execute(
+            global_data.REMOVE_USER_REQUEST__REMOVE_OWNER,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        actual_users: tuple[dict] = tuple(User.objects.all().values('username'))
+        actual_admin_actions: tuple[dict] = tuple(AdminAction.objects.all().order_by('id').values())
+
+        self.assertEqual(response, global_data.REMOVE_USER_RESPONSE__REMOVE_OWNER)
+        self.assertEqual(actual_users, data.USERS_BEFORE_DELETING_USER)
+        self.assertEqual(actual_admin_actions, data.ADMIN_ACTIONS_BEFORE_DELETING_USER)
+
+    def test_owner_can_remove_user_when_invalid_username_provided(self):
+        response: dict = self.client.execute(
+            global_data.REMOVE_USER_REQUEST__NOT_EXISTING_USER,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        actual_users: tuple[dict] = tuple(User.objects.all().values('username'))
+        actual_admin_actions: tuple[dict] = tuple(AdminAction.objects.all().order_by('id').values())
+
+        self.assertEqual(response, global_data.REMOVE_USER_RESPONSE__NOT_EXISTING_USER)
+        self.assertEqual(actual_users, data.USERS_BEFORE_DELETING_USER)
+        self.assertEqual(actual_admin_actions, data.ADMIN_ACTIONS_BEFORE_DELETING_USER)
 
 
 class Test__RevokePermission__User(TestCase):
