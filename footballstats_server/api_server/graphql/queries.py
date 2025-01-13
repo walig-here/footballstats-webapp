@@ -12,6 +12,9 @@ from api_server.graphql._types.models import (
 from api_server.graphql._types.utils import TextualFilterType, NumericalFilterType, MetricFilterType, SortingType
 
 
+ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS: str = "Invalid number of parameters passed for filter!"
+
+
 class PlayerQuery(graphene.ObjectType):
     player_sorting_attributes = graphene.List(graphene.String)
     def resolve_player_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
@@ -71,10 +74,12 @@ class PlayerQuery(graphene.ObjectType):
         playing_in_match: int | None,
         ids: list[int]
     ) -> list[Player]:
-        first: int = constants.OBJECTS_PER_PAGE * page
-        last: int = first + constants.OBJECTS_PER_PAGE
+        players = (
+            Player.objects
+            .filter(playerinmatch__match__game_date__range=(start_date, end_date))
+            .distinct()
+        )
 
-        players = Player.objects.all()
         if representing_team is not None:
             team = Team.objects.get(pk=representing_team)
             players = team.get_players(start_date, end_date)
@@ -85,36 +90,14 @@ class PlayerQuery(graphene.ObjectType):
             match = Match.objects.get(pk=playing_in_match)
             players = match.get_players()
 
-        for textual_filter in textual_filters:
-            match textual_filter.filtering_criteria:
-                case constants.TextualFilteringCriteria.TEXTUAL_FULL_TEXT_SEARCH:
-                    players = players.filter(
-                        **{f"{textual_filter.target_attribute_name}__startswith": textual_filter.filter_params[0]}
-                    )
-                case constants.TextualFilteringCriteria.TEXTUAL_IN_SET:
-                    players = players.filter(
-                        **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
-                    )
-                case constants.TextualFilteringCriteria.TEXTUAL_NOT_IN_SET:
-                    players = players.exclude(
-                        **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
-                    )
-                case _:
-                    raise ValueError("Provided filtering criteria does not exist!")
-
-        sorting_expression: str = (
-            (
-                f"{'-' if sorting.direction == constants.SortingDirection.DESCENDING else "-"}"
-                f"{sorting.target_attribute_name}"
-            )
-            if sorting is not None else "surname"
+        players = _filter_query_set(players, textual_filters, [], metric_filters)
+        players = _sort_query_set(
+            players, 
+            sorting if sorting is not None 
+            else ("surname", constants.SortingDirection.ASCENDING), 
         )
 
-        if players.count() < first:
-            return []
-        elif players.count() > constants.OBJECTS_PER_PAGE:
-            return players.order_by(sorting_expression, 'id')[first: last]
-        return players.order_by(sorting_expression, 'id')
+        return _get_page_from_query_set(players, page)
 
 
 class MatchQuery(graphene.ObjectType):
@@ -255,3 +238,89 @@ class MiscellaneousQuery(graphene.ObjectType):
     event_types_list: graphene.List = graphene.List(EventTypeType)
     def resolve_event_type_list(root, info: graphene.ResolveInfo) -> list[EventType]:
         raise NotImplementedError
+
+
+def _sort_query_set(
+    query_set: QuerySet, 
+    sorting_criteria: SortingType | tuple[str, constants.SortingDirection]
+) -> QuerySet:
+    """
+    Sorts given `QuerySet` accordingly to the passed sorting criteria and `id` field of underlying model.
+    
+    Param
+    - `query_set` (`QuerySet`): The `QuerySet` that is to be sorted.
+    - `sorting_criteria` (`SortingType | tuple[str, constants.SortingDirection]`): Sorting criteria that consist of
+    sorting attribute's name and sorting direction.
+    """
+    direction: constants.SortingDirection = (
+        sorting_criteria.direction if type(sorting_criteria) is SortingType
+        else sorting_criteria[1]
+    )
+    sorting_attribute: str = (
+        sorting_criteria.target_attribute_name if type(sorting_criteria) is SortingType
+        else sorting_criteria[0]
+    )
+    sorting_expression: str = (
+        f"{'-' if direction == constants.SortingDirection.DESCENDING else ''}"
+        f"{sorting_attribute}"
+    )
+    return query_set.order_by(sorting_expression, 'id')
+
+
+def _filter_query_set(
+    query_set: QuerySet, 
+    textual_filters: list[TextualFilterType], 
+    numeric_filters: list[NumericalFilterType],
+    metric_filters: list[MetricFilterType]
+) -> QuerySet:
+    """
+    Sorts given `QuerySet` accordingly to passed filtering criteria. It applies criteria sequentially
+    in following order:
+    
+    1. Textural filters
+    2. Numeric filters
+    3. Metric filters
+    
+    Params
+    - `query_set` (`QuerySet`): Query set that would be filtered.
+    - `textual_filters` (`list[TextualFilterType]`): Textual filters to be applied.
+    - `numeric_filters` (`list[NumericalFilterType]`): Numerical filters to be applied.
+    - `metric_filters` (`list[MetricFilterType]`): Metric filters to be applied.
+    """
+    for textual_filter in textual_filters:
+        match textual_filter.filtering_criteria:
+            case constants.TextualFilteringCriteria.TEXTUAL_FULL_TEXT_SEARCH:
+                if len(textual_filter.filter_params) != 1:
+                    raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
+                query_set = query_set.filter(
+                    **{f"{textual_filter.target_attribute_name}__startswith": textual_filter.filter_params[0]}
+                )
+            case constants.TextualFilteringCriteria.TEXTUAL_IN_SET:
+                query_set = query_set.filter(
+                    **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
+                )
+            case constants.TextualFilteringCriteria.TEXTUAL_NOT_IN_SET:
+                query_set = query_set.exclude(
+                    **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
+                )
+            case _:
+                raise NotImplementedError("Provided filtering criteria does not exist!")
+    return query_set
+
+
+def _get_page_from_query_set(query_set: QuerySet, page_index: int) -> QuerySet:
+    """
+    Returns a subset of query set that is contained on a list's page with given index.
+    
+    Param
+    - `query_set` (`QuerySet`): Query from which page would be retrieved.
+    - `page_index` (`int`): Page index.
+    """
+    first: int = constants.OBJECTS_PER_PAGE * page_index
+    last: int = first + constants.OBJECTS_PER_PAGE
+
+    if query_set.count() < first:
+        return []
+    elif query_set.count() > constants.OBJECTS_PER_PAGE:
+        return query_set[first: last]
+    return query_set

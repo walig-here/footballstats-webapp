@@ -69,6 +69,13 @@ class Test__QueryForPlayerList__UnsortedUnfiltered(TestCase):
         )
         self.assertEqual(response, data.LIST_OF_PLAYERS_FROM_TEAM_AND_MATCH_RESPONSE__NO_FILTER)
 
+    def test_query_for_list_of_players_from_limited_date_range(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__LIMITED_DATE_RANGE,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__LIMITED_DATE_RANGE)
+
 
 class Test__QueryForPlayerData(TestCase):
     fixtures = ["5matches_2admins"]

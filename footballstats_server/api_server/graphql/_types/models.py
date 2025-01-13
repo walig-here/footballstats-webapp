@@ -86,7 +86,7 @@ class PlayerType(DjangoObjectType):
         metric: MetricType,
     ) -> float:
         return Player.objects.get(pk=self.id).calculate_metric(
-            start_date, end_date, match, team, metric.metric_type,  metric.target_match_event, metric.metric_params
+            start_date, end_date, match, team, metric.metric_type, metric.target_match_event, metric.metric_params
         )
 
     metric_history: graphene.List = graphene.List(

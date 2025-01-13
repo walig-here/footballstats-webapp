@@ -1,3 +1,54 @@
+#-------------------------------------------------------------------------------------
+# PLAYERS QUERIED + DATE RANGE LIMITED
+#-------------------------------------------------------------------------------------
+
+LIST_OF_PLAYERS_QUERY__LIMITED_DATE_RANGE: str = '''\
+{
+    playersList(
+        startDate: "1960-01-01",
+        endDate: "2000-01-01",
+        page: 0,
+    ) {
+        id,
+    }
+}
+'''
+LIST_OF_PLAYERS_RESPONSE__LIMITED_DATE_RANGE: dict = {
+    "data": {
+        "playersList": [
+            {"id": "61"},
+            {"id": "123"},
+            {"id": "68"},
+            {"id": "96"},
+            {"id": "128"},
+            {"id": "100"},
+            {"id": "90"},
+            {"id": "105"},
+            {"id": "119"},
+            {"id": "91"},
+            {"id": "57"},
+            {"id": "114"},
+            {"id": "107"},
+            {"id": "97"},
+            {"id": "62"},
+            {"id": "37"},
+            {"id": "106"},
+            {"id": "109"},
+            {"id": "108"},
+            {"id": "59"},
+            {"id": "42"},
+            {"id": "58"},
+            {"id": "98"},
+            {"id": "117"},
+            {"id": "129"},
+        ]
+    }
+}
+
+#-------------------------------------------------------------------------------------
+# PLAYERS QUERIED FOR TEAM & MATCH + NO ADDITIONAL FILTERS
+#-------------------------------------------------------------------------------------
+
 LIST_OF_PLAYERS_FROM_TEAM_QUERY_AND_MATCH__NO_FILTER: str = '''\
 {
     playersList(
@@ -40,6 +91,9 @@ LIST_OF_PLAYERS_FROM_TEAM_AND_MATCH_RESPONSE__NO_FILTER: dict = {
     }
 }
 
+#-------------------------------------------------------------------------------------
+# PLAYERS QUERIED FOR TEAM + NO ADDITIONAL FILTERS
+#-------------------------------------------------------------------------------------
 
 LIST_OF_PLAYERS_FROM_TEAM_QUERY__NO_FILTER: str = '''\
 {
@@ -78,6 +132,9 @@ LIST_OF_PLAYERS_FROM_TEAM_RESPONSE__NO_FILTER: dict = {
     }
 }
 
+#-------------------------------------------------------------------------------------
+# PLAYERS QUERIED FOR MATCH + NO ADDITIONAL FILTERS
+#-------------------------------------------------------------------------------------
 
 LIST_OF_PLAYERS_FROM_MATCH_QUERY__NO_FILTER: str = '''\
 {
