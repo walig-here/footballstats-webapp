@@ -7,7 +7,7 @@ from django.db.models import QuerySet
 from api_server import constants
 from api_server.models import Player, Team, Match, Country, EventType
 from api_server.graphql._types.models import (
-    PlayerType, MatchType, TeamType, UserType, LeagueType, LeagueSeasonType, CountryType, EventTypeType
+    PlayerType, MatchType, TeamType, UserType, LeagueType, LeagueSeasonType, CountryType, EventTypeType, MetricType
 )
 from api_server.graphql._types.utils import TextualFilterType, NumericalFilterType, MetricFilterType, SortingType
 
@@ -79,20 +79,20 @@ class PlayerQuery(graphene.ObjectType):
             .filter(playerinmatch__match__game_date__range=(start_date, end_date))
             .distinct()
         )
-
         if representing_team is not None:
             team = Team.objects.get(pk=representing_team)
             players = team.get_players(start_date, end_date)
             if playing_in_match is not None:
                 match = Match.objects.get(pk=playing_in_match)
-                players = players.filter(id__in=match.get_players().values("id"))
+                players = players.filter(id__in=match.get_players().values("id")).distinct()
         elif playing_in_match is not None:
             match = Match.objects.get(pk=playing_in_match)
-            players = match.get_players()
+            players = match.get_players().distinct()
 
-        players = _filter_query_set(players, textual_filters, [], metric_filters)
+        players = _filter_query_set(players, textual_filters, [])
+        players = _filter_query_set_with_metrics(start_date, end_date, players, metric_filters)
         players = _sort_query_set(
-            players, 
+            players,
             sorting if sorting is not None 
             else ("surname", constants.SortingDirection.ASCENDING), 
         )
@@ -241,7 +241,7 @@ class MiscellaneousQuery(graphene.ObjectType):
 
 
 def _sort_query_set(
-    query_set: QuerySet, 
+    query_set: QuerySet[Match | Player | Team | User], 
     sorting_criteria: SortingType | tuple[str, constants.SortingDirection]
 ) -> QuerySet:
     """
@@ -268,24 +268,24 @@ def _sort_query_set(
 
 
 def _filter_query_set(
-    query_set: QuerySet, 
+    query_set: QuerySet[Match | Player | Team | User], 
     textual_filters: list[TextualFilterType], 
-    numeric_filters: list[NumericalFilterType],
-    metric_filters: list[MetricFilterType]
+    numeric_filters: list[NumericalFilterType]
 ) -> QuerySet:
     """
-    Sorts given `QuerySet` accordingly to passed filtering criteria. It applies criteria sequentially
-    in following order:
+    Sorts given `QuerySet` accordingly to passed textual and numeric filtering criteria. 
+    It applies criteria sequentially in following order:
     
     1. Textural filters
     2. Numeric filters
-    3. Metric filters
     
     Params
     - `query_set` (`QuerySet`): Query set that would be filtered.
     - `textual_filters` (`list[TextualFilterType]`): Textual filters to be applied.
     - `numeric_filters` (`list[NumericalFilterType]`): Numerical filters to be applied.
-    - `metric_filters` (`list[MetricFilterType]`): Metric filters to be applied.
+    
+    Return
+    - `QuerySet`: Filtered `QuerySet`.
     """
     for textual_filter in textual_filters:
         match textual_filter.filtering_criteria:
@@ -296,25 +296,107 @@ def _filter_query_set(
                     **{f"{textual_filter.target_attribute_name}__startswith": textual_filter.filter_params[0]}
                 )
             case constants.TextualFilteringCriteria.TEXTUAL_IN_SET:
+                if len(textual_filter.filter_params) == 0:
+                    raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
                 query_set = query_set.filter(
                     **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
                 )
             case constants.TextualFilteringCriteria.TEXTUAL_NOT_IN_SET:
+                if len(textual_filter.filter_params) == 0:
+                    raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
                 query_set = query_set.exclude(
                     **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
                 )
             case _:
-                raise NotImplementedError("Provided filtering criteria does not exist!")
-    return query_set
+                raise NotImplementedError("Provided textual filtering criteria does not exist!")
+    return query_set.distinct()
 
 
-def _get_page_from_query_set(query_set: QuerySet, page_index: int) -> QuerySet:
+def _filter_query_set_with_metrics(
+    start_date: date,
+    end_date: date,
+    query_set: QuerySet[Match | Player | Team | User],
+    metric_filters: list[MetricFilterType]
+) -> QuerySet:
+    """
+    Sorts given `QuerySet` accordingly to passed metric filtering criteria.
+    
+    Params
+    - `start_date` (`date`): Start date for metric calculations.
+    - `end_date` (`date`): End date for metric calculations.
+    - `query_set` (`QuerySet`): Query set that would be filtered.
+    - `metric_filters` (`list[MetricFilterType]`): Metric filters to be applied.
+    
+    Return
+    - `QuerySet`: Filtered `QuerySet`.
+    """
+    if len(metric_filters) == 0:
+        return query_set
+    metric_filter_qualified_objects_ids: set[int] = set()
+
+    for metric_filter in metric_filters:
+        current_metric_filter_qualified_objects_ids: set[int] = set()
+        metric: MetricType = metric_filter.metric
+
+        metric_values: list[tuple[int, float]] = []
+        for object in query_set:
+            metric_value: float = object.calculate_metric(
+                start_date, 
+                end_date, 
+                constants.MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                constants.MetricScope.METRIC_FOR_ANY_TEAM.value,
+                metric.metric_type,
+                metric.target_match_event,
+                metric.metric_params
+            )
+            if metric_value == constants.METRIC_UNDEFINED_VALUE:
+                continue
+            metric_values.append((object.pk, metric_value))
+
+        match metric_filter.filtering_criteria:
+            case constants.NumericFilteringCriteria.NUMERIC_EQUALS:
+                if len(metric_filter.filter_params) != 1:
+                    raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
+                current_metric_filter_qualified_objects_ids = {
+                    id for id, metric_value in metric_values if metric_value == metric_filter.filter_params[0]
+                }
+            case constants.NumericFilteringCriteria.NUMERIC_IN_CLOSED_RANGE:
+                if len(metric_filter.filter_params) != 2:
+                    raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
+                current_metric_filter_qualified_objects_ids = {
+                    id for id, metric_value in metric_values
+                    if metric_filter.filter_params[0] <= metric_value <= metric_filter.filter_params[1]
+                }
+            case constants.NumericFilteringCriteria.NUMERIC_NOT_IN_CLOSED_RANGE:
+                if len(metric_filter.filter_params) != 2:
+                    raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
+                current_metric_filter_qualified_objects_ids = {
+                    id for id, metric_value in metric_values
+                    if not (metric_filter.filter_params[0] <= metric_value <= metric_filter.filter_params[1])
+                }
+            case _:
+                raise NotImplementedError("Provided numeric filtering criteria does not exist!")
+
+        metric_filter_qualified_objects_ids = (
+            metric_filter_qualified_objects_ids.intersection(current_metric_filter_qualified_objects_ids)
+            if len(metric_filter_qualified_objects_ids)
+            else metric_filter_qualified_objects_ids.union(current_metric_filter_qualified_objects_ids)
+        )
+
+    query_set = query_set.filter(id__in=metric_filter_qualified_objects_ids)
+    return query_set.distinct()
+
+
+def _get_page_from_query_set(query_set: QuerySet[Match | Player | Team | User], page_index: int) -> QuerySet:
     """
     Returns a subset of query set that is contained on a list's page with given index.
     
     Param
     - `query_set` (`QuerySet`): Query from which page would be retrieved.
     - `page_index` (`int`): Page index.
+    
+    Return
+    - `QuerySet`: Sorted `QuerySet`.
     """
     first: int = constants.OBJECTS_PER_PAGE * page_index
     last: int = first + constants.OBJECTS_PER_PAGE

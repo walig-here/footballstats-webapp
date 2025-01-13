@@ -45,7 +45,7 @@ class TextualFilteringCriteria(Enum):
     TEXTUAL_NOT_IN_SET = "TEXTUAL_NOT_IN_SET"
 
 USER_FILTER_ATTRIBUTES: list[str] = [
-    "USERNAME"
+    "username"
 ]
 PLAYER_FILTER_ATTRIBUTES: list[str] = [
     "name",
@@ -53,23 +53,23 @@ PLAYER_FILTER_ATTRIBUTES: list[str] = [
     "nickname",
     "country_of_origin__name",
     "playerinmatch__team__name",
-    "playerinmatch__match__league_season__league__name"
+    "playerinmatch__match__league_season__league__name",
 ]
 TEAM_FILTER_ATTRIBUTES: list[str] = [
-    "NAME",
-    "PLAYER_NAME",
-    "PLAYER_SURNAME",
-    "LEAGUE_NAME",
-    "COUNTRY_OF_ORIGIN_NAME"
+    "name",
+    "playerinmatch__player__name",
+    "playerinmatch__player__surname",
+    "playerinmatch__match__league_season__league__name",
+    "country_of_origin__name",
 ]
 MATCH_FILTER_ATTRIBUTES: list[str] = [
-    "LEAGUE_NAME",
-    "SEASON_NAME",
-    "TEAM_NAME",
-    "PLAYER_NAME",
-    "PLAYER_SURNAME",
-    "LEAGUE_COUNTRY_OF_ORIGIN_NAME",
-    "DATE"
+    "league_season__league__name",
+    "league_season__name",
+    "playerinmatch__team__name",
+    "playerinmatch__player__name",
+    "playerinmatch__player__surname",
+    "league_season__league__country_of_origin__name",
+    "game_date",
 ]
 
 # SORTING

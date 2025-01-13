@@ -7,27 +7,89 @@ from api_server.tests.integration.__data__.graphql.queries import PlayerQuery as
 from api_server.tests import testconf as global_testconf
 
 
+class Test__QueryForPlayerList__UnsortedMetricFilters(TestCase):
+    fixtures = ["5matches_2admins"]
+
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema=schema)
+
+    def test_sum_shot_not_on_target_equals(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__FILTER_SUM_SHOT_NOT_ON_TARGET_EQUALS,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__FILTER_SUM_SHOT_NOT_ON_TARGET_EQUALS)
+
+    def test_odds_for_goals_for_in_closed_range(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__FILTER_ODDS_FOR_GOAL_IN_CLOSED_RANGE,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__FILTER_ODDS_FOR_GOAL_IN_CLOSED_RANGE)
+
+    def test_minutes_until_yellow_card_not_in_closed_range(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__FILTER_MINUTES_UNTIL_YELLOW_CARD_NOT_IN_CLOSED_RANGE,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(
+            response, 
+            data.LIST_OF_PLAYERS_RESPONSE__FILTER_MINUTES_UNTIL_YELLOW_CARD_NOT_IN_CLOSED_RANGE
+        )
+
+    def test_conjunction_of_metric_filters(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__CONJUNCTION_OF_METRIC_FILTERS,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(
+            response, 
+            data.LIST_OF_PLAYERS_RESPONSE__CONJUNCTION_OF_METRIC_FILTERS
+        )
+
+
 class Test__QueryForPlayerList__UnsortedTextualFilters(TestCase):
     fixtures = ["5matches_2admins"]
 
     def setUp(self):
         self.client: GraphQlClient = GraphQlClient(schema=schema)
 
-    def test_country_of_origin_name_full_text_search_filtering(self):
+    def test_league_name_full_text_search(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__FULL_TEXT_SEARCH_LEAGUE_NAME,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__FULL_TEXT_SEARCH_LEAGUE_NAME)
+
+    def test_league_name_full_in_set(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__IN_SET_LEAGUE_NAME,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__IN_SET_LEAGUE_NAME)
+
+    def test_league_name_full_not_in_set(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__NOT_IN_SET_LEAGUE_NAME,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__NOT_IN_SET_LEAGUE_NAME)
+
+    def test_country_of_origin_name_full_text_search(self):
         response: dict = self.client.execute(
             data.FULL_LIST_OF_PLAYERS_QUERY__COUNTRY_FULL_TEXT_SEARCH_FILTER,
             context=global_testconf.get_graphql_context_with_viewer_user()
         )
         self.assertEqual(response, data.FULL_LIST_OF_PLAYERS_RESPONSE__COUNTRY_FULL_TEXT_SEARCH_FILTER)
 
-    def test_country_of_origin_name_in_set_filtering(self):
+    def test_country_of_origin_name_in_set(self):
         response: dict = self.client.execute(
             data.FULL_LIST_OF_PLAYERS_QUERY__COUNTRY_IN_SET_FILTER,
             context=global_testconf.get_graphql_context_with_viewer_user()
         )
         self.assertEqual(response, data.FULL_LIST_OF_PLAYERS_RESPONSE__COUNTRY_IN_SET_FILTER)
 
-    def test_country_of_origin_name_not_in_set_filtering(self):
+    def test_country_of_origin_name_not_in_set(self):
         response: dict = self.client.execute(
             data.FULL_LIST_OF_PLAYERS_QUERY__COUNTRY_NOT_IN_SET_FILTER,
             context=global_testconf.get_graphql_context_with_viewer_user()
