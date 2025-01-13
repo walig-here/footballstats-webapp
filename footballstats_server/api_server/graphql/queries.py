@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import QuerySet, Case, When, Max, Min
 
 from api_server import constants
-from api_server.models import Player, Team, Match, Country, EventType
+from api_server.models import Player, Team, Match, Country, EventType, League, LeagueSeason
 from api_server.graphql._types.models import (
     PlayerType, MatchType, TeamType, UserType, LeagueType, LeagueSeasonType, CountryType, EventTypeType, MetricType
 )
@@ -226,12 +226,12 @@ class UserQuery(graphene.ObjectType):
 
 class LeagueQuery(graphene.ObjectType):
     leagues_list: graphene.List = graphene.List(LeagueType)
-    def resolve_list_of_leagues(self, info: graphene.ResolveInfo) -> list[LeagueType]:
-        raise NotImplementedError
+    def resolve_leagues_list(self, info: graphene.ResolveInfo) -> list[LeagueType]:
+        return League.objects.all().order_by('name', 'id')
 
     league_seasons_list: graphene.List = graphene.List(LeagueSeasonType, league_id=graphene.Int())
-    def resolve_list_league_seasons(self, info: graphene.ResolveInfo, league_id: int) -> list[LeagueSeasonType]:
-        raise NotImplementedError
+    def resolve_league_seasons_list(self, info: graphene.ResolveInfo, league_id: int) -> list[LeagueSeasonType]:
+        return LeagueSeason.objects.filter(league=league_id).order_by('name', 'id')
 
 
 class MiscellaneousQuery(graphene.ObjectType):
@@ -248,11 +248,11 @@ class MiscellaneousQuery(graphene.ObjectType):
 
     country_list: graphene.List = graphene.List(CountryType)
     def resolve_country_list(root, info: graphene.ResolveInfo) -> list[Country]:
-        return Country.objects.all().order_by('name')
+        return Country.objects.all().order_by('name', 'id')
 
     event_types_list: graphene.List = graphene.List(EventTypeType)
     def resolve_event_types_list(root, info: graphene.ResolveInfo) -> list[EventType]:
-        return EventType.objects.all().order_by('name')
+        return EventType.objects.all().order_by('name', 'id')
 
 
 def _sort_query_set_with_metric(
