@@ -7,6 +7,37 @@ from api_server.tests.integration.__data__.graphql.queries import PlayerQuery as
 from api_server.tests import testconf as global_testconf
 
 
+class Test__QueryForPlayerList__Sort(TestCase):
+    fixtures = ["5matches_2admins"]
+
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema=schema)
+
+    def test_country_of_origin_name_descending(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__DESCENDING_SORT_COUNTRY_OF_ORIGIN_NAME,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__DESCENDING_SORT_COUNTRY_OF_ORIGIN_NAME)
+
+    def test_sum_goals_ascending(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__ASCENDING_SORT_ON_SUM_GOALS,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__ASCENDING_SORT_ON_SUM_GOALS)
+
+    def test_minutes_until_goal_descending(self):
+        response: dict = self.client.execute(
+            data.LIST_OF_PLAYERS_QUERY__DESCENDING_SORT_ON_MINUTES_UNTIL_GOAL,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+        self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__DESCENDING_SORT_ON_MINUTES_UNTIL_GOAL)
+
+    def test_odds_for_more_than_1_goal_ascending(self):
+        ...
+
+
 class Test__QueryForPlayerList__UnsortedMetricFilters(TestCase):
     fixtures = ["5matches_2admins"]
 

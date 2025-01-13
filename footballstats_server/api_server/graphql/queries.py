@@ -2,7 +2,7 @@ from datetime import date
 
 import graphene
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Case, When
 
 from api_server import constants
 from api_server.models import Player, Team, Match, Country, EventType
@@ -13,6 +13,8 @@ from api_server.graphql._types.utils import TextualFilterType, NumericalFilterTy
 
 
 ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS: str = "Invalid number of parameters passed for filter!"
+ERROR_INVALID_FILTERING_ATTRIBUTE: str = "Invalid filtering attribute!"
+ERROR_INVALID_SORTING_ATTRIBUTE: str = "Invalid sorting attribute!"
 
 
 class PlayerQuery(graphene.ObjectType):
@@ -89,13 +91,19 @@ class PlayerQuery(graphene.ObjectType):
             match = Match.objects.get(pk=playing_in_match)
             players = match.get_players().distinct()
 
-        players = _filter_query_set(players, textual_filters, [])
+        players = _filter_query_set_with_attributes(players, textual_filters, [], constants.PLAYER_FILTER_ATTRIBUTES)
         players = _filter_query_set_with_metrics(start_date, end_date, players, metric_filters)
-        players = _sort_query_set(
-            players,
-            sorting if sorting is not None 
-            else ("surname", constants.SortingDirection.ASCENDING), 
-        )
+
+        if sorting is None or sorting.target_attribute_name in constants.PLAYER_SORT_ATTRIBUTES:
+            players = _sort_query_set_with_attributes(
+                players,
+                sorting if sorting is not None
+                else ("surname", constants.SortingDirection.ASCENDING), 
+            )
+        elif str(sorting.target_attribute_name).split()[0] in constants.Metrics._member_names_:
+            players = _sort_query_set_with_metric(players, sorting, start_date, end_date)
+        else:
+            raise ValueError(ERROR_INVALID_SORTING_ATTRIBUTE)
 
         return _get_page_from_query_set(players, page)
 
@@ -240,7 +248,49 @@ class MiscellaneousQuery(graphene.ObjectType):
         raise NotImplementedError
 
 
-def _sort_query_set(
+def _sort_query_set_with_metric(
+    query_set: QuerySet[Match | Player | Team | User],
+    sorting_criteria: SortingType,
+    start_date: date,
+    end_date: date
+) -> QuerySet:
+    """
+    Sorts given `QuerySet` accordingly to the passed sorting criteria and `id` field of underlying model.
+    
+    Elements with undefined values would be last!
+    
+    Param
+    - `query_set` (`QuerySet`): The `QuerySet` that is to be sorted.
+    - `sorting_criteria` (`SortingType`): Sorting criteria that consist of sorting metrics's name 
+    and sorting direction.
+    """
+    metric_name, target_event, *metric_params = str(sorting_criteria.target_attribute_name).split()
+    metric_values: list[tuple[int, float]] = []
+    for object in query_set:
+        if target_event not in constants.MatchEvents._member_names_:
+            raise ValueError("Invalid target event for metric sorting!")
+        metric_value: float = object.calculate_metric(
+            start_date, 
+            end_date, 
+            constants.MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+            constants.MetricScope.METRIC_FOR_ANY_TEAM.value,
+            constants.Metrics[metric_name],
+            constants.MatchEvents[target_event],
+            [int(param) for param in metric_params]
+        )
+        metric_values.append((object.pk, metric_value))
+    metric_values.sort(key=lambda x: x[1])
+
+    metric_ordering: Case = Case(
+        *[When(id=metric_value[0], then=position) for position, metric_value in enumerate(metric_values)]
+    )
+    return (
+        query_set.order_by(metric_ordering, 'id') if sorting_criteria.direction == constants.SortingDirection.ASCENDING
+        else query_set.order_by(metric_ordering, 'id').reverse()
+    )
+
+
+def _sort_query_set_with_attributes(
     query_set: QuerySet[Match | Player | Team | User], 
     sorting_criteria: SortingType | tuple[str, constants.SortingDirection]
 ) -> QuerySet:
@@ -253,11 +303,11 @@ def _sort_query_set(
     sorting attribute's name and sorting direction.
     """
     direction: constants.SortingDirection = (
-        sorting_criteria.direction if type(sorting_criteria) is SortingType
+        sorting_criteria.direction if isinstance(sorting_criteria, SortingType)
         else sorting_criteria[1]
     )
     sorting_attribute: str = (
-        sorting_criteria.target_attribute_name if type(sorting_criteria) is SortingType
+        sorting_criteria.target_attribute_name if isinstance(sorting_criteria, SortingType)
         else sorting_criteria[0]
     )
     sorting_expression: str = (
@@ -267,27 +317,31 @@ def _sort_query_set(
     return query_set.order_by(sorting_expression, 'id')
 
 
-def _filter_query_set(
+def _filter_query_set_with_attributes(
     query_set: QuerySet[Match | Player | Team | User], 
     textual_filters: list[TextualFilterType], 
-    numeric_filters: list[NumericalFilterType]
+    numeric_filters: list[NumericalFilterType],
+    valid_filtering_attributes: list[str]
 ) -> QuerySet:
     """
     Sorts given `QuerySet` accordingly to passed textual and numeric filtering criteria. 
     It applies criteria sequentially in following order:
     
-    1. Textural filters
-    2. Numeric filters
+    1. Numeric filters
+    2. Textural filters
     
     Params
     - `query_set` (`QuerySet`): Query set that would be filtered.
     - `textual_filters` (`list[TextualFilterType]`): Textual filters to be applied.
     - `numeric_filters` (`list[NumericalFilterType]`): Numerical filters to be applied.
+    - `valid_filtering_attributes` (`list[str]`): List of valid filtering attributes.
     
     Return
     - `QuerySet`: Filtered `QuerySet`.
     """
     for textual_filter in textual_filters:
+        if textual_filter.target_attribute_name not in valid_filtering_attributes:
+            raise ValueError(ERROR_INVALID_FILTERING_ATTRIBUTE)
         match textual_filter.filtering_criteria:
             case constants.TextualFilteringCriteria.TEXTUAL_FULL_TEXT_SEARCH:
                 if len(textual_filter.filter_params) != 1:
@@ -315,7 +369,7 @@ def _filter_query_set(
 def _filter_query_set_with_metrics(
     start_date: date,
     end_date: date,
-    query_set: QuerySet[Match | Player | Team | User],
+    query_set: QuerySet[Match | Player | Team],
     metric_filters: list[MetricFilterType]
 ) -> QuerySet:
     """

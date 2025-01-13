@@ -80,11 +80,11 @@ PLAYER_SORT_ATTRIBUTES: tuple[str] = (
     "name",
     "surname",
     "nickname",
-    "coutnry_of_origin__name",
+    "country_of_origin__name",
 )
 TEAM_SORT_ATTRIBUTES: tuple[str] = (
     "name",
-    "coutnry_of_origin__name"
+    "country_of_origin__name"
 )
 MATCH_SORT_ATTRIBUTES: tuple[str] = (
     "league_season__league__name",

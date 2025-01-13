@@ -1,4 +1,149 @@
 #-------------------------------------------------------------------------------------
+# PLAYERS QUERIED + DESCENDING SORT ON MINUTES UNTIL GOAL
+#-------------------------------------------------------------------------------------
+
+LIST_OF_PLAYERS_QUERY__DESCENDING_SORT_ON_MINUTES_UNTIL_GOAL: str = '''\
+query(
+    $startDate: Date = "1900-01-01",
+    $endDate: Date = "2200-01-01",
+){
+    playersList(
+        startDate: $startDate,
+        endDate: $endDate,
+        page:0,
+        sorting: {
+            targetAttributeName: "MINUTES_UNTIL GOAL",
+            direction: DESCENDING
+        }
+    ) {
+        id,
+    }
+}
+'''
+LIST_OF_PLAYERS_RESPONSE__DESCENDING_SORT_ON_MINUTES_UNTIL_GOAL: dict = {
+    "data": {
+        "playersList": [
+            {'id': '1216'},
+            {'id': '906'},
+            {'id': '55'},
+            {'id': '97'},
+            {'id': '219'},
+            {'id': '59'},
+            {'id': '61'},
+            {'id': '253'},
+            {'id': '1191'},
+            {'id': '43'},
+            {'id': '233'},
+            {'id': '254'},
+            {'id': '1184'},
+            {'id': '920'},
+            {'id': '213'},
+            {'id': '1211'},
+            {'id': '241'},
+            {'id': '1221'},
+            {'id': '1220'},
+            {'id': '1219'},
+            {'id': '1218'},
+            {'id': '1217'},
+            {'id': '1215'},
+            {'id': '1214'},
+            {'id': '1213'},
+        ]
+    }
+}
+
+#-------------------------------------------------------------------------------------
+# PLAYERS QUERIED + ASCENDING SORT ON SUM GOALS METRIC 
+#-------------------------------------------------------------------------------------
+
+LIST_OF_PLAYERS_QUERY__ASCENDING_SORT_ON_SUM_GOALS: str = '''\
+query(
+    $startDate: Date = "1900-01-01",
+    $endDate: Date = "2200-01-01",
+){
+    playersList(
+        startDate: $startDate,
+        endDate: $endDate,
+        page:7,
+        sorting: {
+            targetAttributeName: "SUM GOAL",
+            direction: ASCENDING
+        }
+    ) {
+        id,
+    }
+}
+'''
+LIST_OF_PLAYERS_RESPONSE__ASCENDING_SORT_ON_SUM_GOALS: dict = {
+    "data": {
+        "playersList": [
+            {'id': '906'},
+            {'id': '920'},
+            {'id': '1191'},
+            {'id': '1211'},
+            {'id': '1216'},
+            {'id': '1184'},
+            {'id': '241'},
+            {'id': '233'},
+        ]
+    }
+}
+
+#-------------------------------------------------------------------------------------
+# PLAYERS QUERIED + DESCENDING SORT ON COUNTRY OF ORIGIN NAME
+#-------------------------------------------------------------------------------------
+
+LIST_OF_PLAYERS_QUERY__DESCENDING_SORT_COUNTRY_OF_ORIGIN_NAME: str = '''\
+query(
+    $startDate: Date = "1900-01-01",
+    $endDate: Date = "2200-01-01",
+){
+    playersList(
+        startDate: $startDate,
+        endDate: $endDate,
+        page:0,
+        sorting: {
+            targetAttributeName: "country_of_origin__name",
+            direction: DESCENDING
+        }
+    ) {
+        id
+    }
+}
+'''
+LIST_OF_PLAYERS_RESPONSE__DESCENDING_SORT_COUNTRY_OF_ORIGIN_NAME: dict = {
+    "data": {
+        "playersList": [
+            {"id": "1202"},
+            {"id": "1220"},
+            {"id": "250"},
+            {"id": "1185"},
+            {"id": "1194"},
+            {"id": "37"},
+            {"id": "40"},
+            {"id": "42"},
+            {"id": "44"},
+            {"id": "45"},
+            {"id": "48"},
+            {"id": "51"},
+            {"id": "53"},
+            {"id": "54"},
+            {"id": "211"},
+            {"id": "212"},
+            {"id": "213"},
+            {"id": "214"},
+            {"id": "215"},
+            {"id": "216"},
+            {"id": "217"},
+            {"id": "218"},
+            {"id": "219"},
+            {"id": "220"},
+            {"id": "221"},
+        ]
+    }
+}
+
+#-------------------------------------------------------------------------------------
 # PLAYERS QUERIED + CONJUNCTION OF METRIC FILTERS
 #-------------------------------------------------------------------------------------
 
