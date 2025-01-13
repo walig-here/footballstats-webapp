@@ -192,7 +192,7 @@ class TeamType(DjangoObjectType):
 
     admin_actions: graphene.List = graphene.List(TeamAdminActionType)
     def resolve_admin_actions(self, info: graphene.ResolveInfo) -> graphene.List:
-        raise NotImplementedError
+        return TeamAdminAction.objects.filter(team=self.id)
 
     calculate_metric: graphene.Float = graphene.Float(
         start_date=graphene.Date(), 
@@ -208,7 +208,9 @@ class TeamType(DjangoObjectType):
         match: int, 
         metric: MetricType
     ) -> float:
-        raise NotImplementedError
+        return Team.objects.get(pk=self.id).calculate_metric(
+            start_date, end_date, match, metric.metric_type, metric.target_match_event, metric.metric_params
+        )
 
     metric_history: graphene.List = graphene.List(
         MetricHistoryPointType,
@@ -223,7 +225,29 @@ class TeamType(DjangoObjectType):
         end_date: date,
         metric: MetricType
     ) -> list[float]:
-        raise NotImplementedError
+        team: Team = Team.objects.get(pk=self.id)
+
+        dates: list[date] = [
+            match.game_date
+            for match in team.get_matches(start_date, end_date)
+        ]
+        dates.insert(0, start_date)
+        dates.append(end_date)
+
+        return [
+            MetricHistoryPointType(
+                value=team.calculate_metric(
+                    start_date, 
+                    current_date,
+                    constants.MetricScope.METRIC_FOR_ALL_MATCHES.value, 
+                    metric.metric_type,  
+                    metric.target_match_event, 
+                    metric.metric_params
+                ),
+                time=current_date
+            )
+            for current_date in dates
+        ]
 
 
 class UserType(DjangoObjectType):

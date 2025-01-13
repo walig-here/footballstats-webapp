@@ -536,7 +536,7 @@ class Team(models.Model):
                 )
 
                 return (
-                    team_targeted_events_from_range.count() / team_targeted_events_from_match.count()
+                    team_targeted_events_from_range.count() / team_targeted_events_from_match.count() * 100.0
                     if team_targeted_events_from_match.count() != 0
                     else 0.0
                 )

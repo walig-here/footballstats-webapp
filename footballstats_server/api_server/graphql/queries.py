@@ -154,15 +154,15 @@ class MatchQuery(graphene.ObjectType):
 class TeamQuery(graphene.ObjectType):
     team_sorting_attributes = graphene.List(graphene.String)
     def resolve_team_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        raise NotImplementedError
+        return list(constants.TEAM_SORT_ATTRIBUTES)
 
     team_filtering_attributes = graphene.List(graphene.String)
     def resolve_team_filtering_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        raise NotImplementedError
+        return list(constants.TEAM_FILTER_ATTRIBUTES)
 
     team = graphene.Field(TeamType, id=graphene.Int())
     def resolve_team(root, info: graphene.ResolveInfo, id: int) -> Team:
-        raise NotImplementedError
+        return Team.objects.get(pk=id)
 
     teams_list: graphene.List = graphene.List(
         TeamType,
@@ -170,9 +170,8 @@ class TeamQuery(graphene.ObjectType):
         end_date=graphene.Date(),
         page=graphene.Int(),
         textual_filters=graphene.List(TextualFilterType, default_value=[]),
-        numerical_filters=graphene.List(NumericalFilterType, default_value=[]),
         metric_filters=graphene.List(MetricFilterType, default_value=[]),
-        sorting=SortingType(default_value=SortingType(target_attribute_name="NAME", direction=0)),
+        sorting=SortingType(default_value=None),
         playing_in_match=graphene.Int(default_value=None),
         represented_by_player=graphene.Int(default_value=None),
         ids=graphene.List(graphene.Int, default_value=[])
@@ -184,14 +183,42 @@ class TeamQuery(graphene.ObjectType):
         end_date: date,
         page: int,
         textual_filters: list[TextualFilterType],
-        numerical_filters: list[NumericalFilterType],
         metric_filters: list[MetricFilterType],
-        sorting: list[SortingType],
+        sorting: SortingType | None,
         playing_in_match: int | None,
         represented_by_player: int | None,
         ids: list[int]
     ) -> list[Team]:
-        raise NotImplementedError
+        teams: QuerySet[Team] = (
+            Team.objects
+            .filter(playerinmatch__match__game_date__range=(start_date, end_date))
+            .distinct()
+        )
+        if represented_by_player is not None:
+            player = Player.objects.get(pk=represented_by_player)
+            teams = player.get_teams(start_date, end_date)
+            if playing_in_match is not None:
+                match = Match.objects.get(pk=playing_in_match)
+                teams = teams.filter(id__in=match.get_teams().values("id")).distinct()
+        elif playing_in_match is not None:
+            match = Match.objects.get(pk=playing_in_match)
+            teams = match.get_teams().distinct()
+
+        teams = _filter_query_set_with_attributes(teams, textual_filters, [], constants.TEAM_FILTER_ATTRIBUTES)
+        teams = _filter_query_set_with_metrics(start_date, end_date, teams, metric_filters)
+
+        if sorting is None or sorting.target_attribute_name in constants.TEAM_SORT_ATTRIBUTES:
+            teams = _sort_query_set_with_attributes(
+                teams,
+                sorting if sorting is not None
+                else ("name", constants.SortingDirection.ASCENDING),
+            )
+        elif str(sorting.target_attribute_name).split()[0] in constants.Metrics._member_names_:
+            teams = _sort_query_set_with_metric(teams, sorting, start_date, end_date)
+        else:
+            raise ValueError(ERROR_INVALID_SORTING_ATTRIBUTE)
+
+        return _get_page_from_query_set(teams, page)
 
 
 class UserQuery(graphene.ObjectType):
@@ -276,16 +303,17 @@ def _sort_query_set_with_metric(
     for object in query_set:
         if target_event not in constants.MatchEvents._member_names_:
             raise ValueError("Invalid target event for metric sorting!")
-        metric_value: float = object.calculate_metric(
-            start_date, 
-            end_date, 
-            constants.MetricScope.METRIC_FOR_ALL_MATCHES.value, 
-            constants.MetricScope.METRIC_FOR_ANY_TEAM.value,
-            constants.Metrics[metric_name],
-            constants.MatchEvents[target_event],
-            [int(param) for param in metric_params]
-        )
-        metric_values.append((object.pk, metric_value))
+        metric_arguments: dict[str] = {
+            "start": start_date,
+            "end": end_date,
+            "match_id": constants.MetricScope.METRIC_FOR_ALL_MATCHES.value,
+            "metric_type": constants.Metrics[metric_name],
+            "target_event": constants.MatchEvents[target_event],
+            "metric_params": [int(param) for param in metric_params],
+        }
+        if isinstance(object, Player):
+            metric_arguments["team_id"] = constants.MetricScope.METRIC_FOR_ANY_TEAM.value
+        metric_values.append((object.pk, object.calculate_metric(**metric_arguments)))
     metric_values.sort(key=lambda x: x[1])
 
     metric_ordering: Case = Case(
@@ -401,15 +429,17 @@ def _filter_query_set_with_metrics(
 
         metric_values: list[tuple[int, float]] = []
         for object in query_set:
-            metric_value: float = object.calculate_metric(
-                start_date, 
-                end_date, 
-                constants.MetricScope.METRIC_FOR_ALL_MATCHES.value, 
-                constants.MetricScope.METRIC_FOR_ANY_TEAM.value,
-                metric.metric_type,
-                metric.target_match_event,
-                metric.metric_params
-            )
+            metric_arguments: dict[str] = {
+                "start": start_date,
+                "end": end_date,
+                "match_id": constants.MetricScope.METRIC_FOR_ALL_MATCHES.value,
+                "metric_type": metric.metric_type,
+                "target_event": metric.target_match_event,
+                "metric_params": metric.metric_params,
+            }
+            if isinstance(object, Player):
+                metric_arguments["team_id"] = constants.MetricScope.METRIC_FOR_ANY_TEAM.value
+            metric_value: float = object.calculate_metric(**metric_arguments)
             if metric_value == constants.METRIC_UNDEFINED_VALUE:
                 continue
             metric_values.append((object.pk, metric_value))

@@ -60,7 +60,7 @@ class Test__calculate_metric__odds_in_time_range(TestCase):
             MatchEvents.SUCCESSFUL_PASS, 
             ["15", "55"]
         )
-        self.assertAlmostEqual(actual, 137 / 359)
+        self.assertAlmostEqual(actual, 137 / 359 * 100)
 
     def test_when_team_has_events_and_all_matches_targeted_then_return_value(self):
         team: Team = Team.objects.get(pk=ID_TEAM_WITH_MULTIPLE_MATCHES)
@@ -72,7 +72,7 @@ class Test__calculate_metric__odds_in_time_range(TestCase):
             MatchEvents.SUCCESSFUL_PASS,
             ["15", "55"]
         )
-        self.assertAlmostEqual(actual, 493 / 1130)
+        self.assertAlmostEqual(actual, 493 / 1130 * 100)
 
     def test_when_team_has_events_and_all_matches_targeted_and_filtered_by_date_then_return_value(self):
         team: Team = Team.objects.get(pk=ID_TEAM_WITH_MULTIPLE_MATCHES)
@@ -84,7 +84,7 @@ class Test__calculate_metric__odds_in_time_range(TestCase):
             MatchEvents.SUCCESSFUL_PASS, 
             ["15", "55"]
         )
-        self.assertAlmostEqual(actual, 188 / 399)
+        self.assertAlmostEqual(actual, 188 / 399 * 100)
 
     def test_when_team_has_no_events_and_all_matches_targeted_then_return_0(self):
         team: Team = Team.objects.get(pk=ID_TEAM_WITH_MULTIPLE_MATCHES)
