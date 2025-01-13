@@ -2,7 +2,7 @@ from datetime import date
 
 import graphene
 from django.contrib.auth.models import User
-from django.db.models import QuerySet, Case, When
+from django.db.models import QuerySet, Case, When, Max, Min
 
 from api_server import constants
 from api_server.models import Player, Team, Match, Country, EventType
@@ -237,15 +237,22 @@ class LeagueQuery(graphene.ObjectType):
 class MiscellaneousQuery(graphene.ObjectType):
     data_date_range: graphene.List = graphene.List(graphene.Date)
     def resolve_data_date_range(root, info: graphene.ResolveInfo) -> list[date]:
-        raise NotImplementedError
+        result: dict[str, date] = Match.objects.aggregate(
+            min_date=Min('game_date'),
+            max_date=Max('game_date')
+        )
+        return [
+            result['min_date'] if result['min_date'] is not None else date.today(), 
+            result['max_date'] if result['max_date'] is not None else date.today()
+        ]
 
     country_list: graphene.List = graphene.List(CountryType)
     def resolve_country_list(root, info: graphene.ResolveInfo) -> list[Country]:
-        raise NotImplementedError
+        return Country.objects.all().order_by('name')
 
     event_types_list: graphene.List = graphene.List(EventTypeType)
-    def resolve_event_type_list(root, info: graphene.ResolveInfo) -> list[EventType]:
-        raise NotImplementedError
+    def resolve_event_types_list(root, info: graphene.ResolveInfo) -> list[EventType]:
+        return EventType.objects.all().order_by('name')
 
 
 def _sort_query_set_with_metric(
