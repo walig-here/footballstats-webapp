@@ -19,13 +19,13 @@ class Query(
 
 class Mutation(auth_mutation.AuthMutation, graphene.ObjectType):
     add_existing_player_to_match = create.AddExistingPlayerToMatch.Field()
-    add_new_player_to_match = create.CreatePlayerToMatch.Field()
     add_event_to_match = create.AddEventToMatch.Field()
     create_match = create.CreateMatch.Field()
-    create_league =create. CreateLeague.Field()
+    create_league =create.CreateLeague.Field()
     create_league_season = create.CreateLeagueSeason.Field()
     create_country = create.CreateCountry.Field()
     create_team = create.CreateTeam.Field()
+    create_player = create.CreatePlayer.Field()
 
     remove_player_from_match = remove.RemovePlayerFromMatch.Field()
     remove_player = remove.RemovePlayer.Field()

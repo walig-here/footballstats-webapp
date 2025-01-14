@@ -10,7 +10,7 @@ from api_server.forms import (
     CreateMatchForm, 
     AddExistingPlayerToMatchForm, 
     CreateCountryForm, 
-    CreatePlayerToMatchForm, 
+    CreatePlayerForm, 
     AddEventToMatchForm,
 )
 from api_server.auth.permissions import user_has_permission
@@ -20,6 +20,10 @@ from api_server.models import Team, Player, Match, PlayerInMatch
 
 ERROR_PLAYER_ADDED_TO_MATCH_HAVE_NO_MINUTES_PLAYED: str = "Player have no minutes played info!"
 ERROR_PLAYER_HAS_NON_NUMERIC_DATA: str = "Player's data contains non-numeric id or minutes played!"
+ERROR_PLAYER_ASSIGNED_TO_BOTH_TEAMS: str = "The same player is assigned to both teams!"
+ERROR_PLAYER_ASSIGNED_TO_TEAM_NOT_TAKING_PART_IN_MATCH: str = "This team is not taking part in that match!"
+ERROR_PLAYER_ALREADY_ASSIGNED_TO_MATCH: str = "Player already takes part in that match!"
+ERROR_PLAYER_NOT_ASSIGNED_TO_MATCH: str = "Player is not taking part in this match!"
 
 
 def _snake_to_camel_case(snake_str: str):
@@ -31,22 +35,58 @@ def _snake_to_camel_case(snake_str: str):
 
 
 class AddEventToMatch(DjangoFormMutation):
+    """
+    Creates new event in system.
+    
+    Arguments
+    - `player` (`int`): ID of player that initiated the event.
+    - `match` (`int`): ID of match where event have taken place.
+    - `occurrenceMinute` (`float`): Minute of match when event occurred.
+    - `eventType` (`int`): ID of event type.
+    """
     class Meta:
         form_class = AddEventToMatchForm
 
     @classmethod
+    @login_required
+    @user_passes_test(lambda user: user_has_permission(user.pk, PermissionType.CREATE))
     def perform_mutate(cls, form: AddEventToMatchForm, info: graphene.ResolveInfo):
-        raise NotImplementedError
+        player: Player = form.cleaned_data['player']
+        match: Match = form.cleaned_data['match']
+
+        if match.get_players().filter(pk=player.pk).count() == 0:
+            form.add_error("player", ERROR_PLAYER_NOT_ASSIGNED_TO_MATCH)
+        if not form.is_valid():
+            return cls(errors=[
+                {
+                    "field": _snake_to_camel_case(field), 
+                    "messages": [
+                        data["message"] for data in payload
+                    ]
+                }
+                for field, payload in form.errors.get_json_data().items()
+            ])
         return super().perform_mutate(form, info)
 
 
-class CreatePlayerToMatch(DjangoFormMutation):
+class CreatePlayer(DjangoFormMutation):
+    """
+    Creates player in system.
+    
+    Arguments
+    - `name` (`str`): Name. Should be uniq together with surname!
+    - `surname` (`str`): Surname. Should be uniq together with name!
+    - `nickname` (`str`): Nickname. Optional.
+    - `country_of_origin` (`int`): ID of player's country of origin.
+    - `profile_photo_url` (`str`): ULR of player's profile photo.
+    """
     class Meta:
-        form_class = CreatePlayerToMatchForm
+        form_class = CreatePlayerForm
 
     @classmethod
-    def perform_mutate(cls, form: CreatePlayerToMatchForm, info: graphene.ResolveInfo):
-        raise NotImplementedError
+    @login_required
+    @user_passes_test(lambda user: user_has_permission(user.pk, PermissionType.CREATE))
+    def perform_mutate(cls, form: CreatePlayerForm, info: graphene.ResolveInfo):
         return super().perform_mutate(form, info)
 
 class CreateCountry(DjangoFormMutation):
@@ -68,12 +108,40 @@ class CreateCountry(DjangoFormMutation):
 
 
 class AddExistingPlayerToMatch(DjangoFormMutation):
+    """
+    Adds existing player to given match as a repentant of a team that takes part in that match.
+    
+    Arguments
+    - `player` (`int`): ID of player that's being added to match.
+    - `match` (`int`): ID of match that we want to add player to.
+    - `team` (`int`): ID of team that takes part in match that we want to add player to.
+    - `minutes_played` (`float`): How many minutes player was playing in given match.
+    """
     class Meta:
         form_class = AddExistingPlayerToMatchForm
 
     @classmethod
+    @login_required
+    @user_passes_test(lambda user: user_has_permission(user.pk, PermissionType.CREATE))
     def perform_mutate(cls, form: AddExistingPlayerToMatchForm, info: graphene.ResolveInfo):
-        raise NotImplementedError
+        match: Match = form.cleaned_data['match']
+        team: Team = form.cleaned_data['team']
+        player: Player = form.cleaned_data['player']
+
+        if match.get_teams().filter(pk=team.pk).count() == 0:
+            form.add_error("team", ERROR_PLAYER_ASSIGNED_TO_TEAM_NOT_TAKING_PART_IN_MATCH)
+        if match.get_players().filter(pk=player.pk).count() > 0:
+            form.add_error("player", ERROR_PLAYER_ALREADY_ASSIGNED_TO_MATCH)
+        if not form.is_valid():
+            return cls(errors=[
+                {
+                    "field": _snake_to_camel_case(field), 
+                    "messages": [
+                        data["message"] for data in payload
+                    ]
+                }
+                for field, payload in form.errors.get_json_data().items()
+            ])
         return super().perform_mutate(form, info)
 
 
@@ -156,6 +224,7 @@ class CreateMatch(DjangoFormMutation):
             "home_team": [None, []],
             "away_team": [None, []]
         }
+        players_ids: set[int] = set() 
 
         for team in ("home_team", "away_team"):
             try:
@@ -168,7 +237,11 @@ class CreateMatch(DjangoFormMutation):
                 try:
                     player_id: int = int(player_data.split("=")[0])
                     minutes_played: float = float(player_data.split("=")[1])
+                    if player_id in players_ids:
+                        form.add_error(field=f"{team}_players", error=ERROR_PLAYER_ASSIGNED_TO_BOTH_TEAMS)
+                        continue
                     lineups[team][1].append(((Player.objects.get(pk=player_id)), minutes_played))
+                    players_ids.add(player_id)
                 except Player.DoesNotExist as e2:
                     form.add_error(field=f"{team}_players", error=str(e2))
                 except IndexError:

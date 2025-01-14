@@ -34,9 +34,6 @@ class Test__QueryForPlayerList__Sort(TestCase):
         )
         self.assertEqual(response, data.LIST_OF_PLAYERS_RESPONSE__DESCENDING_SORT_ON_MINUTES_UNTIL_GOAL)
 
-    def test_odds_for_more_than_1_goal_ascending(self):
-        ...
-
 
 class Test__QueryForPlayerList__UnsortedMetricFilters(TestCase):
     fixtures = ["5matches_2admins"]

@@ -4,7 +4,6 @@ from unittest.mock import patch, MagicMock
 from django.test import TestCase
 from graphene.test import Client as GraphQlClient
 
-from api_server.constants import AdminActions
 from api_server.views import schema
 from api_server.models import (
     Country, 
@@ -13,14 +12,238 @@ from api_server.models import (
     Match, 
     Team, 
     Player, 
-    PlayerInMatch, 
-    MatchAdminAction, 
-    TeamAdminAction,
-    PlayerAdminAction
+    PlayerInMatch,
+    MatchEvent
 )
 
 from api_server.tests.integration.__data__.graphql.mutation import create as data
 from api_server.tests import testconf as global_testconf
+
+
+@patch("api_server.graphql.mutations.create.user_has_permission", return_value = True)
+class Test__AddEventToMatch(TestCase):
+    fixtures = ["5matches_2admins"]
+
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema=schema)
+
+    def test_can_admin_with_create_permission_add_event_to_match(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.ADD_EVENT_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+
+        MatchEvent.objects.get(player=55, match=2, event_type=6, occurrence_minute=5)
+        self.assertEqual(response, data.ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS)
+
+    def test_cant_admin_without_create_permission_add_event_to_match(self, mock_has_permission: MagicMock):
+        mock_has_permission.return_value = False
+
+        response: dict = self.client.execute(
+            data.ADD_EVENT_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+
+        self.assertEqual(response, data.ADD_EVENT_TO_MATCH_RESPONSE_NO_PERMISSIONS)
+        with self.assertRaises(MatchEvent.DoesNotExist):
+            MatchEvent.objects.get(player=55, match=2, event_type=6, occurrence_minute=5)
+
+    def test_cant_viewer_add_event_to_match(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.ADD_EVENT_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+
+        self.assertEqual(response, data.ADD_EVENT_TO_MATCH_RESPONSE_NO_PERMISSIONS)
+        with self.assertRaises(MatchEvent.DoesNotExist):
+            MatchEvent.objects.get(player=55, match=2, event_type=6, occurrence_minute=5)
+
+    def test_can_owner_add_event_to_match(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.ADD_EVENT_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        MatchEvent.objects.get(player=55, match=2, event_type=6, occurrence_minute=5)
+        self.assertEqual(response, data.ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS)
+
+    def test_cant_owner_add_event_to_match_that_does_not_exist(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.MATCH_NOT_EXIST_ADD_EVENT_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.MATCH_NOT_EXIST_ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS)
+        self.assertEqual(MatchEvent.objects.all().count(), 5169)
+
+    def test_cant_owner_add_event_to_player_that_does_not_take_part_in_match(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.PLAYER_NOT_TAKE_PART_IN_MATCH_ADD_EVENT_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.PLAYER_NOT_TAKE_PART_IN_MATCH_ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS)
+        self.assertEqual(MatchEvent.objects.all().count(), 5169)
+
+    def test_cant_owner_add_event_that_has_not_existing_type(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.EVENT_TYPE_NOT_EXISTS_ADD_EVENT_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.EVENT_TYPE_NOT_EXISTS_ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS)
+        self.assertEqual(MatchEvent.objects.all().count(), 5169)
+
+
+@patch("api_server.graphql.mutations.create.user_has_permission", return_value = True)
+class Test__AddExistingPlayerToMatch(TestCase):
+    fixtures = ["5matches_2admins"]
+
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema=schema)
+
+    def test_can_admin_with_create_permission_add_player_to_match(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.ADD_PLAYER_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+
+        PlayerInMatch.objects.get(player=92, match=2, team=4)
+        self.assertEqual(response, data.ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS)
+
+    def test_cant_admin_without_create_permission_add_player_to_match(self, mock_has_permission: MagicMock):
+        mock_has_permission.return_value = False
+
+        response: dict = self.client.execute(
+            data.ADD_PLAYER_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+
+        self.assertEqual(response, data.ADD_PLAYER_TO_MATCH_RESPONSE_NO_PERMISSIONS)
+        with self.assertRaises(PlayerInMatch.DoesNotExist):
+            PlayerInMatch.objects.get(player=92, match=2, team=4)
+
+    def test_cant_viewer_add_player_to_match(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.ADD_PLAYER_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+
+        self.assertEqual(response, data.ADD_PLAYER_TO_MATCH_RESPONSE_NO_PERMISSIONS)
+        with self.assertRaises(PlayerInMatch.DoesNotExist):
+            PlayerInMatch.objects.get(player=92, match=2, team=4)
+
+    def test_can_owner_add_player_to_match(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.ADD_PLAYER_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        PlayerInMatch.objects.get(player=92, match=2, team=4)
+        self.assertEqual(response, data.ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS)
+
+    def test_cant_owner_add_player_to_match_when_player_not_exist(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.PLAYER_NOT_EXIST_ADD_PLAYER_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.PLAYER_NOT_EXIST_ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS)
+        self.assertEqual(PlayerInMatch.objects.all().count(), 208)
+
+    def test_cant_owner_add_player_to_match_that_does_not_exist(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.MATCH_NOT_EXIST_ADD_PLAYER_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.MATCH_NOT_EXIST_ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS)
+        self.assertEqual(PlayerInMatch.objects.all().count(), 208)
+
+    def test_cant_owner_add_player_to_match_when_team_is_not_taking_part_in_that_match(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.TEAM_NOT_TAKING_PART_IN_MATCH_ADD_PLAYER_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.TEAM_NOT_TAKING_PART_IN_MATCH_ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS)
+        self.assertEqual(PlayerInMatch.objects.all().count(), 208)
+
+    def test_cant_owner_add_player_to_match_that_it_already_takes_part_in(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.PLAYER_TAKING_PART_IN_MATCH_ADD_PLAYER_TO_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.PLAYER_TAKING_PART_IN_MATCH_ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS)
+        self.assertEqual(PlayerInMatch.objects.all().count(), 208)
+
+
+@patch("api_server.graphql.mutations.create.user_has_permission", return_value = True)
+class Test__CreatePlayer(TestCase):
+    fixtures = ["5matches_2admins"]
+
+    def setUp(self):
+        self.client: GraphQlClient = GraphQlClient(schema=schema)
+
+    def test_can_admin_with_create_permission_create_player(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.CREATE_PLAYER_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+        
+        Player.objects.get(name="Luka", surname="Modrić")
+        self.assertEqual(response, data.CREATE_PLAYER_RESPONSE_SUCCESS)
+
+    def test_cant_admin_without_create_permission_create_player(self, mock_has_permission: MagicMock):
+        mock_has_permission.return_value = False
+
+        response: dict = self.client.execute(
+            data.CREATE_PLAYER_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+
+        self.assertEqual(response, data.CREATE_PLAYER_RESPONSE_NO_PERMISSIONS)
+        with self.assertRaises(Player.DoesNotExist):
+            Player.objects.get(name="Luka", surname="Modrić")
+
+    def test_cant_viewer_create_player(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.CREATE_PLAYER_REQUEST,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+
+        self.assertEqual(response, data.CREATE_PLAYER_RESPONSE_NO_PERMISSIONS)
+        with self.assertRaises(Player.DoesNotExist):
+            Player.objects.get(name="Luka", surname="Modrić")
+
+    def test_can_owner_create_player(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.CREATE_PLAYER_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+        
+        Player.objects.get(name="Luka", surname="Modrić")
+        self.assertEqual(response, data.CREATE_PLAYER_RESPONSE_SUCCESS)
+
+    def test_cant_owner_create_player_with_not_uniq_fullname(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.NOT_UNIQ_FULLNAME_CREATE_PLAYER_REQUEST,
+            context=global_testconf.get_graphql_context_with_viewer_user()
+        )
+
+        self.assertEqual(response, data.NOT_UNIQ_FULLNAME_CREATE_PLAYER_RESPONSE_SUCCESS)
+        self.assertEqual(Player.objects.filter(name="Viktor", surname="Yanushevskiy").count(), 1)
+
+    def test_cant_owner_create_player_with_not_existing_country_of_origin(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.NOT_EXISTING_COUNTRY_CREATE_PLAYER_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.NOT_EXISTING_COUNTRY_CREATE_PLAYER_RESPONSE_SUCCESS)
+        with self.assertRaises(Player.DoesNotExist):
+            Player.objects.get(name="Luka", surname="Modrić")
 
 
 @patch("api_server.graphql.mutations.create.user_has_permission", return_value = True)
@@ -128,8 +351,6 @@ class Test__CreateMatch(TestCase):
         with self.assertRaises(Match.DoesNotExist):
             Match.objects.get(game_date=date(2018, 5, 26), league_season__pk=2)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
 
     def test_cant_viewer_create_new_match(self, mock_has_permission: MagicMock):
         response: dict = self.client.execute(
@@ -141,8 +362,6 @@ class Test__CreateMatch(TestCase):
         with self.assertRaises(Match.DoesNotExist):
             Match.objects.get(game_date=date(2018, 5, 26), league_season__pk=2)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
 
     def test_can_owner_create_new_match(self, mock_has_permission: MagicMock):
         response: dict = self.client.execute(
@@ -172,8 +391,6 @@ class Test__CreateMatch(TestCase):
         self.assertEqual(response, data.NOT_EXISTING_SEASON_CREATE_MATCH_RESPONSE)
         self.assertEqual(Match.objects.all().count(), 5)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
 
     def test_cant_owner_create_match_with_not_existing_home_team(self, mock_has_permission: MagicMock):
         response: dict = self.client.execute(
@@ -184,9 +401,6 @@ class Test__CreateMatch(TestCase):
         self.assertEqual(response, data.NOT_EXISTING_HOME_TEAM_CREATE_MATCH_RESPONSE)
         self.assertEqual(Match.objects.all().count(), 5)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
-
     def test_cant_owner_create_match_with_not_existing_away_team(self, mock_has_permission: MagicMock):
         response: dict = self.client.execute(
             data.NOT_EXISTING_AWAY_TEAM_CREATE_MATCH_REQUEST,
@@ -196,8 +410,6 @@ class Test__CreateMatch(TestCase):
         self.assertEqual(response, data.NOT_EXISTING_AWAY_TEAM_CREATE_MATCH_RESPONSE)
         self.assertEqual(Match.objects.all().count(), 5)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
 
     def test_cant_owner_create_match_with_not_existing_away_player(self, mock_has_permission: MagicMock):
         response: dict = self.client.execute(
@@ -208,8 +420,6 @@ class Test__CreateMatch(TestCase):
         self.assertEqual(response, data.NOT_EXISTING_AWAY_PLAYER_CREATE_MATCH_RESPONSE)
         self.assertEqual(Match.objects.all().count(), 5)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
 
     def test_cant_owner_create_match_with_not_existing_home_player(self, mock_has_permission: MagicMock):
         response: dict = self.client.execute(
@@ -220,8 +430,6 @@ class Test__CreateMatch(TestCase):
         self.assertEqual(response, data.NOT_EXISTING_HOME_PLAYER_CREATE_MATCH_RESPONSE)
         self.assertEqual(Match.objects.all().count(), 5)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
 
     def test_cant_owner_create_match_with_player_that_does_not_have_minutes_played(self, mock_has_permission: MagicMock):
         response: dict = self.client.execute(
@@ -232,8 +440,6 @@ class Test__CreateMatch(TestCase):
         self.assertEqual(response, data.PLAYER_HAVE_NO_MINUTES_PLAYED_CREATE_MATCH_RESPONSE)
         self.assertEqual(Match.objects.all().count(), 5)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
 
     def test_cant_owner_create_match_with_player_that_has_non_numeric_minutes_played(self, mock_has_permission: MagicMock):
         response: dict = self.client.execute(
@@ -244,8 +450,18 @@ class Test__CreateMatch(TestCase):
         self.assertEqual(response, data.PLAYER_HAVE_NOT_NUMERIC_MINUTES_PLAYED_CREATE_MATCH_RESPONSE)
         self.assertEqual(Match.objects.all().count(), 5)
         self.assertEqual(PlayerInMatch.objects.all().count(), 208)
-        self.assertEqual(PlayerAdminAction.objects.all().count(), 0)
-        self.assertEqual(TeamAdminAction.objects.all().count(), 0)
+        self.assertEqual(PlayerInMatch.objects.all().count(), 208)
+
+    def test_cant_owner_create_match_with_player_that_is_assigned_in_both_teams(self, mock_has_permission: MagicMock):
+        response: dict = self.client.execute(
+            data.PLAYER_ASSIGNED_TO_BOTH_TEAMS_CREATE_MATCH_REQUEST,
+            context=global_testconf.get_graphql_context_with_owner_logged_in()
+        )
+
+        self.assertEqual(response, data.PLAYER_ASSIGNED_TO_BOTH_TEAMS_CREATE_MATCH_RESPONSE)
+        self.assertEqual(Match.objects.all().count(), 5)
+        self.assertEqual(PlayerInMatch.objects.all().count(), 208)
+        self.assertEqual(PlayerInMatch.objects.all().count(), 208)
 
 
 @patch("api_server.graphql.mutations.create.user_has_permission", return_value = True)

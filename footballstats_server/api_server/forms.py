@@ -91,6 +91,8 @@ class AddEventToMatchForm(forms.ModelForm):
         model = MatchEvent
         fields = "__all__"
 
+    token = forms.CharField(required=True)
+
 
 class CreateCountryForm(forms.ModelForm):
     class Meta:
@@ -100,10 +102,12 @@ class CreateCountryForm(forms.ModelForm):
     token = forms.CharField(required=True)
 
 
-class CreatePlayerToMatchForm(forms.ModelForm):
+class CreatePlayerForm(forms.ModelForm):
     class Meta:
         model = Player
         fields = "__all__"
+
+    token = forms.CharField(required=True)
 
 
 class ModifyPlayerMatchContributionForm(forms.ModelForm):
@@ -119,6 +123,8 @@ class AddExistingPlayerToMatchForm(forms.ModelForm):
     class Meta:
         model = PlayerInMatch
         fields = "__all__"
+
+    token = forms.CharField(required=True)
 
 
 class CreateMatchForm(forms.ModelForm):

@@ -1,4 +1,460 @@
 #-------------------------------------------------------------------------------------
+# ADD EVENT TO MATCH
+#-------------------------------------------------------------------------------------
+
+ADD_EVENT_TO_MATCH_REQUEST: str = """\
+mutation{
+    addEventToMatch(
+        input: {
+            player: 55,
+            match: 2,
+            eventType: 6,
+            occurrenceMinute: 5,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addEventToMatch": {
+            "errors": []
+        }
+    }
+}
+
+ADD_EVENT_TO_MATCH_RESPONSE_NO_PERMISSIONS: dict = {
+    'errors': [
+        {
+            'message': 'You do not have permission to perform this action',
+            'locations': [
+                {
+                    'line': 2,
+                    'column': 5
+                }
+            ], 
+            'path': [
+                'addEventToMatch'
+            ]
+        }
+    ], 
+    'data': {
+        'addEventToMatch': None
+    }
+}
+
+MATCH_NOT_EXIST_ADD_EVENT_TO_MATCH_REQUEST: str = """\
+mutation{
+    addEventToMatch(
+        input: {
+            player: 55,
+            match: -1,
+            eventType: 6,
+            occurrenceMinute: 5,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+MATCH_NOT_EXIST_ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addEventToMatch": {
+            "errors": [
+                {
+                    "field": "match",
+                    "messages": [
+                        "Select a valid choice. That choice is not one of the available choices."
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+PLAYER_NOT_TAKE_PART_IN_MATCH_ADD_EVENT_TO_MATCH_REQUEST: str = """\
+mutation{
+    addEventToMatch(
+        input: {
+            player: 1195,
+            match: 2,
+            eventType: 6,
+            occurrenceMinute: 5,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+PLAYER_NOT_TAKE_PART_IN_MATCH_ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addEventToMatch": {
+            "errors": [
+                {
+                    "field": "player",
+                    "messages": [
+                        "Player is not taking part in this match!"
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+EVENT_TYPE_NOT_EXISTS_ADD_EVENT_TO_MATCH_REQUEST: str = """\
+mutation{
+    addEventToMatch(
+        input: {
+            player: 55,
+            match: 2,
+            eventType: -1,
+            occurrenceMinute: 5,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+EVENT_TYPE_NOT_EXISTS_ADD_EVENT_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addEventToMatch": {
+            "errors": [
+                {
+                    "field": "eventType",
+                    "messages": [
+                        "Select a valid choice. That choice is not one of the available choices."
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+#-------------------------------------------------------------------------------------
+# ADD PLAYER TO MATCH
+#-------------------------------------------------------------------------------------
+
+ADD_PLAYER_TO_MATCH_REQUEST: str = """\
+mutation{
+    addExistingPlayerToMatch(
+        input: {
+            player: 92,
+            match: 2,
+            team: 4,
+            minutesPlayed: 55,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addExistingPlayerToMatch": {
+            "errors": []
+        }
+    }
+}
+
+ADD_PLAYER_TO_MATCH_RESPONSE_NO_PERMISSIONS: dict = {
+    'errors': [
+        {
+            'message': 'You do not have permission to perform this action',
+            'locations': [
+                {
+                    'line': 2,
+                    'column': 5
+                }
+            ], 
+            'path': [
+                'addExistingPlayerToMatch'
+            ]
+        }
+    ], 
+    'data': {
+        'addExistingPlayerToMatch': None
+    }
+}
+
+PLAYER_NOT_EXIST_ADD_PLAYER_TO_MATCH_REQUEST: str = """\
+mutation{
+    addExistingPlayerToMatch(
+        input: {
+            player: -1,
+            match: 2,
+            team: 4,
+            minutesPlayed: 55,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+PLAYER_NOT_EXIST_ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addExistingPlayerToMatch": {
+            "errors": [
+                {
+                    "field": "player",
+                    "messages": [
+                        "Select a valid choice. That choice is not one of the available choices."
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+MATCH_NOT_EXIST_ADD_PLAYER_TO_MATCH_REQUEST: str = """\
+mutation{
+    addExistingPlayerToMatch(
+        input: {
+            player: 92,
+            match: -1,
+            team: 4,
+            minutesPlayed: 55,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+MATCH_NOT_EXIST_ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addExistingPlayerToMatch": {
+            "errors": [
+                {
+                    "field": "match",
+                    "messages": [
+                        "Select a valid choice. That choice is not one of the available choices."
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+TEAM_NOT_TAKING_PART_IN_MATCH_ADD_PLAYER_TO_MATCH_REQUEST: str = """\
+mutation{
+    addExistingPlayerToMatch(
+        input: {
+            player: 92,
+            match: 2,
+            team: 7,
+            minutesPlayed: 55,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+TEAM_NOT_TAKING_PART_IN_MATCH_ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addExistingPlayerToMatch": {
+            "errors": [
+                {
+                    "field": "team",
+                    "messages": [
+                        "This team is not taking part in that match!"
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+PLAYER_TAKING_PART_IN_MATCH_ADD_PLAYER_TO_MATCH_REQUEST: str = """\
+mutation{
+    addExistingPlayerToMatch(
+        input: {
+            player: 92,
+            match: 4,
+            team: 7,
+            minutesPlayed: 55,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+PLAYER_TAKING_PART_IN_MATCH_ADD_PLAYER_TO_MATCH_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "addExistingPlayerToMatch": {
+            "errors": [
+                {
+                    "field": "player",
+                    "messages": [
+                        "Player already takes part in that match!"
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+#-------------------------------------------------------------------------------------
+# CREATE TEAM
+#-------------------------------------------------------------------------------------
+
+CREATE_PLAYER_REQUEST: str = """\
+mutation{
+    createPlayer(
+        input: {
+            name: "Luka",
+            surname: "Modrić",
+            countryOfOrigin: 10,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+CREATE_PLAYER_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "createPlayer": {
+            "errors": []
+        }
+    }
+}
+
+CREATE_PLAYER_RESPONSE_NO_PERMISSIONS: dict = {
+    'errors': [
+        {
+            'message': 'You do not have permission to perform this action',
+            'locations': [
+                {
+                    'line': 2,
+                    'column': 5
+                }
+            ], 
+            'path': [
+                'createPlayer'
+            ]
+        }
+    ], 
+    'data': {
+        'createPlayer': None
+    }
+}
+
+NOT_UNIQ_FULLNAME_CREATE_PLAYER_REQUEST: str = """\
+mutation{
+    createPlayer(
+        input: {
+            name: "Viktor",
+            surname: "Yanushevskiy",
+            countryOfOrigin: 10,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+NOT_UNIQ_FULLNAME_CREATE_PLAYER_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "createPlayer": {
+            "errors": [
+                {
+                    "field": "_All__",
+                    "messages": [
+                        "Player with this Name and Surname already exists."
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+NOT_EXISTING_COUNTRY_CREATE_PLAYER_REQUEST: str = """\
+mutation{
+    createPlayer(
+        input: {
+            name: "Luka",
+            surname: "Modrić",
+            countryOfOrigin: -1,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+NOT_EXISTING_COUNTRY_CREATE_PLAYER_RESPONSE_SUCCESS: dict = {
+    "data": {
+        "createPlayer": {
+            "errors": [
+                {
+                    "field": "countryOfOrigin",
+                    "messages": [
+                        "Select a valid choice. That choice is not one of the available choices."
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+#-------------------------------------------------------------------------------------
 # CREATE TEAM
 #-------------------------------------------------------------------------------------
 
@@ -409,6 +865,42 @@ PLAYER_HAVE_NOT_NUMERIC_MINUTES_PLAYED_CREATE_MATCH_RESPONSE: dict = {
                     "field": "homeTeamPlayers",
                     "messages": [
                         "Player's data contains non-numeric id or minutes played!"
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+PLAYER_ASSIGNED_TO_BOTH_TEAMS_CREATE_MATCH_REQUEST: str = """\
+mutation{
+    createMatch(
+        input: {
+            gameDate: "2018-05-26",
+            leagueSeason: 2,
+            homeTeam: 3,
+            awayTeam: 4,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+            homeTeamPlayers: "37=45.1 39=34.5",
+            awayTeamPlayers: "37=1.5 40=90.0",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+PLAYER_ASSIGNED_TO_BOTH_TEAMS_CREATE_MATCH_RESPONSE: dict = {
+    "data": {
+        "createMatch": {
+            "errors": [
+                {
+                    "field": "awayTeamPlayers",
+                    "messages": [
+                        "The same player is assigned to both teams!"
                     ]
                 }
             ]
