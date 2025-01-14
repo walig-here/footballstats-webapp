@@ -44,53 +44,53 @@ class TextualFilteringCriteria(Enum):
     TEXTUAL_IN_SET = "TEXTUAL_IN_SET"
     TEXTUAL_NOT_IN_SET = "TEXTUAL_NOT_IN_SET"
 
-USER_FILTER_ATTRIBUTES: list[str] = [
-    "username"
-]
-PLAYER_FILTER_ATTRIBUTES: list[str] = [
-    "name",
-    "surname",
-    "nickname",
-    "country_of_origin__name",
-    "playerinmatch__team__name",
-    "playerinmatch__match__league_season__league__name",
-]
-TEAM_FILTER_ATTRIBUTES: list[str] = [
-    "name",
-    "playerinmatch__player__name",
-    "playerinmatch__player__surname",
-    "playerinmatch__match__league_season__league__name",
-    "country_of_origin__name",
-]
-MATCH_FILTER_ATTRIBUTES: list[str] = [
-    "league_season__league__name",
-    "league_season__name",
-    "playerinmatch__team__name",
-    "playerinmatch__player__name",
-    "playerinmatch__player__surname",
-    "league_season__league__country_of_origin__name",
-]
+USER_FILTER_ATTRIBUTES: dict[str, str] = {
+    "login": "username"
+}
+PLAYER_FILTER_ATTRIBUTES: dict[str, str] = {
+    "imie": "name",
+    "nazwisko": "surname",
+    "pseudonim": "nickname",
+    "nazwa kraju pochodzenia": "country_of_origin__name",
+    "nazwa reprezentowanej drużyny": "playerinmatch__team__name",
+    "nazwa ligi z udziałem zawodnika": "playerinmatch__match__league_season__league__name",
+}
+TEAM_FILTER_ATTRIBUTES: dict[str, str] = {
+    "nazwa": "name",
+    "imie reprezentującego zawodnika": "playerinmatch__player__name",
+    "nazwisko reprezentującego zawodnika": "playerinmatch__player__surname",
+    "nazwa ligii z udziałem drużyny": "playerinmatch__match__league_season__league__name",
+    "nazwa kraju pochodzenia": "country_of_origin__name"
+}
+MATCH_FILTER_ATTRIBUTES: dict[str, str] = {
+    "nazwa ligi": "league_season__league__name",
+    "nazwa sezonu ligi": "league_season__name",
+    "nazwa uczestniczącej drużuny": "playerinmatch__team__name",
+    "imie uczestniczącego zawodnika": "playerinmatch__player__name",
+    "nazwisko uczestniczącego zawodnika": "playerinmatch__player__surname",
+    "nazwa kraju pochodzenia ligi": "league_season__league__country_of_origin__name",
+}
 
 # SORTING
-USER_SORT_ATTRIBUTES: tuple[str] = (
-    "username"
-)
-PLAYER_SORT_ATTRIBUTES: tuple[str] = (
-    "name",
-    "surname",
-    "nickname",
-    "country_of_origin__name",
-)
-TEAM_SORT_ATTRIBUTES: tuple[str] = (
-    "name",
-    "country_of_origin__name"
-)
-MATCH_SORT_ATTRIBUTES: tuple[str] = (
-    "league_season__league__name",
-    "league_season__name",
-    "league_season__league__country_of_origin__name",
-    "game_date"
-)
+USER_SORT_ATTRIBUTES: dict[str, str] = {
+    "login": "username"
+}
+PLAYER_SORT_ATTRIBUTES: dict[str, str] = {
+    "imie": "name",
+    "nazwisko": "surname",
+    "pseudonim": "nickname",
+    "nazwa kraju pochodzenia": "country_of_origin__name",
+}
+TEAM_SORT_ATTRIBUTES: dict[str, str] = {
+    "nazwa": "name",
+    "nazwa kraju pochodzenia": "country_of_origin__name"
+}
+MATCH_SORT_ATTRIBUTES: dict[str, str] = {
+    "nazwa ligi": "league_season__league__name",
+    "nazwa sezonu ligi": "league_season__name",
+    "nazwa kraju pochodzenia ligi": "league_season__league__country_of_origin__name",
+    "data rozegrania": "game_date"
+}
 
 class SortingDirection(Enum):
     ASCENDING = ""

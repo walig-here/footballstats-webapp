@@ -103,7 +103,7 @@ query(
         endDate: $endDate,
         page:0,
         sorting: {
-            targetAttributeName: "country_of_origin__name",
+            targetAttributeName: "nazwa kraju pochodzenia",
             direction: DESCENDING
         }
     ) {
@@ -321,7 +321,7 @@ LIST_OF_PLAYERS_QUERY__NOT_IN_SET_LEAGUE_NAME: str = '''\
         page: 0,
         textualFilters: [
             {
-                targetAttributeName: "playerinmatch__match__league_season__league__name",
+                targetAttributeName: "nazwa ligi z udziałem zawodnika",
                 filteringCriteria: TEXTUAL_NOT_IN_SET,
                 filterParams: ["FIFA World Cup"]
             }
@@ -375,7 +375,7 @@ LIST_OF_PLAYERS_QUERY__IN_SET_LEAGUE_NAME: str = '''\
         page: 3,
         textualFilters: [
             {
-                targetAttributeName: "playerinmatch__match__league_season__league__name",
+                targetAttributeName: "nazwa ligi z udziałem zawodnika",
                 filteringCriteria: TEXTUAL_IN_SET,
                 filterParams: ["Ligue 1", "FIFA World Cup"]
             }
@@ -429,7 +429,7 @@ LIST_OF_PLAYERS_QUERY__FULL_TEXT_SEARCH_LEAGUE_NAME: str = '''\
         page: 1,
         textualFilters: [
             {
-                targetAttributeName: "playerinmatch__match__league_season__league__name",
+                targetAttributeName: "nazwa ligi z udziałem zawodnika",
                 filteringCriteria: TEXTUAL_FULL_TEXT_SEARCH,
                 filterParams: ["Li"]
             }
@@ -655,7 +655,7 @@ FULL_LIST_OF_PLAYERS_QUERY__COUNTRY_NOT_IN_SET_FILTER: str = '''\
         page: 2,
         textualFilters: [
             {
-                targetAttributeName: "country_of_origin__name",
+                targetAttributeName: "nazwa kraju pochodzenia",
                 filteringCriteria: TEXTUAL_NOT_IN_SET,
                 filterParams: ["Brazylia", "Argentyna"]
             }
@@ -709,7 +709,7 @@ FULL_LIST_OF_PLAYERS_QUERY__COUNTRY_IN_SET_FILTER: str = '''\
         page: 1,
         textualFilters: [
             {
-                targetAttributeName: "country_of_origin__name",
+                targetAttributeName: "nazwa kraju pochodzenia",
                 filteringCriteria: TEXTUAL_IN_SET,
                 filterParams: ["Brazylia", "Argentyna"]
             }
@@ -763,7 +763,7 @@ FULL_LIST_OF_PLAYERS_QUERY__COUNTRY_FULL_TEXT_SEARCH_FILTER: str = '''\
         page: 0,
         textualFilters: [
             {
-                targetAttributeName: "country_of_origin__name",
+                targetAttributeName: "nazwa kraju pochodzenia",
                 filteringCriteria: TEXTUAL_FULL_TEXT_SEARCH,
                 filterParams: ["B"]
             }
@@ -920,9 +920,7 @@ PLAYER_QUERY__ADMIN_ACTIONS: str = """\
                     name
                 },
                 user {
-                username,
-                isSuperuser,
-                username
+                    username,
                 }
             }
         }

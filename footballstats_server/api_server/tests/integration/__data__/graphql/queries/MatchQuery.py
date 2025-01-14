@@ -12,7 +12,7 @@ MATCH_FILTERING_ATTRIBUTES_QUERY: str = """\
 
 MATCH_FILTERING_ATTRIBUTES_RESPONSE: dict = {
     "data": {
-        "matchFilteringAttributes": list(constants.MATCH_FILTER_ATTRIBUTES)
+        "matchFilteringAttributes": list(constants.MATCH_FILTER_ATTRIBUTES.keys())
     }
 }
 
@@ -27,7 +27,7 @@ MATCH_SORTING_ATTRIBUTES_QUERY: str = """\
 
 MATCH_SORTING_ATTRIBUTES_RESPONSE: dict = {
     "data": {
-        "matchSortingAttributes": list(constants.MATCH_SORT_ATTRIBUTES)
+        "matchSortingAttributes": list(constants.MATCH_SORT_ATTRIBUTES.keys())
     }
 }
 

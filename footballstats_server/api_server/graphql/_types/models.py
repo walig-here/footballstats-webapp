@@ -254,4 +254,22 @@ class TeamType(DjangoObjectType):
 class UserType(DjangoObjectType):
     class Meta:
         model: Model = User
-        fields: tuple[str] = ("id", "username", "is_superuser")
+        fields: tuple[str] = ("id", "username")
+
+    has_create_permission = graphene.Boolean()
+    def resolve_has_create_permission(self, info: graphene.ResolveInfo) -> bool:
+        target_user: User = User.objects.get(pk=self.pk)
+        groups: dict[str, str] = list(target_user.groups.all().values_list('id', flat=True))
+        return constants.PermissionType.CREATE.value in groups
+
+    has_modify_permission = graphene.Boolean()
+    def resolve_has_modify_permission(self, info: graphene.ResolveInfo) -> bool:
+        target_user: User = User.objects.get(pk=self.pk)
+        groups: dict[str, str] = list(target_user.groups.all().values_list('id', flat=True))
+        return constants.PermissionType.EDIT.value in groups
+
+    has_delete_permission = graphene.Boolean()
+    def resolve_has_delete_permission(self, info: graphene.ResolveInfo) -> bool:
+        target_user: User = User.objects.get(pk=self.pk)
+        groups: dict[str, str] = list(target_user.groups.all().values_list('id', flat=True))
+        return constants.PermissionType.DELETE.value in groups

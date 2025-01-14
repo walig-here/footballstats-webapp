@@ -13,7 +13,7 @@ TEAM_SORTING_ATTRIBUTES_QUERY: str = """\
 
 TEAM_SORTING_ATTRIBUTES_RESPONSE: dict = {
     "data": {
-        "teamSortingAttributes": list(constants.TEAM_SORT_ATTRIBUTES)
+        "teamSortingAttributes": list(constants.TEAM_SORT_ATTRIBUTES.keys())
     }
 }
 
@@ -29,7 +29,7 @@ TEAM_FILTERING_ATTRIBUTES_QUERY: str = """\
 
 TEAM_FILTERING_ATTRIBUTES_RESPONSE: dict = {
     "data": {
-        "teamFilteringAttributes": list(constants.TEAM_FILTER_ATTRIBUTES)
+        "teamFilteringAttributes": list(constants.TEAM_FILTER_ATTRIBUTES.keys())
     }
 }
 

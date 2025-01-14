@@ -3,6 +3,7 @@ from datetime import date
 import graphene
 from django.contrib.auth.models import User
 from django.db.models import QuerySet, Case, When, Max, Min
+from graphql_jwt.decorators import superuser_required
 
 from api_server import constants
 from api_server.models import Player, Team, Match, Country, EventType, League, LeagueSeason
@@ -26,7 +27,7 @@ class PlayerQuery(graphene.ObjectType):
         Return
         - `list[str]`: Names of all player's attributes that could be used for sorting.
         """
-        return constants.PLAYER_SORT_ATTRIBUTES
+        return list(constants.PLAYER_SORT_ATTRIBUTES.keys())
 
     player_filtering_attributes = graphene.List(graphene.String)
     def resolve_player_filtering_attributes(root, info: graphene.ResolveInfo) -> list[str]:
@@ -36,7 +37,7 @@ class PlayerQuery(graphene.ObjectType):
         Return
         - `list[str]`: Names of all player's attributes that could be used for filtering.
         """
-        return constants.PLAYER_FILTER_ATTRIBUTES
+        return list(constants.PLAYER_FILTER_ATTRIBUTES.keys())
 
     player = graphene.Field(PlayerType, id=graphene.Int())
     def resolve_player(root, info: graphene.ResolveInfo, id: int) -> Player:
@@ -98,7 +99,8 @@ class PlayerQuery(graphene.ObjectType):
             players = _sort_query_set_with_attributes(
                 players,
                 sorting if sorting is not None
-                else ("surname", constants.SortingDirection.ASCENDING), 
+                else ("nazwisko", constants.SortingDirection.ASCENDING), 
+                constants.PLAYER_SORT_ATTRIBUTES
             )
         elif str(sorting.target_attribute_name).split()[0] in constants.Metrics._member_names_:
             players = _sort_query_set_with_metric(players, sorting, start_date, end_date)
@@ -111,11 +113,11 @@ class PlayerQuery(graphene.ObjectType):
 class MatchQuery(graphene.ObjectType):
     match_sorting_attributes = graphene.List(graphene.String)
     def resolve_match_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        return list(constants.MATCH_SORT_ATTRIBUTES)
+        return list(constants.MATCH_SORT_ATTRIBUTES.keys())
 
     match_filtering_attributes = graphene.List(graphene.String)
     def resolve_match_filtering_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        return list(constants.MATCH_FILTER_ATTRIBUTES)
+        return list(constants.MATCH_FILTER_ATTRIBUTES.keys())
 
     match = graphene.Field(MatchType, id=graphene.Int())
     def resolve_match(root, info: graphene.ResolveInfo, id: int) -> Match:
@@ -170,7 +172,8 @@ class MatchQuery(graphene.ObjectType):
             matches = _sort_query_set_with_attributes(
                 matches,
                 sorting if sorting is not None
-                else ("game_date", constants.SortingDirection.DESCENDING), 
+                else ("data rozegrania", constants.SortingDirection.DESCENDING),
+                constants.MATCH_SORT_ATTRIBUTES
             )
         elif str(sorting.target_attribute_name).split()[0] in constants.Metrics._member_names_:
             matches = _sort_query_set_with_metric(matches, sorting, start_date, end_date)
@@ -183,11 +186,11 @@ class MatchQuery(graphene.ObjectType):
 class TeamQuery(graphene.ObjectType):
     team_sorting_attributes = graphene.List(graphene.String)
     def resolve_team_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        return list(constants.TEAM_SORT_ATTRIBUTES)
+        return list(constants.TEAM_SORT_ATTRIBUTES.keys())
 
     team_filtering_attributes = graphene.List(graphene.String)
     def resolve_team_filtering_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        return list(constants.TEAM_FILTER_ATTRIBUTES)
+        return list(constants.TEAM_FILTER_ATTRIBUTES.keys())
 
     team = graphene.Field(TeamType, id=graphene.Int())
     def resolve_team(root, info: graphene.ResolveInfo, id: int) -> Team:
@@ -240,7 +243,8 @@ class TeamQuery(graphene.ObjectType):
             teams = _sort_query_set_with_attributes(
                 teams,
                 sorting if sorting is not None
-                else ("name", constants.SortingDirection.ASCENDING),
+                else ("nazwa", constants.SortingDirection.ASCENDING),
+                constants.TEAM_SORT_ATTRIBUTES
             )
         elif str(sorting.target_attribute_name).split()[0] in constants.Metrics._member_names_:
             teams = _sort_query_set_with_metric(teams, sorting, start_date, end_date)
@@ -253,31 +257,43 @@ class TeamQuery(graphene.ObjectType):
 class UserQuery(graphene.ObjectType):
     user_sorting_attributes = graphene.List(graphene.String)
     def resolve_user_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        raise NotImplementedError
+        return list(constants.USER_SORT_ATTRIBUTES.keys())
 
     user_filtering_attributes = graphene.List(graphene.String)
     def resolve_user_filtering_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        raise NotImplementedError
+        return list(constants.USER_FILTER_ATTRIBUTES.keys())
 
     users_list: graphene.List = graphene.List(
         UserType,
         page=graphene.Int(),
         textual_filters=graphene.List(TextualFilterType, default_value=[]),
-        numerical_filters=graphene.List(NumericalFilterType, default_value=[]),
-        metric_filters=graphene.List(MetricFilterType, default_value=[]),
-        sorting=SortingType(default_value=SortingType(target_attribute_name="USERNAME", direction=0))
+        sorting=SortingType(default_value=None),
+        token=graphene.String(required=True)
     )
+    @superuser_required
     def resolve_users_list(
         root,
-        info: graphene.ResolveInfo, 
-        start_date: date,
-        end_date: date,
+        info: graphene.ResolveInfo,
         page: int,
         textual_filters: list[TextualFilterType],
-        numerical_filters: list[NumericalFilterType],
-        sorting: list[SortingType]
+        sorting: SortingType | None,
+        **kwargs
     ) -> list[User]:
-        raise NotImplementedError
+        users: QuerySet[User] = User.objects.filter(is_superuser=False)
+
+        users = _filter_query_set_with_attributes(users, textual_filters, constants.USER_FILTER_ATTRIBUTES.keys())
+
+        if sorting is None or sorting.target_attribute_name in constants.USER_SORT_ATTRIBUTES.keys():
+            users = _sort_query_set_with_attributes(
+                users,
+                sorting if sorting is not None
+                else ("login", constants.SortingDirection.ASCENDING),
+                constants.USER_SORT_ATTRIBUTES
+            )
+        else:
+            raise ValueError(ERROR_INVALID_SORTING_ATTRIBUTE)
+
+        return _get_page_from_query_set(users, page)
 
 
 class LeagueQuery(graphene.ObjectType):
@@ -356,7 +372,8 @@ def _sort_query_set_with_metric(
 
 def _sort_query_set_with_attributes(
     query_set: QuerySet[Match | Player | Team | User], 
-    sorting_criteria: SortingType | tuple[str, constants.SortingDirection]
+    sorting_criteria: SortingType | tuple[str, constants.SortingDirection],
+    valid_sorting_criteria: dict[str, str]
 ) -> QuerySet:
     """
     Sorts given `QuerySet` accordingly to the passed sorting criteria and `id` field of underlying model.
@@ -365,14 +382,15 @@ def _sort_query_set_with_attributes(
     - `query_set` (`QuerySet`): The `QuerySet` that is to be sorted.
     - `sorting_criteria` (`SortingType | tuple[str, constants.SortingDirection]`): Sorting criteria that consist of
     sorting attribute's name and sorting direction.
+    - `valid_sorting_criteria` (`dict[str, str]`): Valid sorting attributes data.
     """
     direction: constants.SortingDirection = (
         sorting_criteria.direction if isinstance(sorting_criteria, SortingType)
         else sorting_criteria[1]
     )
     sorting_attribute: str = (
-        sorting_criteria.target_attribute_name if isinstance(sorting_criteria, SortingType)
-        else sorting_criteria[0]
+        valid_sorting_criteria[sorting_criteria.target_attribute_name] if isinstance(sorting_criteria, SortingType)
+        else valid_sorting_criteria[sorting_criteria[0]]
     )
     sorting_expression: str = (
         f"{'-' if direction == constants.SortingDirection.DESCENDING else ''}"
@@ -384,7 +402,7 @@ def _sort_query_set_with_attributes(
 def _filter_query_set_with_attributes(
     query_set: QuerySet[Match | Player | Team | User], 
     textual_filters: list[TextualFilterType],
-    valid_filtering_attributes: list[str]
+    valid_filtering_attributes: dict[str, str]
 ) -> QuerySet:
     """
     Sorts given `QuerySet` accordingly to passed textual and numeric filtering criteria. 
@@ -397,32 +415,33 @@ def _filter_query_set_with_attributes(
     - `query_set` (`QuerySet`): Query set that would be filtered.
     - `textual_filters` (`list[TextualFilterType]`): Textual filters to be applied.
     - `numeric_filters` (`list[NumericalFilterType]`): Numerical filters to be applied.
-    - `valid_filtering_attributes` (`list[str]`): List of valid filtering attributes.
+    - `valid_filtering_attributes` (`dict[str, str]`): Valid filtering attributes.
     
     Return
     - `QuerySet`: Filtered `QuerySet`.
     """
     for textual_filter in textual_filters:
-        if textual_filter.target_attribute_name not in valid_filtering_attributes:
+        if textual_filter.target_attribute_name not in valid_filtering_attributes.keys():
             raise ValueError(ERROR_INVALID_FILTERING_ATTRIBUTE)
+        target_filter_attribute: str = valid_filtering_attributes[textual_filter.target_attribute_name]
         match textual_filter.filtering_criteria:
             case constants.TextualFilteringCriteria.TEXTUAL_FULL_TEXT_SEARCH:
                 if len(textual_filter.filter_params) != 1:
                     raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
                 query_set = query_set.filter(
-                    **{f"{textual_filter.target_attribute_name}__startswith": textual_filter.filter_params[0]}
+                    **{f"{target_filter_attribute}__startswith": textual_filter.filter_params[0]}
                 )
             case constants.TextualFilteringCriteria.TEXTUAL_IN_SET:
                 if len(textual_filter.filter_params) == 0:
                     raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
                 query_set = query_set.filter(
-                    **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
+                    **{f"{target_filter_attribute}__in": textual_filter.filter_params}
                 )
             case constants.TextualFilteringCriteria.TEXTUAL_NOT_IN_SET:
                 if len(textual_filter.filter_params) == 0:
                     raise ValueError(ERROR_FILTER_INVALID_NUMBER_OF_PARAMETERS)
                 query_set = query_set.exclude(
-                    **{f"{textual_filter.target_attribute_name}__in": textual_filter.filter_params}
+                    **{f"{target_filter_attribute}__in": textual_filter.filter_params}
                 )
             case _:
                 raise NotImplementedError("Provided textual filtering criteria does not exist!")
