@@ -69,7 +69,6 @@ MATCH_FILTER_ATTRIBUTES: list[str] = [
     "playerinmatch__player__name",
     "playerinmatch__player__surname",
     "league_season__league__country_of_origin__name",
-    "game_date",
 ]
 
 # SORTING
@@ -89,7 +88,7 @@ TEAM_SORT_ATTRIBUTES: tuple[str] = (
 MATCH_SORT_ATTRIBUTES: tuple[str] = (
     "league_season__league__name",
     "league_season__name",
-    "league_season__league__country_of_origin",
+    "league_season__league__country_of_origin__name",
     "game_date"
 )
 

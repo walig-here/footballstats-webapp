@@ -91,7 +91,7 @@ class PlayerQuery(graphene.ObjectType):
             match = Match.objects.get(pk=playing_in_match)
             players = match.get_players().distinct()
 
-        players = _filter_query_set_with_attributes(players, textual_filters, [], constants.PLAYER_FILTER_ATTRIBUTES)
+        players = _filter_query_set_with_attributes(players, textual_filters, constants.PLAYER_FILTER_ATTRIBUTES)
         players = _filter_query_set_with_metrics(start_date, end_date, players, metric_filters)
 
         if sorting is None or sorting.target_attribute_name in constants.PLAYER_SORT_ATTRIBUTES:
@@ -111,15 +111,15 @@ class PlayerQuery(graphene.ObjectType):
 class MatchQuery(graphene.ObjectType):
     match_sorting_attributes = graphene.List(graphene.String)
     def resolve_match_sorting_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        raise NotImplementedError
+        return list(constants.MATCH_SORT_ATTRIBUTES)
 
     match_filtering_attributes = graphene.List(graphene.String)
     def resolve_match_filtering_attributes(root, info: graphene.ResolveInfo) -> list[str]:
-        raise NotImplementedError
+        return list(constants.MATCH_FILTER_ATTRIBUTES)
 
     match = graphene.Field(MatchType, id=graphene.Int())
     def resolve_match(root, info: graphene.ResolveInfo, id: int) -> Match:
-        raise NotImplementedError
+        return Match.objects.get(pk=id)
 
     matches_list: graphene.List = graphene.List(
         MatchType,
@@ -129,7 +129,7 @@ class MatchQuery(graphene.ObjectType):
         textual_filters=graphene.List(TextualFilterType, default_value=[]),
         numerical_filters=graphene.List(NumericalFilterType, default_value=[]),
         metric_filters=graphene.List(MetricFilterType, default_value=[]),
-        sorting=SortingType(default_value=SortingType(target_attribute_name="DATE", direction=1)),
+        sorting=SortingType(default_value=None),
         team_involved=graphene.Int(default_value=None),
         player_involved=graphene.Int(default_value=None),
         ids=graphene.List(graphene.Int, default_value=[])
@@ -143,12 +143,41 @@ class MatchQuery(graphene.ObjectType):
         textual_filters: list[TextualFilterType],
         numerical_filters: list[NumericalFilterType],
         metric_filters: list[MetricFilterType],
-        sorting: list[SortingType],
+        sorting: SortingType | None,
         team_involved: int | None,
         player_involved: int | None,
         ids: list[int]
     ) -> list[Match]:
-        raise NotImplementedError
+        matches: QuerySet[Match] = (
+            Match.objects
+            .filter(game_date__range=(start_date, end_date))
+            .distinct()
+        )
+        if team_involved is not None:
+            team: Team = Team.objects.get(pk=team_involved)
+            matches = team.get_matches(start_date, end_date)
+            if player_involved is not None:
+                player: Player = Player.objects.get(pk=player_involved)
+                matches = matches.filter(id__in=player.get_matches(start_date, end_date).values("id")).distinct()
+        elif player_involved is not None:
+            player = Player.objects.get(pk=player_involved)
+            matches = player.get_matches(start_date, end_date).distinct()
+
+        matches = _filter_query_set_with_attributes(matches, textual_filters, constants.MATCH_FILTER_ATTRIBUTES)
+        matches = _filter_query_set_with_metrics(start_date, end_date, matches, metric_filters)
+
+        if sorting is None or sorting.target_attribute_name in constants.MATCH_SORT_ATTRIBUTES:
+            matches = _sort_query_set_with_attributes(
+                matches,
+                sorting if sorting is not None
+                else ("game_date", constants.SortingDirection.DESCENDING), 
+            )
+        elif str(sorting.target_attribute_name).split()[0] in constants.Metrics._member_names_:
+            matches = _sort_query_set_with_metric(matches, sorting, start_date, end_date)
+        else:
+            raise ValueError(ERROR_INVALID_SORTING_ATTRIBUTE)
+
+        return _get_page_from_query_set(matches, page)
 
 
 class TeamQuery(graphene.ObjectType):
@@ -204,7 +233,7 @@ class TeamQuery(graphene.ObjectType):
             match = Match.objects.get(pk=playing_in_match)
             teams = match.get_teams().distinct()
 
-        teams = _filter_query_set_with_attributes(teams, textual_filters, [], constants.TEAM_FILTER_ATTRIBUTES)
+        teams = _filter_query_set_with_attributes(teams, textual_filters, constants.TEAM_FILTER_ATTRIBUTES)
         teams = _filter_query_set_with_metrics(start_date, end_date, teams, metric_filters)
 
         if sorting is None or sorting.target_attribute_name in constants.TEAM_SORT_ATTRIBUTES:
@@ -354,8 +383,7 @@ def _sort_query_set_with_attributes(
 
 def _filter_query_set_with_attributes(
     query_set: QuerySet[Match | Player | Team | User], 
-    textual_filters: list[TextualFilterType], 
-    numeric_filters: list[NumericalFilterType],
+    textual_filters: list[TextualFilterType],
     valid_filtering_attributes: list[str]
 ) -> QuerySet:
     """

@@ -177,7 +177,7 @@ class TestMatch__calculate_metric__odds_in_time_range(TestCase):
         actual_odds_in_time_range: float = tested_match.calculate_metric(
             Metrics.ODDS_IN_TIME_RANGE, MatchEvents.SHOT_NOT_ON_TARGET, ["15", "80"]
         )
-        self.assertAlmostEqual(actual_odds_in_time_range, 0.64)
+        self.assertAlmostEqual(actual_odds_in_time_range, 64)
 
     def test_when_match_has_events_and_invalid_range_then_return_0(self):
         tested_match: Match = Match.objects.get(pk=2)

@@ -161,7 +161,7 @@ class Match(models.Model):
                     event_type_id=target_event.value, 
                     occurrence_minute__gte=lower_bound, 
                     occurrence_minute__lte=upper_bound
-                ).count() / all_target_events_count
+                ).count() / all_target_events_count * 100
             case _:
                 raise NotImplementedError
 

@@ -129,12 +129,7 @@ class PlayerType(DjangoObjectType):
 
 class TeamMatchScore(graphene.ObjectType):
     score: graphene.Int = graphene.Int()
-    def resolve_score(self, info: graphene.ResolveInfo) -> graphene.Int:
-        raise NotImplementedError
-    
     team_id: graphene.Int = graphene.Int()
-    def resolve_team_id(self, info: graphene.ResolveInfo) -> int:
-        raise NotImplementedError
 
 
 class AdminActionType(DjangoObjectType):
@@ -156,15 +151,19 @@ class MatchType(DjangoObjectType):
 
     events: graphene.List = graphene.List(MatchEventType)
     def resolve_events(self, info: graphene.ResolveInfo) -> graphene.List:
-        raise NotImplementedError
+        return Match.objects.get(pk=self.pk).get_events()
 
     teams_scores: graphene.List = graphene.List(TeamMatchScore)
-    def resolve_teams(self, info: graphene.ResolveInfo) -> graphene.List:
-        raise NotImplementedError
+    def resolve_teams_scores(self, info: graphene.ResolveInfo) -> graphene.List:
+        scores: dict[Team, int] = Match.objects.get(pk=self.pk).get_result()
+        return [
+            TeamMatchScore(score=score, team_id=team.pk)
+            for team, score in scores.items()
+        ]
 
     admin_actions: graphene.List = graphene.List(MatchAdminActionType)
     def resolve_admin_actions(self, info: graphene.ResolveInfo) -> graphene.List:
-        raise NotImplementedError
+        return MatchAdminAction.objects.filter(match=self.pk)
 
     calculate_metric: graphene.Float = graphene.Float(
         metric=MetricType(required=True),
@@ -176,7 +175,9 @@ class MatchType(DjangoObjectType):
         metric: MetricType,
         target_player_id: int | None
     ) -> float:
-        raise NotImplementedError
+        return Match.objects.get(pk=self.id).calculate_metric(
+            metric.metric_type, metric.target_match_event, metric.metric_params
+        )
 
 
 class TeamAdminActionType(DjangoObjectType):
