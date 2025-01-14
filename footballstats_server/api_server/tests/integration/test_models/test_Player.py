@@ -2,7 +2,7 @@ from datetime import date
 
 from django.test import TestCase
 
-from api_server.models import Player, Match
+from api_server.models import Player, Match, Country, LeagueSeason
 from api_server.tests.integration.__data__ import Player as data
 from api_server.tests.integration.testconf import (
     delete_all_events_for_player, make_player_play_for_0_minutes_total, delete_all_matches_for_player
@@ -768,7 +768,14 @@ class Test__Player__sum(TestCase):
 class Test__Player_automatic_delete(TestCase):
     fixtures = ["5matches_2admins"]
 
-    def test_when_player_not_participating_in_any_match_then_delete_it(self):
+    def test_when_player_not_participating_in_any_match_then_delete_it_after_match_delete(self):
         player: Player = Player.objects.get(pk=ID_PLAYER_WITH_MULTIPLE_MATCHES)
         delete_all_matches_for_player(player)
         self.assertEqual(len(Player.objects.filter(pk=ID_PLAYER_WITH_MULTIPLE_MATCHES)), 0)
+
+    def test_when_player_not_participating_in_any_match_then_delete_it_after_match_created(self):
+        country: Country = Country.objects.get(pk=10)
+        league_season: LeagueSeason = LeagueSeason.objects.get(pk=2)
+        Player(name="a", surname="a", country_of_origin=country).save()
+        Match(game_date=date(1000, 1, 1), league_season=league_season).save()
+        self.assertEqual(len(Player.objects.filter(name="a", surname="a")), 0)

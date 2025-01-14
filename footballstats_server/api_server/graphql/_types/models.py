@@ -11,6 +11,7 @@ from api_server.models import (
     AdminAction
 )
 from api_server.graphql._types.utils import MetricType
+from api_server.auth.permissions import user_has_permission
 
 
 class AdminActionTypeType(DjangoObjectType):
@@ -258,18 +259,12 @@ class UserType(DjangoObjectType):
 
     has_create_permission = graphene.Boolean()
     def resolve_has_create_permission(self, info: graphene.ResolveInfo) -> bool:
-        target_user: User = User.objects.get(pk=self.pk)
-        groups: dict[str, str] = list(target_user.groups.all().values_list('id', flat=True))
-        return constants.PermissionType.CREATE.value in groups
+        return user_has_permission(self.pk, constants.PermissionType.CREATE)
 
     has_modify_permission = graphene.Boolean()
     def resolve_has_modify_permission(self, info: graphene.ResolveInfo) -> bool:
-        target_user: User = User.objects.get(pk=self.pk)
-        groups: dict[str, str] = list(target_user.groups.all().values_list('id', flat=True))
-        return constants.PermissionType.EDIT.value in groups
+        return user_has_permission(self.pk, constants.PermissionType.EDIT)
 
     has_delete_permission = graphene.Boolean()
     def resolve_has_delete_permission(self, info: graphene.ResolveInfo) -> bool:
-        target_user: User = User.objects.get(pk=self.pk)
-        groups: dict[str, str] = list(target_user.groups.all().values_list('id', flat=True))
-        return constants.PermissionType.DELETE.value in groups
+        return user_has_permission(self.pk, constants.PermissionType.DELETE)

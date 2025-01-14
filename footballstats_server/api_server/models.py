@@ -176,6 +176,18 @@ def _after_delete_on_match(sender: models.base.Model, instance: Match, **kwargs:
         season.delete()
 
 
+@receiver(models.signals.post_save, sender=Match)
+def _after_create_on_match(sender: models.base.Model, instance: Match, created: bool, **kwargs) -> None:
+    if not created:
+        return
+    for team in Team.objects.all():
+        if team.get_matches(date.min, date.max).count() == 0:
+            team.delete()
+    for player in Player.objects.all():
+        if player.get_matches(date.min, date.max).count() == 0:
+            player.delete()
+
+
 class AdminAction(models.Model):
     action_type: Permission = models.ForeignKey(Permission, models.PROTECT)
     user: User = models.ForeignKey(User, models.SET_NULL, null=True)

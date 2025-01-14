@@ -7,7 +7,8 @@ def get_graphql_context_with_owner_logged_in() -> dict:
     return DictionaryObject({
         "user": DictionaryObject({
             "is_authenticated": True,
-            "is_superuser": True
+            "is_superuser": True,
+            "pk": 0
         }) 
     })
 
@@ -16,7 +17,8 @@ def get_graphql_context_with_admin_logged_in() -> dict:
     return DictionaryObject({
         "user": DictionaryObject({
             "is_authenticated": True,
-            "is_superuser": False
+            "is_superuser": False,
+            "pk": 1
         })
     })
 

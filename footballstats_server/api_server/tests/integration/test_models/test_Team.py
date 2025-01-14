@@ -2,7 +2,7 @@ from datetime import date
 
 from django.test import TestCase
 
-from api_server.models import Team, Match, Player
+from api_server.models import Team, Match, Player, Country, LeagueSeason    
 from api_server.constants import MetricScope, Metrics, MatchEvents, MATCH_LENGTH_MINUTES, METRIC_UNDEFINED_VALUE
 from api_server.tests.integration.__data__ import Team as data
 from api_server.tests.integration.testconf import delete_all_events_for_team, delete_all_matches_for_team
@@ -559,7 +559,14 @@ class Test__calculate_metric__sum(TestCase):
 class Test__Team__automatic_delete(TestCase):
     fixtures = ["5matches_2admins"]
 
-    def test_when_team_does_not_participate_in_matches_then_delete_it(self):
+    def test_when_team_does_not_participate_in_matches_then_delete_it_after_match_deleted(self):
         team: Team = Team.objects.get(pk=ID_TEAM_WITH_MULTIPLE_MATCHES)
         delete_all_matches_for_team(team)
         self.assertEqual(len(Team.objects.filter(pk=ID_TEAM_WITH_MULTIPLE_MATCHES)), 0)
+
+    def test_when_team_not_participating_in_any_match_then_delete_it_after_match_created(self):
+        country: Country = Country.objects.get(pk=10)
+        league_season: LeagueSeason = LeagueSeason.objects.get(pk=2)
+        Team(name="a", country_of_origin=country).save()
+        Match(game_date=date(1000, 1, 1), league_season=league_season).save()
+        self.assertEqual(len(Team.objects.filter(name="a")), 0)

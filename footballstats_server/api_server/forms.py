@@ -97,15 +97,13 @@ class CreateCountryForm(forms.ModelForm):
         model = Country
         fields = "__all__"
 
+    token = forms.CharField(required=True)
 
-class AddNewPlayerToMatchForm(forms.ModelForm):
+
+class CreatePlayerToMatchForm(forms.ModelForm):
     class Meta:
         model = Player
         fields = "__all__"
-
-    match_id = forms.IntegerField(required=True)
-    team_id = forms.IntegerField(required=True)
-    minutes_played = forms.FloatField(required=True)
 
 
 class ModifyPlayerMatchContributionForm(forms.ModelForm):
@@ -128,10 +126,11 @@ class CreateMatchForm(forms.ModelForm):
         model = Match
         fields = "__all__"
 
-    home_score = forms.IntegerField(required=True)
-    home_team_id = forms.IntegerField(required=True)
-    away_score = forms.IntegerField(required=True)
-    away_team_id = forms.IntegerField(required=True)
+    home_team = forms.IntegerField(required=True)
+    away_team = forms.IntegerField(required=True)
+    home_team_players = forms.CharField(required=True)
+    away_team_players = forms.CharField(required=True)
+    token = forms.CharField(required=True)
 
 
 class CreateLeagueSeasonForm(forms.ModelForm):
@@ -139,16 +138,20 @@ class CreateLeagueSeasonForm(forms.ModelForm):
         model = LeagueSeason
         fields = "__all__"
 
+    token = forms.CharField(required=True)
+
 
 class CreateLeagueForm(forms.ModelForm):
     class Meta:
         model = League
         fields = "__all__"
 
+    token = forms.CharField(required=True)
 
-class AddTeamToMatchForm(forms.ModelForm):
+
+class CreateTeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = "__all__"
 
-    match_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
