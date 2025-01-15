@@ -6,7 +6,7 @@ from api_server.models import LeagueSeason, Match
 class Test__Season__automatic_delete(TestCase):
     fixtures = ["5matches_2admins"]
 
-    def test_when_no_season_relates_to_league_then_delete_league(self):
+    def test_when_no_season_relates_to_season_then_delete_season(self):
         season: LeagueSeason = LeagueSeason.objects.all().first()
         season_id: int = season.pk
         Match.objects.filter(league_season=season).delete()
