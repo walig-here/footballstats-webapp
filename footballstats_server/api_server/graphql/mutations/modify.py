@@ -14,12 +14,14 @@ from api_server.forms import (
     ModifyEventForm
 )
 from api_server.auth.permissions import user_has_permission
-from api_server.models import MatchEvent, Player, LeagueSeason, League, Country, Team, Match
-from api_server.graphql.mutations._utils import convert_form_to_mutation_error_response
+from api_server.models import MatchEvent, Player, LeagueSeason, League, Country, Team, Match, PlayerInMatch
+from api_server.graphql.mutations._utils import convert_form_to_mutation_errors_response
 
 
 ERROR_PLAYER_NOT_TAKING_PART_IN_MATCH: str = "Player is not taking part in this match!"
 ERROR_SEASON_NAME_TO_UNIQ_WITHIN_LEAGUE: str = "Season name is not uniq within league!"
+ERROR_TEAM_NOT_TAKING_PART_IN_THAT_MATCH: str = "Team is not taking part in that match!"
+ERROR_PLAYER_IS_TEAM_LAST_PLAYER: str =  "Can't reassign team's last player!"
 
 
 class ModifyEventFromMatch(DjangoFormMutation):
@@ -51,7 +53,7 @@ class ModifyEventFromMatch(DjangoFormMutation):
             form.add_error("player", ERROR_PLAYER_NOT_TAKING_PART_IN_MATCH)
         
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
 
         event.player = form.cleaned_data['player']
         event.occurrence_minute = form.cleaned_data.get('occurrence_minute')
@@ -86,7 +88,7 @@ class ModifyLeagueSeason(DjangoFormMutation):
             form.add_error("name", ERROR_SEASON_NAME_TO_UNIQ_WITHIN_LEAGUE)
         
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
 
         season.name = new_name
         season.save()
@@ -124,7 +126,7 @@ class ModifyLeague(DjangoFormMutation):
             form.add_error("countryOfOrigin", str(e))
         
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
 
         league.name = new_name
         league.country_of_origin = new_country
@@ -159,7 +161,7 @@ class ModifyCountry(DjangoFormMutation):
             form.add_error("country_id", str(e))
         
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
 
         country.name = new_name
         country.flag_url = form.cleaned_data['flag_url']
@@ -194,7 +196,7 @@ class ModifyTeam(DjangoFormMutation):
             form.add_error("league", str(e))
         
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
 
         team.name = new_name
         team.country_of_origin = form.cleaned_data['country_of_origin']
@@ -228,7 +230,7 @@ class ModifyMatch(DjangoFormMutation):
             form.add_error("match_id", str(e))
         
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
 
         match.game_date = form.cleaned_data['game_date']
         match.league_season = form.cleaned_data['league_season']
@@ -258,19 +260,19 @@ class ModifyPlayer(DjangoFormMutation):
         player_id: int = form.cleaned_data['player_id']
 
         try:
-            match = Player.objects.get(id=player_id)
+            player = Player.objects.get(id=player_id)
         except Player.DoesNotExist as e:
             form.add_error("player_id", str(e))
         
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
 
-        match.name = form.cleaned_data['name']
-        match.surname = form.cleaned_data['surname']
-        match.nickname = form.cleaned_data['nickname']
-        match.profile_photo_url = form.cleaned_data['profile_photo_url']
-        match.country_of_origin = form.cleaned_data['country_of_origin']
-        match.save()
+        player.name = form.cleaned_data['name']
+        player.surname = form.cleaned_data['surname']
+        player.nickname = form.cleaned_data['nickname']
+        player.profile_photo_url = form.cleaned_data['profile_photo_url']
+        player.country_of_origin = form.cleaned_data['country_of_origin']
+        player.save()
 
         return cls(errors=[])
 
@@ -291,6 +293,25 @@ class ModifyPlayerMatchContribution(DjangoFormMutation):
     @classmethod
     @login_required
     @user_passes_test(lambda user: user_has_permission(user.pk, PermissionType.EDIT))
-    def perform_mutate(cls, form, info: graphene.ResolveInfo):
-        raise NotImplementedError
-        return super().perform_mutate(form, info)
+    def perform_mutate(cls, form: ModifyPlayerMatchContributionForm, info: graphene.ResolveInfo):
+        player_id: int = form.cleaned_data['player_id']
+        match_id: int = form.cleaned_data['match_id']
+        team: Team = form.cleaned_data['team']
+
+        try:
+            player_in_match = PlayerInMatch.objects.get(player=player_id, match=match_id)
+        except PlayerInMatch.DoesNotExist as e:
+            form.add_error(None, str(e))
+        if Match.objects.get(pk=match_id).get_teams().filter(pk=team.pk).count() == 0:
+            form.add_error("team", ERROR_TEAM_NOT_TAKING_PART_IN_THAT_MATCH)
+        elif PlayerInMatch.objects.filter(match=match_id, team=player_in_match.team).exclude(player=player_id).count() == 0:
+            form.add_error(None, ERROR_PLAYER_IS_TEAM_LAST_PLAYER)
+        
+        if not form.is_valid():
+            return cls(errors=convert_form_to_mutation_errors_response(form))
+
+        player_in_match.team = form.cleaned_data['team']
+        player_in_match.minutes_played = form.cleaned_data['minutes_played']
+        player_in_match.save()
+
+        return cls(errors=[])

@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 
 
-def convert_form_to_mutation_error_response(form: ModelForm) -> list:
+def convert_form_to_mutation_errors_response(form: ModelForm) -> list:
     form.is_valid()
     return [
         {

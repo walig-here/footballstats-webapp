@@ -6,7 +6,7 @@ from django.test import TestCase
 from graphene.test import Client as GraphQlClient
 
 from api_server.views import schema
-from api_server.models import MatchEvent, LeagueSeason, League, Country, Team, Match, Player
+from api_server.models import MatchEvent, LeagueSeason, League, Country, Team, Match, Player, PlayerInMatch
 
 from api_server.tests.integration.__data__.graphql.mutation import modify as data
 from api_server.tests import testconf as global_testconf
@@ -20,13 +20,59 @@ class Test__ModifyPlayerMatchContribution(TestCase):
         self.client: GraphQlClient = GraphQlClient(schema=schema)
 
     def test_can_admin_with_modify_permission_modify_player_match_contribution(self, mock_has_permission: MagicMock):
-        ...
+        response: dict = self.client.execute(
+            data.MODIFY_PLAYER_MATCH_CONTRIBUTION_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+
+        self.assertEqual(response, data.MODIFY_PLAYER_MATCH_CONTRIBUTION_RESPONSE)
+        self.assertEqual(
+            (
+                PlayerInMatch.objects.get(player=37, match=2).team.pk, 
+                PlayerInMatch.objects.get(player=37, match=2).minutes_played,
+            ),
+            (
+                4,
+                Decimal('45.000')
+            )
+        )
 
     def test_cant_owner_modify_player_match_contribution_when_team_is_not_playing_in_match(self, mock_has_permission: MagicMock):
-        ...
+        response: dict = self.client.execute(
+            data.TEAM_NOT_PLAYING_IN_MATCH_MODIFY_PLAYER_MATCH_CONTRIBUTION_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+
+        self.assertEqual(response, data.TEAM_NOT_PLAYING_IN_MATCH_MODIFY_PLAYER_MATCH_CONTRIBUTION_RESPONSE)
+        self.assertEqual(
+            (
+                PlayerInMatch.objects.get(player=37, match=2).team.pk, 
+                PlayerInMatch.objects.get(player=37, match=2).minutes_played,
+            ),
+            (
+                3,
+                Decimal('90.000')
+            )
+        )
 
     def test_cant_owner_modify_player_match_contribution_when_player_is_team_last_player(self, mock_has_permission: MagicMock):
-        ...
+        PlayerInMatch.objects.filter(match=2, team=3).exclude(player=37).delete()
+        response: dict = self.client.execute(
+            data.PLAYER_IS_TEAM_LAST_PLAYER_MODIFY_PLAYER_MATCH_CONTRIBUTION_REQUEST,
+            context=global_testconf.get_graphql_context_with_admin_logged_in()
+        )
+
+        self.assertEqual(response, data.PLAYER_IS_TEAM_LAST_PLAYER_MODIFY_PLAYER_MATCH_CONTRIBUTION_RESPONSE)
+        self.assertEqual(
+            (
+                PlayerInMatch.objects.get(player=37, match=2).team.pk, 
+                PlayerInMatch.objects.get(player=37, match=2).minutes_played,
+            ),
+            (
+                3,
+                Decimal('90.000')
+            )
+        )
 
 
 @patch("api_server.graphql.mutations.modify.user_has_permission", return_value = True)

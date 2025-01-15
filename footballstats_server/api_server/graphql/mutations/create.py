@@ -16,7 +16,7 @@ from api_server.forms import (
 from api_server.auth.permissions import user_has_permission
 from api_server.constants import PermissionType
 from api_server.models import Team, Player, Match, PlayerInMatch
-from api_server.graphql.mutations._utils import convert_form_to_mutation_error_response
+from api_server.graphql.mutations._utils import convert_form_to_mutation_errors_response
 
 
 ERROR_PLAYER_ADDED_TO_MATCH_HAVE_NO_MINUTES_PLAYED: str = "Player have no minutes played info!"
@@ -50,7 +50,7 @@ class AddEventToMatch(DjangoFormMutation):
         if match.get_players().filter(pk=player.pk).count() == 0:
             form.add_error("player", ERROR_PLAYER_NOT_ASSIGNED_TO_MATCH)
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
         return super().perform_mutate(form, info)
 
 
@@ -118,7 +118,7 @@ class AddExistingPlayerToMatch(DjangoFormMutation):
         if match.get_players().filter(pk=player.pk).count() > 0:
             form.add_error("player", ERROR_PLAYER_ALREADY_ASSIGNED_TO_MATCH)
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
         return super().perform_mutate(form, info)
 
 
@@ -227,7 +227,7 @@ class CreateMatch(DjangoFormMutation):
                     form.add_error(field=f"{team}_players", error=ERROR_PLAYER_HAS_NON_NUMERIC_DATA)
 
         if not form.is_valid():
-            return cls(errors=convert_form_to_mutation_error_response(form))
+            return cls(errors=convert_form_to_mutation_errors_response(form))
 
         new_match: Match = form.save()
 

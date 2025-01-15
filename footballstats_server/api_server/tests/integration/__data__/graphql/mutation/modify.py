@@ -2,6 +2,105 @@
 # MODIFY PLAYER
 #-------------------------------------------------------------------------------------
 
+MODIFY_PLAYER_MATCH_CONTRIBUTION_REQUEST: str = """\
+mutation{
+    modifyPlayerMatchContribution(
+        input: {
+            playerId: 37, 
+            matchId: 2,
+            team: 4,
+            minutesPlayed: 45,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+MODIFY_PLAYER_MATCH_CONTRIBUTION_RESPONSE: dict = {
+    "data": {
+        "modifyPlayerMatchContribution": {
+            "errors": []
+        }
+    }
+}
+
+TEAM_NOT_PLAYING_IN_MATCH_MODIFY_PLAYER_MATCH_CONTRIBUTION_REQUEST: str = """\
+mutation{
+    modifyPlayerMatchContribution(
+        input: {
+            playerId: 37, 
+            matchId: 2,
+            team: 7,
+            minutesPlayed: 45,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+TEAM_NOT_PLAYING_IN_MATCH_MODIFY_PLAYER_MATCH_CONTRIBUTION_RESPONSE: dict = {
+    "data": {
+        "modifyPlayerMatchContribution": {
+            "errors": [
+                {
+                    "field": "team",
+                    "messages": [
+                        "Team is not taking part in that match!"
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+PLAYER_IS_TEAM_LAST_PLAYER_MODIFY_PLAYER_MATCH_CONTRIBUTION_REQUEST: str = """\
+mutation{
+    modifyPlayerMatchContribution(
+        input: {
+            playerId: 37, 
+            matchId: 2,
+            team: 4,
+            minutesPlayed: 45,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        }
+    ) {
+        errors{
+            field,
+            messages
+        }
+    }
+}
+"""
+
+PLAYER_IS_TEAM_LAST_PLAYER_MODIFY_PLAYER_MATCH_CONTRIBUTION_RESPONSE: dict = {
+    "data": {
+        "modifyPlayerMatchContribution": {
+            "errors": [
+                {
+                    "field": "All",
+                    "messages": [
+                        "Can't reassign team's last player!"
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+#-------------------------------------------------------------------------------------
+# MODIFY PLAYER
+#-------------------------------------------------------------------------------------
+
 MODIFY_PLAYER_REQUEST: str = """\
 mutation{
     modifyPlayer(
