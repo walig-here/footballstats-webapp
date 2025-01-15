@@ -9,15 +9,18 @@ class ModifyEventForm(forms.ModelForm):
         fields = ("player", "occurrence_minute")
 
     event_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class RemoveEventForm(forms.Form):
     event_id= forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class RemovePlayerFromTeam(forms.Form):
     player_id = forms.IntegerField(required=True)
     match_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class ModifyLeagueSeasonForm(forms.ModelForm):
@@ -26,6 +29,7 @@ class ModifyLeagueSeasonForm(forms.ModelForm):
         fields = ("name", )
 
     league_season_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class ModifyLeagueForm(forms.ModelForm):
@@ -34,6 +38,7 @@ class ModifyLeagueForm(forms.ModelForm):
         fields = "__all__"
 
     league_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class ModifyCountryForm(forms.ModelForm):
@@ -42,10 +47,12 @@ class ModifyCountryForm(forms.ModelForm):
         fields = "__all__"
 
     country_id = forms.IntegerField()
+    token = forms.CharField(required=True)
 
 
 class RemoveTeamForm(forms.Form):
     team_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class ModifyTeamForm(forms.ModelForm):
@@ -54,6 +61,7 @@ class ModifyTeamForm(forms.ModelForm):
         fields = "__all__"
 
     team_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class ModifyMatchForm(forms.ModelForm):
@@ -62,10 +70,12 @@ class ModifyMatchForm(forms.ModelForm):
         fields = "__all__"
 
     match_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class RemoveMatchForm(forms.Form):
     match_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class ModifyPlayerForm(forms.ModelForm):
@@ -74,6 +84,7 @@ class ModifyPlayerForm(forms.ModelForm):
         fields = "__all__"
 
     player_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class RemovePlayerFromMatchForm(forms.ModelForm):
@@ -81,9 +92,12 @@ class RemovePlayerFromMatchForm(forms.ModelForm):
         model = PlayerInMatch
         fields = ("player", "match")
 
+    token = forms.CharField(required=True)
+
 
 class RemovePlayerForm(forms.Form):
     player_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class AddEventToMatchForm(forms.ModelForm):
@@ -117,6 +131,7 @@ class ModifyPlayerMatchContributionForm(forms.ModelForm):
 
     match_id = forms.IntegerField(required=True)
     player_id = forms.IntegerField(required=True)
+    token = forms.CharField(required=True)
 
 
 class AddExistingPlayerToMatchForm(forms.ModelForm):

@@ -16,6 +16,7 @@ from api_server.forms import (
 from api_server.auth.permissions import user_has_permission
 from api_server.constants import PermissionType
 from api_server.models import Team, Player, Match, PlayerInMatch
+from api_server.graphql.mutations._utils import convert_form_to_mutation_error_response
 
 
 ERROR_PLAYER_ADDED_TO_MATCH_HAVE_NO_MINUTES_PLAYED: str = "Player have no minutes played info!"
@@ -24,14 +25,6 @@ ERROR_PLAYER_ASSIGNED_TO_BOTH_TEAMS: str = "The same player is assigned to both 
 ERROR_PLAYER_ASSIGNED_TO_TEAM_NOT_TAKING_PART_IN_MATCH: str = "This team is not taking part in that match!"
 ERROR_PLAYER_ALREADY_ASSIGNED_TO_MATCH: str = "Player already takes part in that match!"
 ERROR_PLAYER_NOT_ASSIGNED_TO_MATCH: str = "Player is not taking part in this match!"
-
-
-def _snake_to_camel_case(snake_str: str):
-    """
-    Converts snake case to camel case.
-    """
-    components = snake_str.split('_')
-    return components[0] + ''.join(x.title() for x in components[1:])
 
 
 class AddEventToMatch(DjangoFormMutation):
@@ -57,15 +50,7 @@ class AddEventToMatch(DjangoFormMutation):
         if match.get_players().filter(pk=player.pk).count() == 0:
             form.add_error("player", ERROR_PLAYER_NOT_ASSIGNED_TO_MATCH)
         if not form.is_valid():
-            return cls(errors=[
-                {
-                    "field": _snake_to_camel_case(field), 
-                    "messages": [
-                        data["message"] for data in payload
-                    ]
-                }
-                for field, payload in form.errors.get_json_data().items()
-            ])
+            return cls(errors=convert_form_to_mutation_error_response(form))
         return super().perform_mutate(form, info)
 
 
@@ -133,15 +118,7 @@ class AddExistingPlayerToMatch(DjangoFormMutation):
         if match.get_players().filter(pk=player.pk).count() > 0:
             form.add_error("player", ERROR_PLAYER_ALREADY_ASSIGNED_TO_MATCH)
         if not form.is_valid():
-            return cls(errors=[
-                {
-                    "field": _snake_to_camel_case(field), 
-                    "messages": [
-                        data["message"] for data in payload
-                    ]
-                }
-                for field, payload in form.errors.get_json_data().items()
-            ])
+            return cls(errors=convert_form_to_mutation_error_response(form))
         return super().perform_mutate(form, info)
 
 
@@ -250,15 +227,7 @@ class CreateMatch(DjangoFormMutation):
                     form.add_error(field=f"{team}_players", error=ERROR_PLAYER_HAS_NON_NUMERIC_DATA)
 
         if not form.is_valid():
-            return cls(errors=[
-                {
-                    "field": _snake_to_camel_case(field), 
-                    "messages": [
-                        data["message"] for data in payload
-                    ]
-                }
-                for field, payload in form.errors.get_json_data().items()
-            ])
+            return cls(errors=convert_form_to_mutation_error_response(form))
 
         new_match: Match = form.save()
 
