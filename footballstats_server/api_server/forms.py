@@ -17,9 +17,9 @@ class RemoveEventForm(forms.Form):
     token = forms.CharField(required=True)
 
 
-class RemovePlayerFromTeam(forms.Form):
+class RemovePlayerFromTeamForm(forms.Form):
     player_id = forms.IntegerField(required=True)
-    match_id = forms.IntegerField(required=True)
+    team_id = forms.IntegerField(required=True)
     token = forms.CharField(required=True)
 
 
