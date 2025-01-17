@@ -1,0 +1,7 @@
+@import "../globals.css";
+
+.label-large{
+    font-size: 14px;
+    color: var(--md-sys-color-inverse-on-surface-variant);
+    font-weight: bold;
+}

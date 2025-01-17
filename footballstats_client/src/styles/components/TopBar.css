@@ -1,0 +1,5 @@
+@import "../globals.css";
+
+.topbar{
+    background-color: rgb(var(--md-sys-color-surface-container));
+}

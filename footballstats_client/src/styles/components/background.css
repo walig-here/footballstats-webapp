@@ -3,6 +3,5 @@
 .background{
     background-color: rgb(var(--md-sys-color-surface));
     display: flex;
-    height: 100vh;
     color: rgb(var(--md-sys-color-on-surface));
 }
