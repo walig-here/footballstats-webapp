@@ -7,11 +7,12 @@ import { LoadingView } from "../../views/utilities/LoadingView";
 import { useContext } from "react";
 import { UserContext } from "../../App";
 import { Body } from "../Body";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 
 export default function LoginForm() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const user = useContext(UserContext);
     const [password, setPassword] = useState("");
     const [login, setLogin] = useState("");
@@ -26,7 +27,8 @@ export default function LoginForm() {
             user.setUsername(data.tokenAuth.payload.username);
             localStorage.setItem(ACCESS_TOKEN, data.tokenAuth.token);
             localStorage.setItem(REFRESH_TOKEN, data.tokenAuth.refreshToken);
-            navigate("/");
+            const redirect = searchParams.get('redirect');
+            navigate(redirect ? redirect : "/");
         } catch (caughtError) {
             console.log(`Error occurred while trying to log in. Error:\n${caughtError}`);
         }

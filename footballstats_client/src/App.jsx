@@ -1,6 +1,6 @@
 import { useState, createContext } from "react";
 import Router from "./router/Router.jsx"
-import { DEFAULT_USERNAME, UNAUTHENTICATED_USERNAME } from "./constants.js";
+import { DEFAULT_USERNAME, UNAUTHENTICATED_USERNAME, USERNAME } from "./constants.js";
 import {logOut} from './api_client.jsx'
 
 export const UserContext = createContext(null);
@@ -8,7 +8,7 @@ export const DateRangeContext = createContext(null);
 
 export default function App() {
     const DEFAULT_USER = {
-        username: DEFAULT_USERNAME,
+        username: localStorage.getItem(USERNAME) ? localStorage.getItem(USERNAME) : DEFAULT_USERNAME,
         logoutFunction: () => {
             setUser(previousUser => {
                 return {
@@ -17,6 +17,7 @@ export default function App() {
                 }
             });
             logOut();
+            localStorage.removeItem(USERNAME);
         },
         setUsername: (newUsername) => {
             setUser(previousUser => {
@@ -25,6 +26,7 @@ export default function App() {
                     username: newUsername,
                 }
             });
+            localStorage.setItem(USERNAME, newUsername);
         }
     };
 

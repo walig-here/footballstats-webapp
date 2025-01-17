@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, gql, useMutation } from '@apollo/client';
-import {useNavigate} from 'react-router';
+import {useLocation, useNavigate} from 'react-router';
 
 import * as constants from "./constants.js"
 import { useEffect, useState } from 'react';
@@ -35,6 +35,22 @@ export const VERIFY_TOKEN_MUTATION = gql`
     }
 `;
 
+
+export const REGISTER_USER_MUTATION = gql`
+mutation($password: String!, $username: String!, $token: String!){
+    registerUser(password: $password, username: $username, registrationToken: $token){
+        ok,
+        messages
+    }
+}
+`
+
+export const GENERATE_REGISTRATION_TOKEN = gql`
+query($accessToken: String!){
+  generateRegistrationToken(token: $accessToken)
+}
+`
+
 export const CURRENT_USER = {
     name: null
 }
@@ -57,6 +73,7 @@ export function logOut() {
  *  When user is not authenticated, then redirection to login page is performed.
  */
 export function LoginRequired({children}) {
+    const location = useLocation();
     const navigate = useNavigate()
     const [isAuthenticating, setIsAuthenticating] = useState(true);
 
@@ -100,7 +117,7 @@ export function LoginRequired({children}) {
         tryAuthenticate().then((isAuthenticated) => {
             setIsAuthenticating(false);
             if (!isAuthenticated)
-                navigate(constants.LOGIN_PAGE_PATH);
+                navigate(`${constants.LOGIN_PAGE_PATH}?redirect=${location.pathname}`);
         });
     }, []);
 

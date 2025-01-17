@@ -15,7 +15,7 @@ export default function Section({children, topLeftContent, title, subtitle, icon
                 </div>
             </div>
             <Divider/>
-            <div className="pt-4">
+            <div className="pt-4 flex flex-col space-y-4">
                 {children}
             </div>
         </Card>
