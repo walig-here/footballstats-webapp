@@ -1,5 +1,8 @@
+import ContentView from "../../components/ContentView";
+
 export default function GenerateRegistrationTokenView() {
     return (
-        <h1>Generowanie tokenów rejestracji</h1>
+        <ContentView title="Wygeneruj token rejestracji">
+        </ContentView>
     );
 }

@@ -1,11 +1,34 @@
 import { useState, createContext } from "react";
 import Router from "./router/Router.jsx"
+import { DEFAULT_USERNAME, UNAUTHENTICATED_USERNAME } from "./constants.js";
+import {logOut} from './api_client.jsx'
 
-export const UsernameContext = createContext(null);
+export const UserContext = createContext(null);
 export const DateRangeContext = createContext(null);
 
 export default function App() {
-    const [username, setUsername] = useState(null);
+    const DEFAULT_USER = {
+        username: DEFAULT_USERNAME,
+        logoutFunction: () => {
+            setUser(previousUser => {
+                return {
+                    ...previousUser,
+                    username: UNAUTHENTICATED_USERNAME,
+                }
+            });
+            logOut();
+        },
+        setUsername: (newUsername) => {
+            setUser(previousUser => {
+                return {
+                    ...previousUser,
+                    username: newUsername,
+                }
+            });
+        }
+    };
+
+    const [user, setUser] = useState(DEFAULT_USER);
     const [dateRange, setDateRange] = useState({
         minStartDate: null,
         maxEndDate: null,
@@ -15,9 +38,9 @@ export default function App() {
 
     return (
         <DateRangeContext.Provider value={dateRange}>
-            <UsernameContext.Provider value={username}>
+            <UserContext.Provider value={user}>
                 <Router/>
-            </UsernameContext.Provider>
+            </UserContext.Provider>
         </DateRangeContext.Provider>
     )
 }

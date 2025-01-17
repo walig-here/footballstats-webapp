@@ -1,6 +1,9 @@
+import ContentView from "../../components/ContentView";
+
 function HomeView() {
     return (
-        <h1>Ekran domowy</h1>
+        <ContentView title="Witaj w FootballStats!">
+        </ContentView>
     );
 }
 

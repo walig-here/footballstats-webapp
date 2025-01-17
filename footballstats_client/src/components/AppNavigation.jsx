@@ -1,8 +1,8 @@
-import { Button, Divider, Icon, List, ListItem } from "actify";
+import { Button, Divider, Icon} from "actify";
 import TopBar from "./TopBar";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useContext, useEffect, useState } from 'react';
-import {UsernameContext} from '../App.jsx';
+import {UserContext} from '../App.jsx';
 
 import * as constants from "../constants.js"
 import * as utils from "../data_processing.js"
@@ -39,24 +39,20 @@ function getDataForNavigationList(username){
 
 export default function AppNavigation({ children }) {
     const navigate = useNavigate();
-    const username = useContext(UsernameContext);
-    const [navigationHidden, setNavigationHidden] = useState(true);
-    const [currentRoute, setCurrentRoute] = useState("/");
+    const location = useLocation();
+    const user = useContext(UserContext);
+    const [navigationHidden, setNavigationHidden] = useState(false);
 
-    useEffect(() => {
-        navigate(currentRoute);
-    }, [currentRoute, navigate]);
-
-    const navigationList = Object.entries(getDataForNavigationList(username)).map(([title, elements], index) => (
+    const navigationList = Object.entries(getDataForNavigationList(user.username)).map(([title, elements], index) => (
         <div key={index}>
             <Label style="title-small px-4 py-4" text={title}/>
             {
                 elements.map((item) => (
                     <div
                         className={`px-4 py-4 space-x-3 w-full flex flex-row hover:bg-secondary-container hover:cursor-pointer rounded-full 
-                            ${currentRoute === item.route ? "bg-secondary-container text-on-surface" : "text-on-surface-variant"}`}
+                            ${location.pathname === item.route ? "bg-secondary-container text-on-surface" : "text-on-surface-variant"}`}
                         key={item.route}
-                        onClick={() => {setCurrentRoute(item.route)}}
+                        onClick={() => {navigate(item.route)}}
                     >
                         <Icon>{item.icon}</Icon>
                         <Label style="label-large" text={item.name}/>
@@ -69,15 +65,22 @@ export default function AppNavigation({ children }) {
 
     return (
         <div className="flex flex-col w-full h-screen">
-            <TopBar username={username} hideNavigation={() => {setNavigationHidden(username => !username)}}/>
-            <div className="flex flex-row h-screen">
+            <TopBar 
+                username={user.username} 
+                hideNavigation={() => {setNavigationHidden(navigationHidden => !navigationHidden)}}
+                logoutFunction={user.logoutFunction}
+            />
+            <div className="mt-16 flex flex-row">
                 {   
                     !navigationHidden &&
-                    <div className="h-screen w-74 bg-surface-container-low flex-none flex-col px-3 py-3">
+                    <div className="fixed w-72 h-screen bg-surface-container-low flex-none flex-col px-3 py-3 rounded-2xl">
                         {navigationList}
                     </div>
                 }
-                <div className="w-full">
+                <div
+                    className="flex overflow-x-hidden"
+                    style={!navigationHidden ? {marginLeft: "288px"} : {}}
+                >
                     {children}
                 </div>
             </div>

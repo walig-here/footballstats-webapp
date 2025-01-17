@@ -18,7 +18,9 @@ export const REFRESH_TOKEN_MUTATION = gql`
 export const GET_TOKENS_MUTATION = gql`
     mutation($username: String!, $password: String!){
         tokenAuth(username: $username, password: $password){
-            token
+            token,
+            refreshToken,
+            payload
         }
     }
 `;
@@ -42,6 +44,12 @@ export const apiClient = new ApolloClient({
     uri: constants.API_SERVER_URL,
     cache: new InMemoryCache(),
 });
+
+
+export function logOut() {
+    localStorage.removeItem(constants.ACCESS_TOKEN);
+    localStorage.removeItem(constants.REFRESH_TOKEN);
+}
 
 
 /**
