@@ -4,6 +4,7 @@ import {useLocation, useNavigate} from 'react-router';
 import * as constants from "./constants.js"
 import { useEffect, useState } from 'react';
 import { LoadingView } from './views/utilities/LoadingView.jsx';
+import { isAuthenticated, isOwner } from './data_processing.js';
 
 export const REFRESH_TOKEN_MUTATION = gql`
     mutation(
@@ -50,6 +51,68 @@ query($accessToken: String!){
   generateRegistrationToken(token: $accessToken)
 }
 `
+
+export const GET_ADMINS_LIST = gql`
+query(
+  $accessToken: String!,
+  $page: Int!,
+  $textualFilters: [TextualFilterType],
+  $sorting: SortingType,
+){
+  usersList(
+    page: $page, 
+    token: $accessToken, 
+    textualFilters: $textualFilters, 
+    sorting: $sorting
+  ) {
+    id,
+    username,
+    hasCreatePermission,
+    hasModifyPermission,
+    hasDeletePermission
+  },
+  usersListLength(token: $accessToken)
+}
+`
+
+export const REMOVE_ADMIN = gql`
+mutation(
+  $accessToken: String!,
+  $username: String!
+){
+  removeUser(token: $accessToken, username: $username){
+    ok,
+    messages
+  }
+}
+`
+
+export const GRANT_PERMISSION = gql`
+mutation(
+  $accessToken: String!,
+  $username: String!,
+  $permission: PermissionType!
+){
+  grantPermission(token: $accessToken, username: $username, permission: $permission){
+    ok,
+    messages
+  }
+}
+`
+
+export const REVOKE_PERMISSION = gql`
+mutation(
+  $accessToken: String!,
+  $username: String!,
+  $permission: PermissionType!
+){
+  revokePermission(token: $accessToken, username: $username, permission: $permission){
+    ok,
+    messages
+  }
+}
+`
+
 
 export const CURRENT_USER = {
     name: null
@@ -127,4 +190,24 @@ export function LoginRequired({children}) {
     return <>
         {children}
     </>;
+}
+
+export function SuperUserRequired({children}) {
+    const navigate = useNavigate();
+    const [isAuthorizing, setIsAuthorizing] = useState(true);
+
+    useEffect(() => {
+        if (!isOwner(localStorage.getItem(constants.USERNAME)))
+            navigate(constants.UNAUTHORIZED_PAGE);
+        setIsAuthorizing(false);
+    });
+
+    if (isAuthorizing)
+        return <LoadingView/>;
+
+    return (
+        <LoginRequired>
+            {children}
+        </LoginRequired>
+    )
 }

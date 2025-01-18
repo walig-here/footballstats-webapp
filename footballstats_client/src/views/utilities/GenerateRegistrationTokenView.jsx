@@ -3,10 +3,11 @@ import ContentView from "../../components/ContentView";
 import Section from "../../components/Section";
 import { Body } from "../../components/Body";
 import { useState } from "react";
-import { LoginRequired, GENERATE_REGISTRATION_TOKEN, apiClient } from "../../api_client";
+import { LoginRequired, GENERATE_REGISTRATION_TOKEN, apiClient, SuperUserRequired } from "../../api_client";
 import { LoadingView } from "./LoadingView";
 import { ACCESS_TOKEN, NOT_AUTHORIZED, UNAUTHORIZED_PAGE } from "../../constants";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const GENERATE_TOKENS_DESC = "Wygeneruj jednorazowy token pozwalający na zarejestrowanie konta administratora."
 const GENERATE_TOKEN_MANUAL = "Wygenerowany token zostanie umieszczony w poniższym polu i skopiowany do twojego schowka. Zachowaj go w bezpiecznym miejscu, gdyż po odświeżeniu storny nie będzie on więcej dostępny!"
@@ -25,10 +26,11 @@ export default function GenerateRegistrationTokenView() {
         }
         try {
             const {data} = await apiClient.query(
-                {query: GENERATE_REGISTRATION_TOKEN, variables: {accessToken: accessToken}}
+                {query: GENERATE_REGISTRATION_TOKEN, variables: {accessToken: accessToken}, fetchPolicy: "network-only"}
             );
             setToken(data.generateRegistrationToken);
             navigator.clipboard.writeText(data.generateRegistrationToken);
+            toast.success("Wygenerowano token!");
         } catch (err) {
             console.log(`Error occurred while generating registration token. Error\n${err}`);
             if (err.cause.message === NOT_AUTHORIZED)
@@ -38,7 +40,7 @@ export default function GenerateRegistrationTokenView() {
     }
 
     return (
-        <LoginRequired>
+        <SuperUserRequired>
             <ContentView title="Wygeneruj token rejestracji">
                 <Section title={"Generator tokenów"} iconName="key_vertical" subtitle={GENERATE_TOKENS_DESC}>
                     {
@@ -61,6 +63,6 @@ export default function GenerateRegistrationTokenView() {
                     }
                 </Section>
             </ContentView>
-        </LoginRequired>
+        </SuperUserRequired>
     );
 }

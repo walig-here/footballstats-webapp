@@ -1,5 +1,7 @@
+import ContentView from "../../components/ContentView";
+
 export default function PageNotFoundView() {
     return (
-        <h1>Brak strony</h1>
+        <ContentView title={"Nie znaleziono strony"}/>
     );
 }

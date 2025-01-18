@@ -1,6 +1,7 @@
 import { useState, createContext } from "react";
 import Router from "./router/Router.jsx"
 import { DEFAULT_USERNAME, UNAUTHENTICATED_USERNAME, USERNAME } from "./constants.js";
+import {ToastContainer} from 'react-toastify';
 import {logOut} from './api_client.jsx'
 
 export const UserContext = createContext(null);
@@ -40,6 +41,7 @@ export default function App() {
 
     return (
         <DateRangeContext.Provider value={dateRange}>
+            <ToastContainer position="bottom-right"/>
             <UserContext.Provider value={user}>
                 <Router/>
             </UserContext.Provider>

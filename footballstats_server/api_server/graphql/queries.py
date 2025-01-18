@@ -263,6 +263,11 @@ class UserQuery(graphene.ObjectType):
     def resolve_user_filtering_attributes(root, info: graphene.ResolveInfo) -> list[str]:
         return list(constants.USER_FILTER_ATTRIBUTES.keys())
 
+    users_list_length = graphene.Int(token=graphene.String(required=True))
+    @superuser_required
+    def resolve_users_list_length(root, info: graphene.ResolveInfo, **kwargs):
+        return User.objects.all().count() // constants.OBJECTS_PER_PAGE
+
     users_list: graphene.List = graphene.List(
         UserType,
         page=graphene.Int(),

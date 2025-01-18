@@ -5,9 +5,12 @@ import { useMutation } from "@apollo/client";
 import { LoadingView } from "../../views/utilities/LoadingView";
 import { Body } from "../Body";
 import * as utils from "../../data_processing"
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 
 export default function RegisterForm() {
+    const navigation = useNavigate();
     const [performRegisterMutation, {loading}] = useMutation(REGISTER_USER_MUTATION);
     const [form, setForm] = useState({
         login: "",
@@ -37,20 +40,28 @@ export default function RegisterForm() {
             const {data} = await performRegisterMutation({variables: {
                 username: form.login, password: form.password, token: form.token
             }});
+            console.log(data);
             if (!data.registerUser.ok)
                 setForm(oldForm => ({
                     ...oldForm,
                     formError: data.registerUser.messages[0],
-                }))
-            else
+                    loginError: loginError,
+                    passwordError: loginError,
+                    tokenError: loginError
+                }));
+            else {
                 setForm(oldForm => ({
                     ...oldForm,
                     login: form.login,
                     password: form.password,
                     token: form.token,
-                }))
+                }));
+                toast.success("Zarejestrowano administratora!");
+                navigation("/");
+            }
         } catch (err) {
             console.log(`Error occurred while registering user. Error:\n${err}`);
+            return;
         }
     }
 
@@ -59,6 +70,7 @@ export default function RegisterForm() {
 
     return (
         <div className="flex flex-col space-y-4">
+            {form.formError && <Body text={form.formError} style='text-error'/>}
             {form.loginError && <Body text={form.loginError} style='text-error'/>}
             <TextField 
                 variant="outlined"

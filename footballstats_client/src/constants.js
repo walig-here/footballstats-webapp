@@ -20,3 +20,9 @@ export const NOT_AUTHORIZED = "You do not have permission to perform this action
 export const OWNER_USERNAME = "owner";
 export const UNAUTHENTICATED_USERNAME = null;
 export const DEFAULT_USERNAME = null;
+
+export const PermissionTypes = {
+    DELETE: "DELETE",
+    EDIT: "EDIT",
+    CREATE: "CREATE"
+}
