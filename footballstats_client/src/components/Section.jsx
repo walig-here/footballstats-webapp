@@ -4,9 +4,9 @@ import { Body } from "./Body";
 
 
 
-export default function Section({children, topRightContent, title, subtitle, iconName}) {
+export default function Section({children, topRightContent, title, subtitle, iconName, className}) {
     return (
-        <Card variant="outlined" className="p-4 flex flex-col space-y-3">
+        <Card variant="outlined" className={`p-4 flex flex-col space-y-3 h-fit ${className}`}>
             <div className="flex flex-row place-content-between pb-3">
                 <div className="flex flex-row space-x-3">
                     <Icon>{iconName}</Icon>
@@ -15,10 +15,12 @@ export default function Section({children, topRightContent, title, subtitle, ico
                         <Body text={subtitle}/>
                     </div>
                 </div>
-                {topRightContent}
+                <div>
+                    {topRightContent}
+                </div>
             </div>
             <Divider/>
-            <div className="pt-4 flex flex-col space-y-4">
+            <div className="pt-4 flex flex-col h-full space-y-4" id="content">
                 {children}
             </div>
         </Card>

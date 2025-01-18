@@ -79,7 +79,7 @@ PLAYER_FILTER_ATTRIBUTES: dict[str, str] = {
     "nazwa ligi z udziałem zawodnika": "playerinmatch__match__league_season__league__name",
 }
 TEAM_FILTER_ATTRIBUTES: dict[str, str] = {
-    "nazwa": "name",
+    "nazwa drużyny": "name",
     "imie reprezentującego zawodnika": "playerinmatch__player__name",
     "nazwisko reprezentującego zawodnika": "playerinmatch__player__surname",
     "nazwa ligii z udziałem drużyny": "playerinmatch__match__league_season__league__name",
@@ -87,7 +87,6 @@ TEAM_FILTER_ATTRIBUTES: dict[str, str] = {
 }
 MATCH_FILTER_ATTRIBUTES: dict[str, str] = {
     "nazwa ligi": "league_season__league__name",
-    "nazwa sezonu ligi": "league_season__name",
     "nazwa uczestniczącej drużuny": "playerinmatch__team__name",
     "imie uczestniczącego zawodnika": "playerinmatch__player__name",
     "nazwisko uczestniczącego zawodnika": "playerinmatch__player__surname",

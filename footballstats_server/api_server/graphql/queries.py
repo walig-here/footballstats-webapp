@@ -286,9 +286,9 @@ class UserQuery(graphene.ObjectType):
     ) -> list[User]:
         users: QuerySet[User] = User.objects.filter(is_superuser=False)
 
-        users = _filter_query_set_with_attributes(users, textual_filters, constants.USER_FILTER_ATTRIBUTES.keys())
+        users = _filter_query_set_with_attributes(users, textual_filters, constants.USER_FILTER_ATTRIBUTES)
 
-        if sorting is None or sorting.target_attribute_name in constants.USER_SORT_ATTRIBUTES.keys():
+        if sorting is None or sorting.target_attribute_name in constants.USER_SORT_ATTRIBUTES:
             users = _sort_query_set_with_attributes(
                 users,
                 sorting if sorting is not None
@@ -539,8 +539,10 @@ def _get_page_from_query_set(query_set: QuerySet[Match | Player | Team | User], 
     - `page_index` (`int`): Page index.
     
     Return
-    - `QuerySet`: Sorted `QuerySet`.
+    - `QuerySet`: Page from `QuerySet` or whole `QuerySet` when page index is negative.
     """
+    if page_index < 0:
+        return query_set
     first: int = constants.OBJECTS_PER_PAGE * page_index
     last: int = first + constants.OBJECTS_PER_PAGE
 

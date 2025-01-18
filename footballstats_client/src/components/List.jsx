@@ -2,8 +2,23 @@ import { Button, Icon, IconButton, Pagination } from "actify";
 import Section from "./Section";
 import { Body } from "./Body";
 import { useState } from "react";
+import Filters from "./filtering/Filters";
 
-export default function List({children, iconName, title, subtitle, closable, onClose, page, maxPage, setPage}){
+export default function List({
+    children, 
+    iconName, 
+    title, 
+    subtitle, 
+    closable, 
+    onClose, 
+    page, 
+    maxPage, 
+    setPage, 
+    filters, 
+    setFilters, 
+    filteringAttributes,
+    metricFiltersDisabled,
+}){
     const [filteringPanelVisible, setFilteringPanelVisible] = useState();
     const [sortingPanelVisible, setSortingPanelVisible] = useState();
 
@@ -12,7 +27,7 @@ export default function List({children, iconName, title, subtitle, closable, onC
             <Button 
                 variant="filled"
                 onPress={() => setSortingPanelVisible(prev => !prev)}
-                isDisabled={sortingPanelVisible}
+                isDisabled={sortingPanelVisible || filteringPanelVisible}
             >
                 <Icon>sort</Icon>
                 Sortuj
@@ -20,7 +35,7 @@ export default function List({children, iconName, title, subtitle, closable, onC
             <Button 
                 variant="filled" 
                 onPress={() => setFilteringPanelVisible(prev => !prev)}
-                isDisabled={filteringPanelVisible}
+                isDisabled={filteringPanelVisible || sortingPanelVisible}
             >
                 <Icon>filter_list</Icon>
                 Filtruj
@@ -38,14 +53,16 @@ export default function List({children, iconName, title, subtitle, closable, onC
     )
 
     return (
+    <div className="flex flex-row space-x-6">
         <Section 
             title={title}
             iconName={iconName} 
             subtitle={subtitle}
             topRightContent={sortAndFilterButtons}
+            className="w-full"
         >
             <div className="flex flex-col">
-                {children}
+                {children.length === 0 ? <Body text={"Brak wpisów!"}/> : children}
                 <div className="flex flex-row items-center pt-4">
                     <IconButton onPress={() => setPage(1)}>
                         <Icon>first_page</Icon>
@@ -53,7 +70,7 @@ export default function List({children, iconName, title, subtitle, closable, onC
                     <IconButton onPress={() => setPage(prevPage => prevPage > 1 ? prevPage - 1 : 1)}>
                         <Icon>navigate_before</Icon>
                     </IconButton>
-                    <Body text={`${page} z ${maxPage}`}/>
+                    <Body text={children.length === 0 ? "0 z 0" : `${page} z ${maxPage}`}/>
                     <IconButton onPress={() => setPage(prevPage => prevPage !== maxPage ? prevPage + 1 : maxPage)}>
                         <Icon>navigate_next</Icon>
                     </IconButton>
@@ -63,5 +80,16 @@ export default function List({children, iconName, title, subtitle, closable, onC
                 </div>
             </div>
         </Section>
+        {   
+            filteringPanelVisible && 
+            <Filters 
+                onClose={() => setFilteringPanelVisible(false)}
+                filters={filters}
+                setFilters={setFilters}
+                filteringAttributes={filteringAttributes}
+                metricFiltersDisabled={metricFiltersDisabled}
+            />
+        }
+    </div>
     )
 }

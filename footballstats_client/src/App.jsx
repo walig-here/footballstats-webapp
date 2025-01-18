@@ -41,7 +41,7 @@ export default function App() {
 
     return (
         <DateRangeContext.Provider value={dateRange}>
-            <ToastContainer position="bottom-right"/>
+            <ToastContainer position="top-right"/>
             <UserContext.Provider value={user}>
                 <Router/>
             </UserContext.Provider>

@@ -5,6 +5,7 @@ import * as constants from "./constants.js"
 import { useEffect, useState } from 'react';
 import { LoadingView } from './views/utilities/LoadingView.jsx';
 import { isAuthenticated, isOwner } from './data_processing.js';
+import { toast } from 'react-toastify';
 
 export const REFRESH_TOKEN_MUTATION = gql`
     mutation(
@@ -71,7 +72,8 @@ query(
     hasModifyPermission,
     hasDeletePermission
   },
-  usersListLength(token: $accessToken)
+  usersListLength(token: $accessToken),
+  userFilteringAttributes
 }
 `
 
@@ -113,6 +115,100 @@ mutation(
 }
 `
 
+export const USER_FILTERING_ATTRIBUTES = gql`
+{
+  userFilteringAttributes
+}
+`
+
+const GET_ALL_USERNAMES = gql`
+query(
+  $accessToken: String!,
+){
+  usersList(
+    page: -1,
+    token: $accessToken,
+	) {
+    username,
+  },
+}
+`
+
+const GET_ALL_PLAYERS_NAMES = gql`
+query(
+  $startDate: Date!,
+  $endDate: Date!,
+){
+  playersList(
+    startDate: $startDate,
+    endDate: $endDate,
+    page: -1,
+	) {
+    id,
+    name
+  },
+}
+`
+
+const GET_ALL_PLAYERS_SURNAMES = gql`
+query(
+  $startDate: Date!,
+  $endDate: Date!,
+){
+  playersList(
+    startDate: $startDate,
+    endDate: $endDate,
+    page: -1,
+  ) {
+    id,
+    surname
+  },
+}
+`
+
+export const GET_ALL_TEAMS = gql`
+query(
+  $startDate: Date!,
+  $endDate: Date!,
+){
+  teamsList(
+    startDate: $startDate,
+    endDate: $endDate,
+    page: -1,
+	) {
+    id,
+    name
+  },
+}
+`
+
+export const GET_ALL_COUNTRIES = gql`
+{
+  countryList{
+    id,
+  	name  
+  }
+}
+`
+
+export const GET_ALL_LEAGUES = gql`
+{
+  leaguesList{
+    id,
+  	name  
+  }
+}
+`
+
+export const GET_ALL_EVENT_TYPES = gql`
+{
+  eventTypesList{
+    id,
+    name
+  }
+}
+`
+
 
 export const CURRENT_USER = {
     name: null
@@ -123,6 +219,20 @@ export const apiClient = new ApolloClient({
     uri: constants.API_SERVER_URL,
     cache: new InMemoryCache(),
 });
+
+
+export async function requestMutation(variables, mutation, successMessage, errorMessage){
+    const accessToken = localStorage.getItem(constants.ACCESS_TOKEN);
+    try{
+        await mutation({variables: {
+            accessToken: accessToken, ...variables
+        }});
+        toast.success(successMessage);
+    } catch (error) {
+        console.log(`Error occurred while executing mutation. Error\n${error}`);
+        toast.error(errorMessage);
+    }
+}
 
 
 export function logOut() {
@@ -197,8 +307,9 @@ export function SuperUserRequired({children}) {
     const [isAuthorizing, setIsAuthorizing] = useState(true);
 
     useEffect(() => {
-        if (!isOwner(localStorage.getItem(constants.USERNAME)))
+        if (!isOwner(localStorage.getItem(constants.USERNAME))){
             navigate(constants.UNAUTHORIZED_PAGE);
+        }
         setIsAuthorizing(false);
     });
 
@@ -210,4 +321,89 @@ export function SuperUserRequired({children}) {
             {children}
         </LoginRequired>
     )
+}
+
+
+export async function getAllPlayersNames(startDate, endDate) {
+    try {
+        const response = await apiClient.query({
+            query: GET_ALL_PLAYERS_NAMES,
+            variables: {startDate: startDate, endDate: endDate}
+        });
+        return response.data.playersList.map((player) => player.name);
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+}
+
+export async function getAllPlayersSurnames(startDate, endDate) {
+    try {
+        const response = await apiClient.query({
+            query: GET_ALL_PLAYERS_SURNAMES,
+            variables: {startDate: startDate, endDate: endDate}
+        });
+        return response.data.playersList.map((player) => player.surname);
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+}
+
+
+export async function getAllUsernames() {
+    try {
+        const response = await apiClient.query({
+            query: GET_ALL_USERNAMES,
+            variables: {accessToken: localStorage.getItem(constants.ACCESS_TOKEN)}
+        });
+        return response.data.usersList.map((user) => user.username);
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+}
+
+export async function getAllTeamsNames(startDate, endDate) {
+    try {
+        const response = await apiClient.query({
+            query: GET_ALL_TEAMS,
+            variables: {startDate: startDate, endDate: endDate}
+        });
+        return response.data.teamsList.map((team) => team.name);
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+}
+
+export async function getAllCountriesNames() {
+    try {
+        const response = await apiClient.query({query: GET_ALL_COUNTRIES,});
+        return response.data.countryList.map((country) => country.name);
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+}
+
+export async function getAllLeagueNames() {
+    try {
+        const response = await apiClient.query({query: GET_ALL_LEAGUES,});
+        return response.data.leaguesList.map((league) => league.name);
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+}
+
+export async function getAllEventTypes() {
+    console.log(":>")
+    try {
+        const response = await apiClient.query({query: GET_ALL_EVENT_TYPES,});
+        return response.data.eventTypesList;
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
 }

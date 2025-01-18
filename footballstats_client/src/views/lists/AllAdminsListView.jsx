@@ -1,41 +1,93 @@
 import { useMutation, useQuery } from "@apollo/client";
 import ContentView from "../../components/ContentView";
 import List from "../../components/List";
-import { GET_ADMINS_LIST, GRANT_PERMISSION, REMOVE_ADMIN, REVOKE_PERMISSION, SuperUserRequired } from "../../api_client";
-import { ACCESS_TOKEN, PermissionTypes } from "../../constants";
+import { GET_ADMINS_LIST, GRANT_PERMISSION, REMOVE_ADMIN, requestMutation, REVOKE_PERMISSION, SuperUserRequired } from "../../api_client";
+import { ACCESS_TOKEN, ERROR_OCCURRED_TOAST, PermissionTypes, TOKEN_EXPIRED_ERROR } from "../../constants";
 import { LoadingView } from "../utilities/LoadingView";
 import { Body } from "../../components/Body";
 import { Checkbox, Divider, Icon, IconButton } from "actify";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {ConfirmModal} from "../../components/modals/ConfirmModal"
+import { convertFiltersToBackendFormat } from "../../data_processing";
 import { toast } from "react-toastify";
 
 const ALL_ADMINS_LIST_DESC = "Zarządzaj wszystkimi administratorami zarejestrowanymi w systemie.";
-
-export default function AllAdminsListView() {
-    const [page, setPage] = useState(1);
-    const [deleteAdminMutation, {loading: loadingDeleteAdmin}] = useMutation(REMOVE_ADMIN);
-    const [grantPermissionMutation, {loading: loadingGrantPermission}] = useMutation(GRANT_PERMISSION);
-    const [revokePermissionMutation, {loading: loadingRemovePermission}] = useMutation(REVOKE_PERMISSION);
-    const {data, loading: loadingList, error: errorLoadList, refetch: refetchList} = useQuery(
+const CLOSED_MODAL_DATA = {
+    open: false,
+    onConfirm: () => {},
+    message: null
+};
+const GET_LIST_QUERY = (page, filters) => {
+    const [textualFilters] = convertFiltersToBackendFormat(filters);
+    return [
         GET_ADMINS_LIST,
         {
             variables: {
                 accessToken: localStorage.getItem(ACCESS_TOKEN),
                 page: page - 1,
-                textualFilters: [],
+                textualFilters: textualFilters,
                 sorting: null
             },
             fetchPolicy: "cache-and-network"
         }
-    );
-    const [modalData, setModalData] = useState({
-        open: false,
-        onConfirm: () => {},
-        message: null
-    });
+    ]
+};
 
-    if ([loadingList, loadingDeleteAdmin, loadingGrantPermission, loadingRemovePermission].some(Boolean))
+
+function AdminListItem({user, onDelete, onEdit, onEditPermissionChange, onCreatePermissionChange, onDeletePermissionChange}) {
+    return (
+        <div>
+            <div className="flex flex-row items-center px-2 py-4 place-content-between">
+                <Body text={user.username} style={"text-base"}/>
+                <div className="flex flex-row space-x-2.5 items-center">
+                    <Checkbox 
+                        isSelected={user.hasCreatePermission}
+                        onChange={onCreatePermissionChange}
+                    >Dodający</Checkbox>
+                    <Checkbox
+                        isSelected={user.hasModifyPermission}
+                        onChange={onEditPermissionChange}
+                    >Edytujący</Checkbox>
+                    <Checkbox 
+                        isSelected={user.hasDeletePermission}
+                        onChange={onDeletePermissionChange}
+                    >Usuwający</Checkbox>
+                    <IconButton onPress={onDelete}>
+                        <Icon className="text-on-surface-variant">delete</Icon>
+                    </IconButton>
+                </div>
+            </div>
+            <Divider/>
+        </div>
+    );
+}
+
+
+export default function AllAdminsListView() {
+    const [page, setPage] = useState(1);
+    const [filters, setFilters] = useState([]);
+    const [modalData, setModalData] = useState(CLOSED_MODAL_DATA);
+
+    const listQuery = useQuery(...GET_LIST_QUERY(page, filters));
+
+    const [deleteAdminMutation, deleteAdminMutationResponse] = useMutation(REMOVE_ADMIN);
+    const [grantPermissionMutation, grantPermissionResponse] = useMutation(GRANT_PERMISSION);
+    const [revokePermissionMutation, revokePermissionResponse] = useMutation(REVOKE_PERMISSION);
+
+    const isLoading = [
+        listQuery.loading, 
+        deleteAdminMutationResponse.loading, 
+        grantPermissionResponse.loading, 
+        revokePermissionResponse.loading
+    ].some(Boolean);
+    const errors = [
+        listQuery.error, 
+        deleteAdminMutationResponse.error, 
+        grantPermissionResponse.error, 
+        revokePermissionResponse.error
+    ];
+
+    if (isLoading)
         return <LoadingView className="flex flex-col w-full h-full"/>;
 
     const openModal = (message, onConfirm) => {
@@ -44,129 +96,96 @@ export default function AllAdminsListView() {
         });
     };
     const closeModal = () => {
-        setModalData({
-            open: false, onConfirm: () => {}, message: null
-        });
-    }
+        setModalData(CLOSED_MODAL_DATA);
+    };
 
     const deleteAdmin = async (username) => {
-        closeModal();
-        const accessToken = localStorage.getItem(ACCESS_TOKEN);
-        try{
-            const {data} = await deleteAdminMutation({variables: {
-                accessToken: accessToken, username: username
-            }});
-            refetchList();
-            toast.success("Usunięto administratora!");
-        } catch (error) {
-            console.log(`Error occurred while deleting user ${username}. Error\m${error}`);
-            toast.error("Nie udało się usunąć administratora!");
-        }
+        await requestMutation(
+            {username: username},
+            deleteAdminMutation,
+            "Usunięto administratora!",
+            "Nie udało się usunąć administratora!"
+        )
+        listQuery.refetch();
     };
-    const grantPermission = async (username, permission) => {
-        closeModal();
-        const accessToken = localStorage.getItem(ACCESS_TOKEN);
-        try{
-            const {data} = await grantPermissionMutation({variables: {
-                accessToken: accessToken, username: username, permission: permission
-            }});
-            refetchList();
-            toast.success("Nadano uprawnienie!");
-        } catch (error) {
-            console.log(`Error occurred while granting permission to user ${username}. Error\m${error}`);
-            toast.error("Nie udało się nadać uprawnienia!");
+
+    const changePermission = async (hasPermission, username, permissionType) => {
+        if (hasPermission)
+            await requestMutation(
+                {username: username, permission: permissionType},
+                revokePermissionMutation,
+                "Odebrano uprawnienie",
+                "Nie udało się odebrać uprawnień"
+            );
+        else
+            await requestMutation(
+                {username: username, permission: permissionType},
+                grantPermissionMutation,
+                "Nadano uprawnienie",
+                "Nie udało się nadać uprawnień"
+            );
+        listQuery.refetch();
+    }
+
+    const getItems = () => {
+        if (listQuery.error){
+            console.log(listQuery.error);
+            if (listQuery.error.cause.message === TOKEN_EXPIRED_ERROR){
+                return <Body text={"Uprawnienia wygasły, odśwież stronę, aby załadować zawartość!"}/>
+            } else {
+                return <Body text={listQuery.error}/>
+            }
         }
-    };
-    const revokePermission = async (username, permission) => {
-        closeModal();
-        const accessToken = localStorage.getItem(ACCESS_TOKEN);
-        try{
-            const {data} = await revokePermissionMutation({variables: {
-                accessToken: accessToken, username: username, permission: permission
-            }});
-            refetchList();
-            toast.success("Odebrano uprawnienie!");
-        } catch (error) {
-            console.log(`Error occurred while revoking permission to user ${username}. Error\m${error}`);
-            toast.error("Nie udało się odebrać uprawnienia!");
-        }
-    };
+        return listQuery.data.usersList.map(user => (
+            <AdminListItem 
+                key={user.id}
+                user={user}
+                onCreatePermissionChange={() => openModal(
+                    `Czy chcesz zmienić uprawnienia "${user.username}"?`,
+                    () => changePermission(
+                        user.hasCreatePermission, user.username, PermissionTypes.CREATE
+                    )
+                )}
+                onEditPermissionChange={() => openModal(
+                    `Czy chcesz zmienić uprawnienia "${user.username}"?`,
+                    () => changePermission(
+                        user.hasModifyPermission, user.username, PermissionTypes.EDIT
+                    )
+                )}
+                onDeletePermissionChange={() => openModal(
+                    `Czy chcesz zmienić uprawnienia "${user.username}"?`,
+                    () => changePermission(
+                        user.hasDeletePermission, user.username, PermissionTypes.DELETE
+                    )
+                )}
+                onDelete={() => openModal(
+                    `Czy chcesz usunąć administratora "${user.username}"?`,
+                    () => deleteAdmin(user.username)
+                )}
+            />
+        ))
+    }
 
     return (
         <SuperUserRequired>
             {
                 modalData.open &&
-                <ConfirmModal onConfirm={modalData.onConfirm} message={modalData.message} onClose={closeModal}/>
+                <ConfirmModal onConfirm={() => { closeModal(); modalData.onConfirm(); }} message={modalData.message} onClose={closeModal}/>
             }
             <ContentView title={"Administratorzy"}>
-                <List 
+                <List
                     title={"Wszyscy administratorzy"} 
                     iconName={"shield_person"} 
                     subtitle={ALL_ADMINS_LIST_DESC}
                     setPage={setPage}
                     page={page}
-                    maxPage={data ? data.usersListLength + 1 : 1}
+                    maxPage={listQuery.data ? listQuery.data.usersListLength + 1 : 1}
+                    filters={filters}
+                    setFilters={(newFilter => setFilters(newFilter))}
+                    filteringAttributes={listQuery.data ? listQuery.data.userFilteringAttributes : []}
+                    metricFiltersDisabled={true}
                 >
-                    {
-                        !errorLoadList &&
-                        data.usersList.map(user => (
-                            <div key={user.id}>
-                                <div className="flex flex-row items-center px-2 py-4 place-content-between">
-                                    <Body text={user.username} style={"text-base"}/>
-                                    <div className="flex flex-row space-x-2.5 items-center">
-                                        <Checkbox 
-                                            isSelected={user.hasCreatePermission}
-                                            onChange={
-                                                () => openModal(
-                                                    `Czy chcesz zmienić uprawnienia "${user.username}" do dodawania?`,
-                                                    () => !user.hasCreatePermission ? 
-                                                    grantPermission(user.username, PermissionTypes.CREATE) :
-                                                    revokePermission(user.username, PermissionTypes.CREATE)
-                                                )
-                                            }
-                                        >
-                                            Dodający
-                                        </Checkbox>
-                                        <Checkbox 
-                                            isSelected={user.hasModifyPermission}
-                                            onChange={
-                                                () => openModal(
-                                                    `Czy chcesz zmienić uprawnienia "${user.username}" do modyfikowania?`,
-                                                    () => !user.hasModifyPermission ? 
-                                                    grantPermission(user.username, PermissionTypes.EDIT) :
-                                                    revokePermission(user.username, PermissionTypes.EDIT)
-                                                )
-                                            }
-                                        >
-                                            Edytujący
-                                        </Checkbox>
-                                        <Checkbox 
-                                            isSelected={user.hasDeletePermission}
-                                            onChange={
-                                                () => openModal(
-                                                    `Czy chcesz zmienić uprawnienia "${user.username}" do usuwania?`,
-                                                    () => !user.hasDeletePermission ? 
-                                                    grantPermission(user.username, PermissionTypes.DELETE) :
-                                                    revokePermission(user.username, PermissionTypes.DELETE)
-                                                )
-                                            }
-                                        >
-                                            Usuwający
-                                        </Checkbox>
-                                        <IconButton onPress={
-                                            () => openModal(
-                                                `Czy chcesz usunąć administratora "${user.username}"?`,
-                                                () => deleteAdmin(user.username)
-                                            )
-                                        }>
-                                            <Icon className="text-on-surface-variant">delete</Icon>
-                                        </IconButton>
-                                    </div>
-                                </div>
-                                <Divider/>
-                            </div>
-                        ))
-                    }
+                    {getItems()}
                 </List>
             </ContentView>
         </SuperUserRequired>

@@ -21,8 +21,57 @@ export const OWNER_USERNAME = "owner";
 export const UNAUTHENTICATED_USERNAME = null;
 export const DEFAULT_USERNAME = null;
 
+export const ERROR_OCCURRED_TOAST = "Wystąpił błąd, odśwież stronę!"
+
 export const PermissionTypes = {
     DELETE: "DELETE",
     EDIT: "EDIT",
     CREATE: "CREATE"
+}
+
+export const FilterType = {
+    TEXTUAL: "TEXTUAL",
+    NUMERIC: "NUMERIC",
+    METRIC: "METRIC"
+}
+
+export const FilteringCriteria = {
+    textual: {
+        TEXTUAL_FULL_TEXT_SEARCH: "TEXTUAL_FULL_TEXT_SEARCH",
+        TEXTUAL_IN_SET: "TEXTUAL_IN_SET",
+        TEXTUAL_NOT_IN_SET: "TEXTUAL_NOT_IN_SET"
+    },
+    numeric: {
+        NUMERIC_EQUALS: "NUMERIC_EQUALS",
+        NUMERIC_IN_CLOSED_RANGE: "NUMERIC_IN_CLOSED_RANGE",
+        NUMERIC_NOT_IN_CLOSED_RANGE: "NUMERIC_NOT_IN_CLOSED_RANGE"
+    }
+};
+
+export const Metrics = {
+    SUM: "SUM",
+    AVERAGE: "AVERAGE",
+    ODDS_FOR: "ODDS_FOR",
+    ODDS_FOR_MORE_THAN: "ODDS_FOR_MORE_THAN",
+    MINUTES_UNTIL: "MINUTES_UNTIL",
+    ODDS_IN_TIME_RANGE: "ODDS_IN_TIME_RANGE"
+}
+
+export const MetricsNames = {
+    SUM: "Suma",
+    AVERAGE: "Średnia",
+    ODDS_FOR: "Szansa na",
+    ODDS_FOR_MORE_THAN: "Szansa na więcej niż",
+    MINUTES_UNTIL: "Minut do pierwszego",
+    ODDS_IN_TIME_RANGE: "Szansa w przedziale czasowym"
+}
+
+
+export const QueriesForFilteringAttributesValues = {
+    QUERY_USERNAMES: ["login"],
+    QUERY_PLAYERS_NAMES: ["imie", "imie reprezentującego zawodnika", "imie uczestniczącego zawodnika"],
+    QUERY_PLAYERS_SURNAMES: ["nazwisko", "nazwisko reprezentującego zawodnika", "nazwisko uczestniczącego zawodnika"],
+    QUERY_TEAMS_NAMES: ["nazwa drużyny", "nazwa reprezentowanej drużyny", "nazwa uczestniczącej drużuny"],
+    QUERY_COUNTRIES: ["nazwa kraju pochodzenia", "nazwa kraju pochodzenia ligi"],
+    QUERY_LEAGUES: ["nazwa ligii z udziałem drużyny", "nazwa ligi", "nazwa ligi z udziałem zawodnika"],
 }
