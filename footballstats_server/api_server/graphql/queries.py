@@ -123,6 +123,10 @@ class MatchQuery(graphene.ObjectType):
     def resolve_match(root, info: graphene.ResolveInfo, id: int) -> Match:
         return Match.objects.get(pk=id)
 
+    match_list_length = graphene.Int()
+    def resolve_match_list_length(root, info: graphene.ResolveInfo, **kwargs):
+        return Match.objects.all().count() // constants.OBJECTS_PER_PAGE
+
     matches_list: graphene.List = graphene.List(
         MatchType,
         start_date=graphene.Date(), 
@@ -354,13 +358,14 @@ def _sort_query_set_with_metric(
         if target_event not in constants.MatchEvents._member_names_:
             raise ValueError("Invalid target event for metric sorting!")
         metric_arguments: dict[str] = {
-            "start": start_date,
-            "end": end_date,
-            "match_id": constants.MetricScope.METRIC_FOR_ALL_MATCHES.value,
             "metric_type": constants.Metrics[metric_name],
             "target_event": constants.MatchEvents[target_event],
             "metric_params": [int(param) for param in metric_params],
         }
+        if not isinstance(object, Match):
+            metric_arguments["start"] = start_date
+            metric_arguments["end"] = end_date
+            metric_arguments["match_id"] = constants.MetricScope.METRIC_FOR_ALL_MATCHES.value
         if isinstance(object, Player):
             metric_arguments["team_id"] = constants.MetricScope.METRIC_FOR_ANY_TEAM.value
         metric_values.append((object.pk, object.calculate_metric(**metric_arguments)))
@@ -482,13 +487,14 @@ def _filter_query_set_with_metrics(
         metric_values: list[tuple[int, float]] = []
         for object in query_set:
             metric_arguments: dict[str] = {
-                "start": start_date,
-                "end": end_date,
-                "match_id": constants.MetricScope.METRIC_FOR_ALL_MATCHES.value,
                 "metric_type": metric.metric_type,
                 "target_event": metric.target_match_event,
                 "metric_params": metric.metric_params,
             }
+            if not isinstance(object, Match):
+                metric_arguments["start"] = start_date
+                metric_arguments["end"] = end_date
+                metric_arguments["match_id"] = constants.MetricScope.METRIC_FOR_ALL_MATCHES.value
             if isinstance(object, Player):
                 metric_arguments["team_id"] = constants.MetricScope.METRIC_FOR_ANY_TEAM.value
             metric_value: float = object.calculate_metric(**metric_arguments)

@@ -90,3 +90,18 @@ export const MatchEvents = {
     "11": "DEFEAT",
     "12": "DRAW"
 }
+
+export const MatchEventsNames = {
+    "1": "Podanie nieskuteczne",
+    "2": "Podanie skuteczne",
+    "3": "Rzut rożny",
+    "4": "Żółta kartka",
+    "5": "Czerwona kartka",
+    "6": "Zdobycie gola",
+    "7": "Strzał celny",
+    "8": "Strzał niecelny",
+    "9": "Obrona",
+    "10": "Zwycięstwo",
+    "11": "Przegrana",
+    "12": "Remis"
+}

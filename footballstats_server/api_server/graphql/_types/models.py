@@ -131,6 +131,7 @@ class PlayerType(DjangoObjectType):
 class TeamMatchScore(graphene.ObjectType):
     score: graphene.Int = graphene.Int()
     team_id: graphene.Int = graphene.Int()
+    team_name: graphene.String = graphene.String()
 
 
 class AdminActionType(DjangoObjectType):
@@ -158,7 +159,7 @@ class MatchType(DjangoObjectType):
     def resolve_teams_scores(self, info: graphene.ResolveInfo) -> graphene.List:
         scores: dict[Team, int] = Match.objects.get(pk=self.pk).get_result()
         return [
-            TeamMatchScore(score=score, team_id=team.pk)
+            TeamMatchScore(score=score, team_id=team.pk, team_name=team.name)
             for team, score in scores.items()
         ]
 

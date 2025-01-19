@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import ContentView from "../../components/ContentView";
-import List from "../../components/List";
+import {List} from "../../components/List";
 import { GET_ADMINS_LIST, GRANT_PERMISSION, REMOVE_ADMIN, requestMutation, REVOKE_PERMISSION, SuperUserRequired } from "../../api_client";
 import { ACCESS_TOKEN, ERROR_OCCURRED_TOAST, PermissionTypes, TOKEN_EXPIRED_ERROR } from "../../constants";
 import { LoadingView } from "../utilities/LoadingView";

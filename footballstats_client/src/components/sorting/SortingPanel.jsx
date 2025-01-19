@@ -19,16 +19,6 @@ export function SortingPanel ({
     );
     const metricSorting = Object.values(MetricsNames).includes(localSorting.targetAttributeName);
 
-    useEffect(() => {
-        setLocalSorting(prev => ({
-            ...prev,
-            metric: {
-                targetEventType: null,
-                metricParams: []
-            }
-        }))
-    }, [localSorting.targetAttributeName])
-
     const closeSorting = () => {
         setSortingCriteria(localSorting);
         onClose();
@@ -42,7 +32,7 @@ export function SortingPanel ({
         iconName={"sort"}
         className="flex-none w-1/3"
         subtitle={"Zmień aktualne kryteria sortowania"}
-        topRightContent={closeButton}
+        topRightContent={(!metricSorting || (metricSorting && localSorting.metric.targetEventType)) && closeButton}
     >
         <Select 
             label={"Element sortujący"}

@@ -5,7 +5,7 @@ import { useState } from "react";
 import Filters from "./filtering/Filters";
 import { SortingPanel } from "./sorting/SortingPanel";
 
-export default function List({
+export function List({
     children, 
     iconName, 
     title, 

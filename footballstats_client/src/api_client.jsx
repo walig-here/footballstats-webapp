@@ -53,6 +53,47 @@ query($accessToken: String!){
 }
 `
 
+export const GET_DATE_RANGE = gql`
+{
+  dataDateRange
+}
+`
+
+export const GET_MATCHES = gql`
+query(
+  $page: Int!,
+  $textualFilters: [TextualFilterType],
+  $metricFilters: [MetricFilterType],
+  $sorting: SortingType,
+  $startDate: Date!,
+  $endDate: Date!
+){
+  matchesList(
+    page: $page, 
+    textualFilters: $textualFilters, 
+    sorting: $sorting,
+    metricFilters: $metricFilters,
+    startDate: $startDate
+    endDate: $endDate
+  ) {
+    id,
+    gameDate,
+    teamsScores{
+      score,
+      teamName
+    },
+    leagueSeason {
+      league {
+        name
+      }
+    }
+  },
+  matchSortingAttributes,
+  matchFilteringAttributes,
+  matchListLength
+}
+`
+
 export const GET_ADMINS_LIST = gql`
 query(
   $accessToken: String!,

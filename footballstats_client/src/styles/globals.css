@@ -46,11 +46,11 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
     font-family: "Inter", serif;
     font-optical-sizing: auto;
     font-weight: normal;
     font-style: normal;
+    overflow: hidden;
 }
 
 .button-text{

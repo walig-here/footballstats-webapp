@@ -1,6 +1,7 @@
 import { Button, Divider, Icon, IconButton } from "actify";
 import { Body } from "../Body";
 import { capitalize, filteringCriteriaToText } from "../../data_processing";
+import { MatchEvents, MatchEventsNames } from "../../constants";
 
 const NEW_FILTER = "Nowy filtr";
 
@@ -11,7 +12,7 @@ function FilterListItem({ attribute, criteria, parameters, metric, onDelete, onE
                 <div className="flex flex-row justify-between place-items-center">
                     <div>
                         <Body
-                            text={metric.targetMatchEvent}
+                            text={MatchEventsNames[metric.targetMatchEvent]}
                             style={"text-xs font-medium text-on-surface-variant"}
                         />
                         <Body

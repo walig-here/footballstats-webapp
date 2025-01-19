@@ -68,9 +68,15 @@ export function convertFiltersToBackendFormat(filters) {
             });
         else if (Object.keys(constants.FilteringCriteria.numeric).includes(filter.criteria))
             backendMetricFilters.push({
-                metric: filter.attribute,
+                metric: {
+                    ...filter.metric,
+                    metricType: Object.keys(constants.MetricsNames).find(
+                        key => constants.MetricsNames[key] === filter.attribute
+                    ),
+                    targetMatchEvent: constants.MatchEvents[filter.metric.targetMatchEvent],
+                },
                 filteringCriteria: filter.criteria,
-                filterParams: filter.parameters
+                filterParams: filter.parameters.map(parameter => parseFloat(parameter))
             })
     });
     return [backendTextualFilters, backendMetricFilters];

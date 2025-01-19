@@ -78,8 +78,8 @@ export default function AppNavigation({ children }) {
                     </div>
                 }
                 <div
-                    className="flex overflow-x-hidden"
-                    style={!navigationHidden ? {marginLeft: "288px"} : {}}
+                    className="flex overflow-y-auto"
+                    style={!navigationHidden ? {marginLeft: "288px", height: "calc(100vh - 5rem)"} : {height: "calc(100vh - 5rem)"}}
                 >
                     {children}
                 </div>

@@ -95,7 +95,7 @@ export function AddNewMetricCriteria({newFilter, setNewFilter}) {
         {
             eventTypeQuery.data &&
             eventTypeQuery.data.eventTypesList.map((eventType) => (
-                <AutocompleteItem key={eventType.name}>
+                <AutocompleteItem key={eventType.id}>
                     {eventType.name}
                 </AutocompleteItem>
             ))
