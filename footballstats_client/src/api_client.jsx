@@ -59,6 +59,56 @@ export const GET_DATE_RANGE = gql`
 }
 `
 
+export const GET_MATCH = gql`
+query(
+  $id: Int!,
+){
+  match(id: $id){
+    gameDate,
+    teamsScores{
+      score,
+      teamId,
+      teamName
+    },
+    leagueSeason {
+      name,
+      league {
+        name,
+        countryOfOrigin {
+          id,
+          name
+        }
+      }
+    },
+    events {
+      occurrenceMinute,
+      eventType {
+        name
+      },
+      player {
+        name,
+        surname,
+      }
+    }
+  }
+}
+`
+
+export const GET_MATCH_CRUCIAL_DATA = gql`
+query(
+  $id: Int!,
+){
+  match(id: $id){
+    gameDate,
+    teamsScores{
+      score,
+      teamId,
+      teamName
+    },
+  }
+}
+`
+
 export const GET_PLAYERS = gql`
 query(
   $page: Int!,
@@ -67,14 +117,18 @@ query(
   $sorting: SortingType,
   $startDate: Date!,
   $endDate: Date!
+  $match: Int,
+  $team: Int
 ){
   playersList(
     page: $page, 
     textualFilters: $textualFilters, 
     sorting: $sorting,
     metricFilters: $metricFilters,
-    startDate: $startDate
-    endDate: $endDate
+    startDate: $startDate,
+    endDate: $endDate,
+    playingInMatch: $match,
+    representingTeam: $team
   ) {
     id,
     name,
@@ -89,7 +143,9 @@ query(
     textualFilters: $textualFilters, 
     metricFilters: $metricFilters,
     startDate: $startDate
-    endDate: $endDate
+    endDate: $endDate,
+    playingInMatch: $match,
+    representingTeam: $team
   ) {
     id
   },

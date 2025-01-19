@@ -5,7 +5,7 @@ import { PlayersList } from "../../components/lists/pLAYERSList";
 import { convertFiltersToBackendFormat, convertSortingToBackendFormat } from "../../data_processing";
 
 
-const QUERY_PLAYER_LIST = (sorting, filters, page, startDate, endDate) => {
+const QUERY_PLAYER_LIST = (sorting, filters, page, startDate, endDate, match, team) => {
     const [textualFilters, metricFilters] = convertFiltersToBackendFormat(filters);
     return [
         GET_PLAYERS,
@@ -16,7 +16,9 @@ const QUERY_PLAYER_LIST = (sorting, filters, page, startDate, endDate) => {
                 metricFilters: metricFilters,
                 sorting: convertSortingToBackendFormat(sorting),
                 startDate: startDate,
-                endDate: endDate
+                endDate: endDate,
+                match: match,
+                team: team
             },
         }
     ]

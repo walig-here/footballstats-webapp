@@ -7,8 +7,9 @@ import { LoadingView } from "../../views/utilities/LoadingView";
 import { ListItem } from "../ListItem";
 import { isAuthenticated } from "../../data_processing";
 import { TOKEN_EXPIRED_ERROR } from "../../constants";
+import { Body } from "../Body";
 
-export function PlayersList ({buildQueryFunction, title, subtitle}) {
+export function PlayersList ({buildQueryFunction, title, subtitle, match, team}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
@@ -23,7 +24,7 @@ export function PlayersList ({buildQueryFunction, title, subtitle}) {
         }
     });
     const listQuery = useQuery(...buildQueryFunction(
-        sorting, filters, page, dateRangeContext.startDate, dateRangeContext.endDate
+        sorting, filters, page, dateRangeContext.startDate, dateRangeContext.endDate, match, team
     ));
 
     useEffect(() => {

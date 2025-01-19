@@ -9,7 +9,7 @@ export default function Section({children, topRightContent, title, subtitle, ico
         <Card variant="outlined" className={`p-4 flex flex-col space-y-3 ${className}`}>
             <div className="flex flex-row place-content-between pb-3">
                 <div className="flex flex-row space-x-3">
-                    <Icon>{iconName}</Icon>
+                    {iconName && <Icon>{iconName}</Icon>}
                     <div>
                         <Title text={title} style={"title-medium"}/>
                         <Body text={subtitle}/>
