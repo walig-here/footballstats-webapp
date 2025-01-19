@@ -39,7 +39,10 @@ export default function App() {
         minStartDate: "0001-01-01",
         maxEndDate: "9999-01-01",
         startDate: "0001-01-01",
-        endDate: "9999-01-01"
+        endDate: "9999-01-01",
+        setRange: (start, end) => { 
+            setDateRange(prev => ({...prev, startDate: start, endDate: end})) 
+        }
     });
 
     useEffect(() => {
@@ -55,12 +58,13 @@ export default function App() {
             dateRange.endDate <= serverDateRange.data.dataDateRange[1] ?
             dateRange.endDate : serverDateRange.data.dataDateRange[1]
         )
-        setDateRange({
+        setDateRange(prev => ({
+            ...prev,
             startDate: newStartDate,
             endDate: newEndDate,
             minStartDate: serverDateRange.data.dataDateRange[0],
             maxEndDate: serverDateRange.data.dataDateRange[1]
-        });
+        }));
     }, [serverDateRange.data])
 
     if (serverDateRange.loading)

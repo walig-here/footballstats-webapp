@@ -11,7 +11,7 @@ import { TOKEN_EXPIRED_ERROR } from "../../constants";
 import { Body } from "../Body";
 
 
-export function MatchesList({buildQueryFunction}) {
+export function MatchesList({buildQueryFunction, title, subtitle}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
@@ -61,27 +61,25 @@ export function MatchesList({buildQueryFunction}) {
 
 
     return (
-        <ContentView title={"Lista meczów"}>
-            <List 
-                title={"Wszystkie mecze"}
-                iconName={"sports_soccer"}
-                subtitle={"Przeglądaj wszystkie mecze z aktualnie wybranego zakresu dat."}
+        <List 
+            title={title}
+            iconName={"sports_soccer"}
+            subtitle={subtitle}
 
-                filters={filters}
-                setFilters={setFilters}
-                metricFiltersDisabled={false}
-                filteringAttributes={listQuery.data ? listQuery.data.matchFilteringAttributes : []}
+            filters={filters}
+            setFilters={setFilters}
+            metricFiltersDisabled={false}
+            filteringAttributes={listQuery.data ? listQuery.data.matchFilteringAttributes : []}
 
-                sorting={sorting}
-                setSorting={setSorting}
-                sortingAttributes={listQuery.data ? listQuery.data.matchSortingAttributes : []}
+            sorting={sorting}
+            setSorting={setSorting}
+            sortingAttributes={listQuery.data ? listQuery.data.matchSortingAttributes : []}
 
-                page={page}
-                maxPage={listQuery.data ? listQuery.data.matchListLength + 1 : 1}
-                setPage={setPage}
-            >
-                {getItems()}
-            </List>
-        </ContentView>
+            page={page}
+            maxPage={listQuery.data ? listQuery.data.matchListLength + 1 : 1}
+            setPage={setPage}
+        >
+            {getItems()}
+        </List>
     );
 }

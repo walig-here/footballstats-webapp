@@ -107,3 +107,19 @@ export function convertSortingToBackendFormat(sorting) {
         direction: sorting.direction,
     }
 }
+
+const SECONDS_PER_DAY = 86400;
+const DAYS_BETWEEN_YEAR_1_AND_1970 = Date.parse("0001-01-01") / 1E3 / SECONDS_PER_DAY;
+
+/**
+ * Converts date string to integer that contains number of days since January 1st 1970.
+ */
+export function convertDateStringToInteger(dateString) {
+    const date = Date.parse(dateString) / 1E3 / SECONDS_PER_DAY - DAYS_BETWEEN_YEAR_1_AND_1970;
+    return date;
+}
+
+export function convertNumberToDateString(daysSinceYear0) {
+    const secondsSince1970 = (daysSinceYear0 + DAYS_BETWEEN_YEAR_1_AND_1970) * SECONDS_PER_DAY * 1E3;
+    return new Date(secondsSince1970).toISOString().split("T")[0];
+}

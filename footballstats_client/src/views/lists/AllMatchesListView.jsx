@@ -1,6 +1,8 @@
 import { GET_MATCHES } from "../../api_client";
 import { convertFiltersToBackendFormat, convertSortingToBackendFormat, isAuthenticated } from "../../data_processing";
 import { MatchesList } from "../../components/lists/MatchesList";
+import { DataRangeControl } from "../../components/DataRangeControl";
+import ContentView from "../../components/ContentView";
 
 
 const QUERY_MATCH_LIST = (sorting, filters, page, startDate, endDate) => {
@@ -23,6 +25,13 @@ const QUERY_MATCH_LIST = (sorting, filters, page, startDate, endDate) => {
 
 export default function AllMatchesListView() {
     return (
-        <MatchesList buildQueryFunction={QUERY_MATCH_LIST}/>
+        <ContentView title={"Lista meczów"}>
+            <DataRangeControl/>
+            <MatchesList 
+                buildQueryFunction={QUERY_MATCH_LIST}
+                subtitle={"Przeglądaj wszystkie mecze z aktualnie wybranego zakresu dat."}
+                title={"Wszystkie mecze"}
+            />
+        </ContentView>
     );
 }
