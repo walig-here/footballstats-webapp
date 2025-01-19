@@ -59,6 +59,46 @@ export const GET_DATE_RANGE = gql`
 }
 `
 
+export const GET_PLAYERS = gql`
+query(
+  $page: Int!,
+  $textualFilters: [TextualFilterType],
+  $metricFilters: [MetricFilterType],
+  $sorting: SortingType,
+  $startDate: Date!,
+  $endDate: Date!
+){
+  playersList(
+    page: $page, 
+    textualFilters: $textualFilters, 
+    sorting: $sorting,
+    metricFilters: $metricFilters,
+    startDate: $startDate
+    endDate: $endDate
+  ) {
+    id,
+    name,
+    surname,
+    nickname,
+    countryOfOrigin {
+      name
+    }
+  },
+  playerListLength: playersList(
+    page: -1, 
+    textualFilters: $textualFilters, 
+    metricFilters: $metricFilters,
+    startDate: $startDate
+    endDate: $endDate
+  ) {
+    id
+  },
+  playerSortingAttributes,
+  playerFilteringAttributes,
+  matchListLength
+}
+`
+
 export const GET_MATCHES = gql`
 query(
   $page: Int!,
