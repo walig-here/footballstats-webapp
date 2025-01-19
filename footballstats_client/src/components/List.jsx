@@ -3,6 +3,7 @@ import Section from "./Section";
 import { Body } from "./Body";
 import { useState } from "react";
 import Filters from "./filtering/Filters";
+import { SortingPanel } from "./sorting/SortingPanel";
 
 export default function List({
     children, 
@@ -18,6 +19,10 @@ export default function List({
     setFilters, 
     filteringAttributes,
     metricFiltersDisabled,
+    metricSortingDisabled,
+    sortingAttributes,
+    sorting,
+    setSorting
 }){
     const [filteringPanelVisible, setFilteringPanelVisible] = useState();
     const [sortingPanelVisible, setSortingPanelVisible] = useState();
@@ -88,6 +93,16 @@ export default function List({
                 setFilters={setFilters}
                 filteringAttributes={filteringAttributes}
                 metricFiltersDisabled={metricFiltersDisabled}
+            />
+        }
+        {
+            sortingPanelVisible &&
+            <SortingPanel
+                sortingAttributes={sortingAttributes}
+                sortingCriteria={sorting}
+                setSortingCriteria={setSorting}
+                metricCriteriaDisabled={metricFiltersDisabled}
+                onClose={() => setSortingPanelVisible(false)}
             />
         }
     </div>

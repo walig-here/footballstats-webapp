@@ -40,7 +40,6 @@ export default function RegisterForm() {
             const {data} = await performRegisterMutation({variables: {
                 username: form.login, password: form.password, token: form.token
             }});
-            console.log(data);
             if (!data.registerUser.ok)
                 setForm(oldForm => ({
                     ...oldForm,

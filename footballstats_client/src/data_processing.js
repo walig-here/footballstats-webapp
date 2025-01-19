@@ -52,6 +52,7 @@ export function filteringCriteriaToText(criteria) {
     return "N/A";
 }
 
+
 /**
  * Converts filter object from front-end format to back-end format.
  */
@@ -77,4 +78,26 @@ export function convertFiltersToBackendFormat(filters) {
 
 export function capitalize(text) {
     return String(text).charAt(0).toUpperCase() + String(text).slice(1);
+}
+
+export function convertSortingToBackendFormat(sorting) {
+    const metricParameters = sorting.metric.metricParams.join(' ');
+    let targetAttributeName = (
+        sorting.metric.targetEventType ?
+        Object.keys(constants.MetricsNames).find(
+            key => constants.MetricsNames[key] === sorting.targetAttributeName
+        ) :
+        sorting.targetAttributeName 
+    );
+    if (sorting.metric.targetEventType) {
+        targetAttributeName += (
+            metricParameters === "" ?
+            ` ${constants.MatchEvents[sorting.metric.targetEventType]}` :
+            ` ${constants.MatchEvents[sorting.metric.targetEventType]} ${metricParameters}`
+        )
+    }
+    return {
+        targetAttributeName: targetAttributeName,
+        direction: sorting.direction,
+    }
 }

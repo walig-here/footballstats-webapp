@@ -3,6 +3,8 @@ import {FilteringCriteria} from "../../constants";
 import {FullTextSearchForm} from "./textual/FullTextSearchForm";
 import { SetForm } from "./textual/SetForm";
 import { useState } from "react";
+import EqualsForm from "./numeric/EqualsForm";
+import { RangeForm } from "./numeric/RangeForm";
 
 
 export function EditExistingCriteria({filter, editFilters, onCancel}) {
@@ -19,6 +21,26 @@ export function EditExistingCriteria({filter, editFilters, onCancel}) {
                 chosenElements={editedFilter.parameters} 
                 setChosenElements={(newParams) => setEditedFilter(prev => ({...prev, parameters:newParams}))}
             />;
+            break;
+        case FilteringCriteria.numeric.NUMERIC_EQUALS:
+            form = <EqualsForm
+                setFilter={(newFilter) => setEditedFilter(newFilter)}
+                value={editedFilter.parameters[0]}
+            />
+            break;
+        case FilteringCriteria.numeric.NUMERIC_IN_CLOSED_RANGE:
+            form = <RangeForm
+                from={editedFilter.parameters[0]}
+                to={editedFilter.parameters[1]}
+                setFilter={(newFilter) => setEditedFilter(newFilter)}
+            />
+            break;
+        case FilteringCriteria.numeric.NUMERIC_NOT_IN_CLOSED_RANGE:
+            form = <RangeForm
+                from={editedFilter.parameters[0]}
+                to={editedFilter.parameters[1]}
+                setFilter={(newFilter) => setEditedFilter(newFilter)}
+            />
             break;
     }
 

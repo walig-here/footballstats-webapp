@@ -53,7 +53,6 @@ export function SetForm({chosenElements, setChosenElements, attribute}) {
         setChosenElements([...chosenElements, newElement]);
     }
     const removeElement = (removeIndex) => {
-        console.log(removeIndex)
         setChosenElements(chosenElements.filter((_, index) => index != removeIndex));
     }
 

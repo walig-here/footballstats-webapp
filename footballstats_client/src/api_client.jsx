@@ -73,7 +73,8 @@ query(
     hasDeletePermission
   },
   usersListLength(token: $accessToken),
-  userFilteringAttributes
+  userFilteringAttributes,
+  userSortingAttributes
 }
 `
 
@@ -398,7 +399,6 @@ export async function getAllLeagueNames() {
 }
 
 export async function getAllEventTypes() {
-    console.log(":>")
     try {
         const response = await apiClient.query({query: GET_ALL_EVENT_TYPES,});
         return response.data.eventTypesList;

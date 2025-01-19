@@ -8,7 +8,7 @@ import { Body } from "../../components/Body";
 import { Checkbox, Divider, Icon, IconButton } from "actify";
 import { useEffect, useState } from "react";
 import {ConfirmModal} from "../../components/modals/ConfirmModal"
-import { convertFiltersToBackendFormat } from "../../data_processing";
+import { convertFiltersToBackendFormat, convertSortingToBackendFormat } from "../../data_processing";
 import { toast } from "react-toastify";
 
 const ALL_ADMINS_LIST_DESC = "Zarządzaj wszystkimi administratorami zarejestrowanymi w systemie.";
@@ -17,7 +17,7 @@ const CLOSED_MODAL_DATA = {
     onConfirm: () => {},
     message: null
 };
-const GET_LIST_QUERY = (page, filters) => {
+const GET_LIST_QUERY = (page, filters, sorting) => {
     const [textualFilters] = convertFiltersToBackendFormat(filters);
     return [
         GET_ADMINS_LIST,
@@ -26,7 +26,7 @@ const GET_LIST_QUERY = (page, filters) => {
                 accessToken: localStorage.getItem(ACCESS_TOKEN),
                 page: page - 1,
                 textualFilters: textualFilters,
-                sorting: null
+                sorting: convertSortingToBackendFormat(sorting)
             },
             fetchPolicy: "cache-and-network"
         }
@@ -66,9 +66,16 @@ function AdminListItem({user, onDelete, onEdit, onEditPermissionChange, onCreate
 export default function AllAdminsListView() {
     const [page, setPage] = useState(1);
     const [filters, setFilters] = useState([]);
+    const [sorting, setSorting] = useState({
+        direction: "ASCENDING", 
+        targetAttributeName: "login", 
+        metric: {
+            targetEventType: null,
+            metricParams: []
+        }
+    })
     const [modalData, setModalData] = useState(CLOSED_MODAL_DATA);
-
-    const listQuery = useQuery(...GET_LIST_QUERY(page, filters));
+    const listQuery = useQuery(...GET_LIST_QUERY(page, filters, sorting));
 
     const [deleteAdminMutation, deleteAdminMutationResponse] = useMutation(REMOVE_ADMIN);
     const [grantPermissionMutation, grantPermissionResponse] = useMutation(GRANT_PERMISSION);
@@ -184,6 +191,10 @@ export default function AllAdminsListView() {
                     setFilters={(newFilter => setFilters(newFilter))}
                     filteringAttributes={listQuery.data ? listQuery.data.userFilteringAttributes : []}
                     metricFiltersDisabled={true}
+                    sortingAttributes={listQuery.data ? listQuery.data.userSortingAttributes : []}
+                    sorting={sorting}
+                    setSorting={newSorting => setSorting(newSorting)}
+                    metricSortingDisabled={true}
                 >
                     {getItems()}
                 </List>

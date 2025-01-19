@@ -75,3 +75,18 @@ export const QueriesForFilteringAttributesValues = {
     QUERY_COUNTRIES: ["nazwa kraju pochodzenia", "nazwa kraju pochodzenia ligi"],
     QUERY_LEAGUES: ["nazwa ligii z udziałem drużyny", "nazwa ligi", "nazwa ligi z udziałem zawodnika"],
 }
+
+export const MatchEvents = {
+    "1": "FAILED_PASS",
+    "2": "SUCCESSFUL_PASS",
+    "3": "CORNER",
+    "4": "YELLOW_CARD",
+    "5": "RED_CARD",
+    "6": "GOAL",
+    "7": "SHOT_ON_TARGET",
+    "8": "SHOT_NOT_ON_TARGET",
+    "9": "DEFENSE",
+    "10": "WIN",
+    "11": "DEFEAT",
+    "12": "DRAW"
+}

@@ -43,7 +43,6 @@ export function AddNewCriteria({
     }, [newFilter.attribute])
 
     const confirm = () => {
-        console.log(newFilter);
         onConfirm(newFilter);
     }
 

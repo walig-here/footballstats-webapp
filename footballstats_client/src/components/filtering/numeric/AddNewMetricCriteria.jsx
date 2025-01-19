@@ -68,6 +68,12 @@ export function AddNewMetricCriteria({newFilter, setNewFilter}) {
                     to={newFilter.parameters[1] ? newFilter.parameters[1] : ""}
                     setFilter={setNewFilter}
                 />
+            case FilteringCriteria.numeric.NUMERIC_NOT_IN_CLOSED_RANGE:
+                return <RangeForm
+                    from={newFilter.parameters[0] ? newFilter.parameters[0] : ""}
+                    to={newFilter.parameters[1] ? newFilter.parameters[1] : ""}
+                    setFilter={setNewFilter}
+                />
         }
         return <></>
     };

@@ -73,7 +73,6 @@ USER_FILTER_ATTRIBUTES: dict[str, str] = {
 PLAYER_FILTER_ATTRIBUTES: dict[str, str] = {
     "imie": "name",
     "nazwisko": "surname",
-    "pseudonim": "nickname",
     "nazwa kraju pochodzenia": "country_of_origin__name",
     "nazwa reprezentowanej drużyny": "playerinmatch__team__name",
     "nazwa ligi z udziałem zawodnika": "playerinmatch__match__league_season__league__name",
