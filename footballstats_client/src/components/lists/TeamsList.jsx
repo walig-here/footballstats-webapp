@@ -1,24 +1,23 @@
-import { useQuery } from "@apollo/client";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { LoadingView } from "../../views/utilities/LoadingView";
-import {List} from "../List";
-import {ListItem} from "../ListItem";
 import { DateRangeContext, UserContext } from "../../App";
-import { isAuthenticated } from "../../data_processing";
+import { useNavigate } from "react-router";
+import { useQuery } from "@apollo/client";
+import { LoadingView } from "../../views/utilities/LoadingView";
 import { TOKEN_EXPIRED_ERROR } from "../../constants";
 import { Body } from "../Body";
+import { ListItem } from "../ListItem";
+import { List } from "../List";
+import { isAuthenticated } from "../../data_processing";
 
-
-export function MatchesList({buildQueryFunction, title, subtitle}) {
+export function TeamsList({buildQueryFunction, title, subtitle}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
     const [page, setPage] = useState(1);
     const [filters, setFilters] = useState([]);
     const [sorting, setSorting] = useState({
-        direction: "DESCENDING", 
-        targetAttributeName: "data rozegrania", 
+        direction: "ASCENDING", 
+        targetAttributeName: "nazwa", 
         metric: {
             targetEventType: null,
             metricParams: []
@@ -29,11 +28,11 @@ export function MatchesList({buildQueryFunction, title, subtitle}) {
     ));
 
     useEffect(() => {
-        listQuery.refetch()
-    }, [dateRangeContext])
+        listQuery.refetch();
+    }, [dateRangeContext]);
 
     if (listQuery.loading)
-        return <LoadingView/>
+        return <LoadingView/>;
 
     const getItems = () => {
         if (listQuery.error){
@@ -44,16 +43,16 @@ export function MatchesList({buildQueryFunction, title, subtitle}) {
                 return <Body text={listQuery.error.cause.message} style={"text-error"}/>
             }
         }
-        return listQuery.data.matchesList.map(match => (
+        return listQuery.data.teamsList.map(team => (
             <ListItem
-                topText={match.gameDate}
-                mainText={`${match.teamsScores[0].teamName} - ${match.teamsScores[1].teamName}`}
-                bottomText={`${match.teamsScores[0].score} - ${match.teamsScores[1].score}`}
-                sideText={match.leagueSeason.league.name}
-                key={match.id}
-                onEdit={isAuthenticated(user.username) ? () => console.log(match.id) : null}
-                onDelete={isAuthenticated(user.username) ? () => console.log(match.id) : null}
-                onOpen={() => navigate(`/match/${match.id}/data`)}
+                topText={team.countryOfOrigin.name}
+                mainText={team.name}
+                bottomText={""}
+                sideText={""}
+                key={team.id}
+                onEdit={isAuthenticated(user.username) ? () => console.log(team.id) : null}
+                onDelete={isAuthenticated(user.username) ? () => console.log(team.id) : null}
+                onOpen={() => navigate(`/team/${team.id}/data`)}
             />
         ));
     }
@@ -61,20 +60,20 @@ export function MatchesList({buildQueryFunction, title, subtitle}) {
     return (
         <List 
             title={title}
-            iconName={"sports_soccer"}
+            iconName={"group"}
             subtitle={subtitle}
 
             filters={filters}
             setFilters={setFilters}
             metricFiltersDisabled={false}
-            filteringAttributes={listQuery.data ? listQuery.data.matchFilteringAttributes : []}
+            filteringAttributes={listQuery.data ? listQuery.data.teamFilteringAttributes : []}
 
             sorting={sorting}
             setSorting={setSorting}
-            sortingAttributes={listQuery.data ? listQuery.data.matchSortingAttributes : []}
+            sortingAttributes={listQuery.data ? listQuery.data.teamSortingAttributes : []}
 
             page={page}
-            maxPage={listQuery.data ? listQuery.data.matchListLength + 1 : 1}
+            maxPage={listQuery.data ?  Math.floor(listQuery.data.teamsListLength.length / 25) + 1 : 1}
             setPage={setPage}
         >
             {getItems()}

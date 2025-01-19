@@ -95,7 +95,43 @@ query(
   },
   playerSortingAttributes,
   playerFilteringAttributes,
-  matchListLength
+}
+`
+
+export const GET_TEAMS = gql`
+query(
+  $page: Int!,
+  $textualFilters: [TextualFilterType],
+  $metricFilters: [MetricFilterType],
+  $sorting: SortingType,
+  $startDate: Date!,
+  $endDate: Date!
+){
+  teamsList(
+    page: $page, 
+    textualFilters: $textualFilters, 
+    sorting: $sorting,
+    metricFilters: $metricFilters,
+    startDate: $startDate
+    endDate: $endDate
+  ) {
+    id,
+    name,
+    countryOfOrigin {
+      name
+    }
+  },
+  teamsListLength: teamsList(
+    page: -1, 
+    textualFilters: $textualFilters, 
+    metricFilters: $metricFilters,
+    startDate: $startDate
+    endDate: $endDate
+  ) {
+    id
+  },
+  teamSortingAttributes,
+  teamFilteringAttributes,
 }
 `
 
