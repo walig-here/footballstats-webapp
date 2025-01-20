@@ -1,3 +1,5 @@
+import { getMatchEventWithName } from "./data_processing"
+
 export const API_SERVER_URL = "http://127.0.0.1:8000/api_server/"
 export const ACCESS_TOKEN = "jwt_access_token"
 export const REFRESH_TOKEN = "jwt_refresh_token"
@@ -27,13 +29,13 @@ export const PermissionTypes = {
     DELETE: "DELETE",
     EDIT: "EDIT",
     CREATE: "CREATE"
-}
+};
 
 export const FilterType = {
     TEXTUAL: "TEXTUAL",
     NUMERIC: "NUMERIC",
     METRIC: "METRIC"
-}
+};
 
 export const FilteringCriteria = {
     textual: {
@@ -55,7 +57,7 @@ export const Metrics = {
     ODDS_FOR_MORE_THAN: "ODDS_FOR_MORE_THAN",
     MINUTES_UNTIL: "MINUTES_UNTIL",
     ODDS_IN_TIME_RANGE: "ODDS_IN_TIME_RANGE"
-}
+};
 
 export const MetricsNames = {
     SUM: "Suma",
@@ -64,7 +66,7 @@ export const MetricsNames = {
     ODDS_FOR_MORE_THAN: "Szansa na więcej niż",
     MINUTES_UNTIL: "Minut do pierwszego",
     ODDS_IN_TIME_RANGE: "Szansa w przedziale czasowym"
-}
+};
 
 
 export const QueriesForFilteringAttributesValues = {
@@ -74,7 +76,7 @@ export const QueriesForFilteringAttributesValues = {
     QUERY_TEAMS_NAMES: ["nazwa drużyny", "nazwa reprezentowanej drużyny", "nazwa uczestniczącej drużuny"],
     QUERY_COUNTRIES: ["nazwa kraju pochodzenia", "nazwa kraju pochodzenia ligi"],
     QUERY_LEAGUES: ["nazwa ligii z udziałem drużyny", "nazwa ligi", "nazwa ligi z udziałem zawodnika"],
-}
+};
 
 export const MatchEvents = {
     "1": "FAILED_PASS",
@@ -89,7 +91,7 @@ export const MatchEvents = {
     "10": "WIN",
     "11": "DEFEAT",
     "12": "DRAW"
-}
+};
 
 export const MatchEventsNames = {
     "1": "Podanie nieskuteczne",
@@ -104,4 +106,42 @@ export const MatchEventsNames = {
     "10": "Zwycięstwo",
     "11": "Przegrana",
     "12": "Remis"
+};
+
+export const MetricViewTypes = {
+    COMPARE: "Porównanie",
+    ANALYZE: "Analiza wartości",
+    HISTORY: "Zmiana wartości w czasie"
+};
+
+export const MetricTargetObject = {
+    PLAYER: 0,
+    TEAM: 1,
+    MATCH: 2
+};
+
+
+export class DataSeries{
+    constructor(eventName, metricParams){
+        this.eventName = eventName;
+        this.metricParams = metricParams;
+    }
+
+    stringify() {
+        return `${getMatchEventWithName(this.eventName)}___${this.metricParams.join("__")}`;
+    }
+
+    stringifyParams() {
+        return this.metricParams.map(item => `"${item}"`).join(", ");
+    }
+
+    static destringify(string) {
+        const [eventCodename, stringifiedParams] = string.split("___");
+        const eventId = Object.keys(MatchEvents).find(
+            key => MatchEvents[key] === eventCodename
+        );
+        const eventName = MatchEventsNames[eventId];
+        const params = stringifiedParams ? stringifiedParams.split("__") : [];
+        return params.length > 0 ? `${eventName} (${params.toString()})` : eventName;
+    }
 }

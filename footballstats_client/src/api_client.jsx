@@ -1,10 +1,10 @@
 import { ApolloClient, InMemoryCache, gql, useMutation } from '@apollo/client';
-import {useLocation, useNavigate} from 'react-router';
+import {data, useLocation, useNavigate} from 'react-router';
 
 import * as constants from "./constants.js"
 import { useEffect, useState } from 'react';
 import { LoadingView } from './views/utilities/LoadingView.jsx';
-import { isAuthenticated, isOwner } from './data_processing.js';
+import { getMatchEventWithName, getMetricWithName, isAuthenticated, isOwner } from './data_processing.js';
 import { toast } from 'react-toastify';
 
 export const REFRESH_TOKEN_MUTATION = gql`
@@ -38,6 +38,50 @@ export const VERIFY_TOKEN_MUTATION = gql`
 `;
 
 
+function calculatePlayerMetricForDataSeries(dataSeries, metricName) {
+  let queryBody = ``;
+  dataSeries.forEach(dataPoint => {
+    queryBody += `
+      ${dataPoint.stringify()}: player(id: $playerId){
+        calculateMetric(
+          startDate: $startDate,
+          endDate: $endDate,
+          match: $match,
+          team: $team,
+          metric: {
+            metricType: ${getMetricWithName(metricName)},
+            targetMatchEvent: ${getMatchEventWithName(dataPoint.eventName)},
+            metricParams: [${dataPoint.stringifyParams()}]
+          }
+        )
+      }`;
+  });
+  
+  return gql`
+  query(
+    $playerId: Int!
+    $startDate: Date!,
+    $endDate: Date!,
+    $match: Int!,
+    $team: Int!,
+  ){
+    ${queryBody}
+  }`
+}
+export const QUERY_PLAYER_CALCULATE_METRIC_FOR_DATA_SERIES = (playerId, startDate, endDate, match, team, metricName, dataSeries) => [
+  calculatePlayerMetricForDataSeries(dataSeries, metricName),
+  {
+    variables: {
+      playerId: playerId,
+      startDate: startDate,
+      endDate: endDate,
+      match: match,
+      team: team,
+    }
+  }
+]
+
+
 export const REGISTER_USER_MUTATION = gql`
 mutation($password: String!, $username: String!, $token: String!){
     registerUser(password: $password, username: $username, registrationToken: $token){
@@ -58,6 +102,27 @@ export const GET_DATE_RANGE = gql`
   dataDateRange
 }
 `
+
+export const GET_PLAYER = gql`
+query (
+  $id: Int!
+) {
+  player(id: $id) {
+    name,
+    surname,
+    nickname,
+    countryOfOrigin {
+      name
+    }
+  }
+}
+`;
+export const buildPlayerQuery = (id) => [
+  GET_PLAYER,
+  {
+    variables: {id: id}
+  }
+];
 
 export const GET_MATCH = gql`
 query(

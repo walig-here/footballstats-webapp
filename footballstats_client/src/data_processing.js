@@ -86,6 +86,19 @@ export function capitalize(text) {
     return String(text).charAt(0).toUpperCase() + String(text).slice(1);
 }
 
+export function getMetricWithName(name) {
+    return Object.keys(constants.MetricsNames).find(
+        key => constants.MetricsNames[key] === name
+    )
+}
+
+export function getMatchEventWithName(name) {
+    const MatchEventId = Object.keys(constants.MatchEventsNames).find(
+        key => constants.MatchEventsNames[key] === name
+    );
+    return constants.MatchEvents[MatchEventId];
+}
+
 export function convertSortingToBackendFormat(sorting) {
     const metricParameters = sorting.metric.metricParams.join(' ');
     let targetAttributeName = (

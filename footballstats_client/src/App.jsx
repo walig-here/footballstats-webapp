@@ -48,7 +48,6 @@ export default function App() {
     useEffect(() => {
         if (serverDateRange.error || !serverDateRange.data)
             return;
-        console.log(serverDateRange)
 
         const newStartDate = (
             dateRange.startDate >= serverDateRange.data.dataDateRange[0] ?
