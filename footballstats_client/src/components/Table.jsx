@@ -1,5 +1,6 @@
 import { Button, Card, Divider, Icon, IconButton } from "actify";
-import { useState } from "react";
+import { saveAs } from "file-saver";
+import { useCallback, useState } from "react";
 
 
 const TableSortingDirection = {
@@ -9,25 +10,19 @@ const TableSortingDirection = {
 
 
 export function Table({data, columnKeys}) {
-    const [sorting, setSorting] = useState({
-        columnKey: columnKeys[0],
-        direction: TableSortingDirection.ASCENDING
-    });
+    const [isDownloading, setIsDownloading] = useState(false);
 
-    const downloadTableAsCsv = () => {
+    const downloadTableAsCsv = useCallback(() => {
+        setIsDownloading(true);
         const headers = columnKeys;
         const lines = [];
         lines.push(headers.join(','));
         data.forEach(element => lines.push(Object.values(element).join(",")));
         const csvData = lines.join('\n');
-    
         const blob = new Blob([csvData], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'table.csv';
-        a.click();
-    }
+        saveAs(blob, 'table.csv');
+        setIsDownloading(false);
+    })
 
     const columns = <div className="flex flex-row flex-grow space-x-1">{
         columnKeys.map((columnName, columnIndex) => (
@@ -57,9 +52,14 @@ export function Table({data, columnKeys}) {
         >
             <div className="flex flex-row">
                 {columns}
-                <IconButton onPress={() => downloadTableAsCsv()}>
-                    <Icon>download</Icon>
-                </IconButton>
+                {
+                    !isDownloading ?
+                    <IconButton onPress={downloadTableAsCsv}>
+                        <Icon>download</Icon>
+                    </IconButton> 
+                    :
+                    <h1>Eksportowanie tabeli</h1>
+                }
             </div>
         </Card>
     )

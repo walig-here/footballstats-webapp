@@ -1,28 +1,40 @@
-import { useCallback } from "react";
+import { Button, Icon, IconButton } from "actify";
+import { useCallback, useRef, useState } from "react";
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useCurrentPng } from "recharts-to-png";
 
 export function BarChartView({data, argumentKey, valueKey}) {
     const [getPng, {ref, isLoading}] = useCurrentPng();
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const handleDownload = useCallback(async () => {
+        setIsDownloading(true);
         const png = await getPng();
         if (png)
             saveAs(png, "chart.png");
+        setIsDownloading(false);
     }, [getPng]);
 
-    const chartHeight = calculateMetricResults.data ? Object.entries(calculateMetricResults.data).length * 50 + 50 : 1;
+    const chartHeight = data ? data.length * 50 + 50 : 1;
     const maxLabelLength = (
         data ?
-        Object.keys(data).sort((a, b) => {
+        data.map(dataSeries => dataSeries[argumentKey]).sort((a, b) => {
             return b.length - a.length;
         })[0].length :
         0
     )
-    const yAxisWidth = maxLabelLength * 15;
+    const yAxisWidth = maxLabelLength * 10;
 
     return (
         <>
-            <Button onPress={handleDownload}>Pobierz wykres</Button>
+            <div className="flex flex-row justify-end">
+            {
+                !isDownloading ?
+                <IconButton onPress={handleDownload}><Icon>download</Icon></IconButton>
+                :
+                <h1>Eksportowanie wykresu...</h1>
+            }
+            </div>
             <ResponsiveContainer width="99%" height={chartHeight}>
                 <BarChart
                     ref={ref}
