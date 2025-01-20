@@ -1,6 +1,7 @@
 import { GET_TEAMS } from "../../api_client";
 import ContentView from "../../components/ContentView";
 import { DataRangeControl } from "../../components/DataRangeControl";
+import { PlayersList } from "../../components/lists/pLAYERSList";
 import { TeamsList } from "../../components/lists/TeamsList";
 import { convertFiltersToBackendFormat, convertSortingToBackendFormat } from "../../data_processing";
 
@@ -26,7 +27,6 @@ export default function AllTeamsListView() {
         <ContentView title={"Lista drużyn"}>
             <DataRangeControl/>
             <TeamsList
-                buildQueryFunction={QUERY_TEAMS_LIST}
                 subtitle={"Przeglądaj wszystkie drużyny z aktualnie wybranego zakresu dat."}
                 title={"Wszystkie drużyny"}
             />

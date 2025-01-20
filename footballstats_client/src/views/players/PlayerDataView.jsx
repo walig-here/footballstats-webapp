@@ -10,9 +10,6 @@ import { Body } from "../../components/Body";
 import { MetricView } from "../../components/metrics/MetricView";
 import { MetricTargetObject, MetricViewTypes } from "../../constants";
 import { DataRangeControl } from "../../components/DataRangeControl";
-import { toast } from "react-toastify";
-
-
 
 export default function PlayerDataView() {
     const navigate = useNavigate();
@@ -82,7 +79,7 @@ export default function PlayerDataView() {
                 </div>
             </Section>
             <DataRangeControl/>
-            <Button 
+            <Button
                 variant="outlined"
                 onPress={() => addMetricView()}
             >

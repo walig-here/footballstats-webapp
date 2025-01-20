@@ -1,7 +1,7 @@
 import { useCallback, useContext, useRef, useState } from 'react'
 import { DateRangeContext } from '../../App';
 import { useQuery } from '@apollo/client';
-import { QUERY_PLAYER_CALCULATE_METRIC_FOR_DATA_SERIES } from '../../api_client';
+import { QUERY_PLAYER_CALCULATE_METRIC_FOR_DATA_SERIES, QUERY_TEAM_CALCULATE_METRIC_FOR_DATA_SERIES } from '../../api_client';
 import { LoadingView } from '../../views/utilities/LoadingView';
 import { DataSeries, MetricTargetObject } from '../../constants';
 import { Body } from '../Body';
@@ -13,6 +13,8 @@ const getQueryBuilderForTargetObjectType = (targetObjectType) => {
     switch (targetObjectType) {
         case MetricTargetObject.PLAYER:
             return QUERY_PLAYER_CALCULATE_METRIC_FOR_DATA_SERIES
+        case MetricTargetObject.TEAM:
+            return QUERY_TEAM_CALCULATE_METRIC_FOR_DATA_SERIES
     }
 }
 

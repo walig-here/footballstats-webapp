@@ -5,11 +5,31 @@ import { useQuery } from "@apollo/client";
 import { List } from "../List";
 import { LoadingView } from "../../views/utilities/LoadingView";
 import { ListItem } from "../ListItem";
-import { isAuthenticated } from "../../data_processing";
+import { convertFiltersToBackendFormat, convertSortingToBackendFormat, isAuthenticated } from "../../data_processing";
 import { TOKEN_EXPIRED_ERROR } from "../../constants";
 import { Body } from "../Body";
+import { GET_PLAYERS } from "../../api_client";
 
-export function PlayersList ({buildQueryFunction, title, subtitle, match, team}) {
+const QUERY_PLAYER_LIST = (sorting, filters, page, startDate, endDate, match, team) => {
+    const [textualFilters, metricFilters] = convertFiltersToBackendFormat(filters);
+    return [
+        GET_PLAYERS,
+        {
+            variables: {
+                page: page - 1,
+                textualFilters: textualFilters,
+                metricFilters: metricFilters,
+                sorting: convertSortingToBackendFormat(sorting),
+                startDate: startDate,
+                endDate: endDate,
+                match: match,
+                team: team
+            },
+        }
+    ]
+}
+
+export function PlayersList ({title, subtitle, match, team}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
@@ -23,7 +43,7 @@ export function PlayersList ({buildQueryFunction, title, subtitle, match, team})
             metricParams: []
         }
     });
-    const listQuery = useQuery(...buildQueryFunction(
+    const listQuery = useQuery(...QUERY_PLAYER_LIST(
         sorting, filters, page, dateRangeContext.startDate, dateRangeContext.endDate, match, team
     ));
 

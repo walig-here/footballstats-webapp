@@ -37,6 +37,45 @@ export const VERIFY_TOKEN_MUTATION = gql`
     }
 `;
 
+function calculateTeamMetricForDataSeries(dataSeries, metricName) {
+  let queryBody = ``;
+  dataSeries.forEach(dataPoint => {
+    queryBody += `
+      ${dataPoint.stringify()}: team(id: $teamId){
+        calculateMetric(
+          startDate: $startDate,
+          endDate: $endDate,
+          match: $match,
+          metric: {
+            metricType: ${getMetricWithName(metricName)},
+            targetMatchEvent: ${getMatchEventWithName(dataPoint.eventName)},
+            metricParams: [${dataPoint.stringifyParams()}]
+          }
+        )
+      }`;
+  });
+  
+  return gql`
+  query(
+    $teamId: Int!
+    $startDate: Date!,
+    $endDate: Date!,
+    $match: Int!,
+  ){
+    ${queryBody}
+  }`
+}
+export const QUERY_TEAM_CALCULATE_METRIC_FOR_DATA_SERIES = (teamId, startDate, endDate, match, team, metricName, dataSeries) => [
+  calculateTeamMetricForDataSeries(dataSeries, metricName),
+  {
+    variables: {
+      teamId: teamId,
+      startDate: startDate,
+      endDate: endDate,
+      match: match,
+    }
+  }
+]
 
 function calculatePlayerMetricForDataSeries(dataSeries, metricName) {
   let queryBody = ``;
@@ -121,6 +160,46 @@ export const QUERY_PLAYER_METRIC_HISTORY_FOR_DATA_SERIES = (playerId, startDate,
   }
 ]
 
+function calculateTeamMetricHistoryForDataSeries(dataSeries, metricName) {
+  let queryBody = ``;
+  dataSeries.forEach(dataPoint => {
+    queryBody += `
+      ${dataPoint.stringify()}: team(id: $teamId){
+        metricHistory(
+          startDate: $startDate,
+          endDate: $endDate,
+          metric: {
+            metricType: ${getMetricWithName(metricName)},
+            targetMatchEvent: ${getMatchEventWithName(dataPoint.eventName)},
+            metricParams: [${dataPoint.stringifyParams()}]
+          }
+        ) {
+          value,
+          time
+        }
+      }`;
+  });
+  
+  return gql`
+  query(
+    $teamId: Int!
+    $startDate: Date!,
+    $endDate: Date!,
+  ){
+    ${queryBody}
+  }`
+}
+export const QUERY_TEAM_METRIC_HISTORY_FOR_DATA_SERIES = (teamId, startDate, endDate, metricName, dataSeries) => [
+  calculateTeamMetricHistoryForDataSeries(dataSeries, metricName),
+  {
+    variables: {
+      teamId: teamId,
+      startDate: startDate,
+      endDate: endDate,
+    }
+  }
+]
+
 export const REGISTER_USER_MUTATION = gql`
 mutation($password: String!, $username: String!, $token: String!){
     registerUser(password: $password, username: $username, registrationToken: $token){
@@ -141,6 +220,24 @@ export const GET_DATE_RANGE = gql`
   dataDateRange
 }
 `
+
+export const GET_TEAM = gql`
+query (
+  $id: Int!
+) {
+  team(id: $id) {
+    name,
+    countryOfOrigin {
+      name
+    }
+  }
+}`;
+export const buildTeamQuery = (id) => [
+  GET_TEAM,
+  {
+    variables: {id: id}
+  }
+];
 
 export const GET_PLAYER = gql`
 query (

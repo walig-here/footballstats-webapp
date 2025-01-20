@@ -28,7 +28,6 @@ export default function AllMatchesListView() {
         <ContentView title={"Lista meczów"}>
             <DataRangeControl/>
             <MatchesList 
-                buildQueryFunction={QUERY_MATCH_LIST}
                 subtitle={"Przeglądaj wszystkie mecze z aktualnie wybranego zakresu dat."}
                 title={"Wszystkie mecze"}
             />

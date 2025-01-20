@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { QUERY_PLAYER_METRIC_HISTORY_FOR_DATA_SERIES } from "../../api_client"
+import { QUERY_PLAYER_METRIC_HISTORY_FOR_DATA_SERIES, QUERY_TEAM_CALCULATE_METRIC_FOR_DATA_SERIES, QUERY_TEAM_METRIC_HISTORY_FOR_DATA_SERIES } from "../../api_client"
 import { DateRangeContext } from "../../App"
 import { useQuery } from "@apollo/client"
 import { LoadingView } from "../../views/utilities/LoadingView"
@@ -9,16 +9,18 @@ import { DataSeries, MetricTargetObject } from "../../constants"
 import { LinearChartView } from "../LinearChartView"
 import { Table } from "../Table"
 
-const getQueryBuilderFortargetObjectType = (targetObjectType) => {
+const getQueryBuilderForTargetObjectType = (targetObjectType) => {
     switch (targetObjectType) {
         case MetricTargetObject.PLAYER:
             return QUERY_PLAYER_METRIC_HISTORY_FOR_DATA_SERIES
+        case MetricTargetObject.TEAM:
+            return QUERY_TEAM_METRIC_HISTORY_FOR_DATA_SERIES
     }
 }
 
 export function MetricHistoryAnalysis({dataSeries, metricName, objectId, targetObjectType}) {
     const dateRangeContext = useContext(DateRangeContext);
-    const calculateMetricHistoryResults = useQuery(...getQueryBuilderFortargetObjectType(targetObjectType)(
+    const calculateMetricHistoryResults = useQuery(...getQueryBuilderForTargetObjectType(targetObjectType)(
         objectId, dateRangeContext.startDate, dateRangeContext.endDate, metricName, dataSeries
     ));
 

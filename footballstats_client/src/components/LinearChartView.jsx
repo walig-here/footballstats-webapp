@@ -34,6 +34,9 @@ function getRandomColorInRange(startColor, endColor) {
     return rgbToHex(randomRgb);
 }
 
+const LIGHTEST_POSSIBLE_GREEN_HEX = "#29A382";
+const BLACK_HEX = "#000000";
+
 export function LinearChartView({data, argumentKey, valuesKeys}) {
     const [getPng, {ref, isLoading}] = useCurrentPng();
     const [isDownloading, setIsDownloading] = useState(false);
@@ -68,7 +71,7 @@ export function LinearChartView({data, argumentKey, valuesKeys}) {
                                 key={valueKey}
                                 dataKey={valueKey} 
                                 activeDot={{r: 5}} 
-                                stroke={getRandomColorInRange("#0E341E", "#29A378")}
+                                stroke={getRandomColorInRange(BLACK_HEX, LIGHTEST_POSSIBLE_GREEN_HEX)}
                                 strokeWidth={3}
                             />
                         ))
