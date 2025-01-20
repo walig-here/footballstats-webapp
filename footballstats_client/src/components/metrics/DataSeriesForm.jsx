@@ -66,10 +66,10 @@ export function DataSeriesForm({dataSeries, setDataSeries, metricName,}) {
                             label={"Początek przediału (min)"} 
                             variant="outlined" 
                             type="number"
-                            value={newDataSeries.metricParams[1]}
+                            value={newDataSeries.metricParams[0]}
                             onChange={(value) => {
                                 setNewDataSeries(prev => new DataSeries(
-                                    prev.eventName, [value, prev[1]]
+                                    prev.eventName, [value, prev.metricParams[1]]
                                 ))
                             }}
                         />
@@ -80,12 +80,12 @@ export function DataSeriesForm({dataSeries, setDataSeries, metricName,}) {
                             value={newDataSeries.metricParams[1]}
                             onChange={(value) => {
                                 setNewDataSeries(prev => new DataSeries(
-                                    prev.eventName, [prev[0], value]
+                                    prev.eventName, [prev.metricParams[0], value]
                                 ))
                             }}
                         />
                         {
-                            newDataSeries.metricParams[0] && newDataSeries.metricParams[1] &&
+                            (newDataSeries.metricParams[0] && newDataSeries.metricParams[1]) &&
                             submitButton
                         }
                     </>

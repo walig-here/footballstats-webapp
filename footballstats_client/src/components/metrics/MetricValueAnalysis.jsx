@@ -1,5 +1,4 @@
 import { useCallback, useContext, useRef, useState } from 'react'
-import {Bar, BarChart, Rectangle, ResponsiveContainer, XAxis, YAxis, Tooltip} from 'recharts'
 import { DateRangeContext } from '../../App';
 import { useQuery } from '@apollo/client';
 import { QUERY_PLAYER_CALCULATE_METRIC_FOR_DATA_SERIES } from '../../api_client';
@@ -7,13 +6,10 @@ import { LoadingView } from '../../views/utilities/LoadingView';
 import { DataSeries, MetricTargetObject } from '../../constants';
 import { Body } from '../Body';
 import { Table } from '../Table';
-import { Button } from 'actify';
-import {useCurrentPng} from 'recharts-to-png';
-import {saveAs} from 'file-saver';
 import { BarChartView } from '../BarChartView';
 
 
-const getQueryForTargetObjectType = (targetObjectType) => {
+const getQueryBuilderForTargetObjectType = (targetObjectType) => {
     switch (targetObjectType) {
         case MetricTargetObject.PLAYER:
             return QUERY_PLAYER_CALCULATE_METRIC_FOR_DATA_SERIES
@@ -23,7 +19,7 @@ const getQueryForTargetObjectType = (targetObjectType) => {
 
 export function MetricValueAnalysis({dataSeries, match, team, metricName, objectId, targetObjectType}) {
     const dateRangeContext = useContext(DateRangeContext);
-    const calculateMetricResults = useQuery(...getQueryForTargetObjectType(targetObjectType)(
+    const calculateMetricResults = useQuery(...getQueryBuilderForTargetObjectType(targetObjectType)(
         objectId, dateRangeContext.startDate, dateRangeContext.endDate, match, team,  metricName, dataSeries
     ));
 

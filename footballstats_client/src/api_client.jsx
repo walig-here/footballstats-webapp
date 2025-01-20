@@ -81,6 +81,45 @@ export const QUERY_PLAYER_CALCULATE_METRIC_FOR_DATA_SERIES = (playerId, startDat
   }
 ]
 
+function calculatePlayerMetricHistoryForDataSeries(dataSeries, metricName) {
+  let queryBody = ``;
+  dataSeries.forEach(dataPoint => {
+    queryBody += `
+      ${dataPoint.stringify()}: player(id: $playerId){
+        metricHistory(
+          startDate: $startDate,
+          endDate: $endDate,
+          metric: {
+            metricType: ${getMetricWithName(metricName)},
+            targetMatchEvent: ${getMatchEventWithName(dataPoint.eventName)},
+            metricParams: [${dataPoint.stringifyParams()}]
+          }
+        ) {
+          value,
+          time
+        }
+      }`;
+  });
+  
+  return gql`
+  query(
+    $playerId: Int!
+    $startDate: Date!,
+    $endDate: Date!,
+  ){
+    ${queryBody}
+  }`
+}
+export const QUERY_PLAYER_METRIC_HISTORY_FOR_DATA_SERIES = (playerId, startDate, endDate, metricName, dataSeries) => [
+  calculatePlayerMetricHistoryForDataSeries(dataSeries, metricName),
+  {
+    variables: {
+      playerId: playerId,
+      startDate: startDate,
+      endDate: endDate,
+    }
+  }
+]
 
 export const REGISTER_USER_MUTATION = gql`
 mutation($password: String!, $username: String!, $token: String!){

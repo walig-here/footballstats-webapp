@@ -6,6 +6,7 @@ import { Button, Icon, IconButton } from "actify";
 import { MetricForm } from "./MetricForm";
 import { MetricValueAnalysis } from "./MetricValueAnalysis";
 import { DataSeriesForm } from "./DataSeriesForm";
+import { MetricHistoryAnalysis } from "./MetricHistoryAnalysis";
 
 
 const MetricViewState = {
@@ -23,13 +24,14 @@ const MetricViewState = {
     }
 }
 
-/**
+/*
  *  Renders metric view section.
  * @param {MetricViewTypes} type Type of metric view.
  * @param {MetricTargetObject} targetType Points to object that is a target of metric calculation.
  * @param {int} match Select a match or all possible matches (null) to provide events source.
  * @param {int} team Select a matches of team or all possible teams (null) to provide events source.
  */
+
 export function MetricView ({type, targetType, match, team, onDelete, objectId}) {
     const [metricName, setMetricName] = useState(null);
     const [state, setState] = useState(MetricViewState.CREATION);
@@ -51,14 +53,24 @@ export function MetricView ({type, targetType, match, team, onDelete, objectId})
                     setDataSeries={setDataSeries}
                 />;
             case MetricViewState.DISPLAY:
-                return <MetricValueAnalysis 
-                    objectId={objectId}
-                    metricName={metricName}
-                    match={match}
-                    team={team}
-                    targetObjectType={targetType}
-                    dataSeries={dataSeries}
-                />;
+                switch (type) {
+                    case MetricViewTypes.ANALYZE:
+                        return <MetricValueAnalysis 
+                            objectId={objectId}
+                            metricName={metricName}
+                            match={match}
+                            team={team}
+                            targetObjectType={targetType}
+                            dataSeries={dataSeries}
+                        />;
+                    case MetricViewTypes.HISTORY:
+                        return <MetricHistoryAnalysis
+                            dataSeries={dataSeries}
+                            metricName={metricName}
+                            objectId={objectId}
+                            targetObjectType={targetType}
+                        />
+                }
             case MetricViewState.ADD_NEW_SERIES:
                 return <>
                     <DataSeriesForm
