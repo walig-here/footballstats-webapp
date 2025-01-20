@@ -10,6 +10,7 @@ import { Body } from "../../components/Body";
 import { MetricView } from "../../components/metrics/MetricView";
 import { MetricTargetObject, MetricViewTypes } from "../../constants";
 import { DataRangeControl } from "../../components/DataRangeControl";
+import { toast } from "react-toastify";
 
 
 
@@ -20,20 +21,24 @@ export default function PlayerDataView() {
     const [currentTab, setCurrentTab] = useState(DEFAULT_PATH);
     const {loading, data, error} = useQuery(...buildPlayerQuery(Number.parseInt(id)));
     const [metricViews, setMetricViews] = useState([]);
+    const [generatedMetrics, setGeneratedMetrics] = useState(0);
 
     const removeMetricView = (removeIndex) => {
-        setMetricViews(prev => prev.filter((element, index) => index !== removeIndex));
+        console.log(removeIndex)
+        setMetricViews(prev => prev.filter((element, index) => element.key !== removeIndex));
     };
     const addMetricView = () => {
         const newView = <MetricView
             type={MetricViewTypes.ANALYZE}
             targetType={MetricTargetObject.PLAYER}
             objectId={Number.parseInt(id)}
+            key={generatedMetrics}
             match={-1}
             team={-2}
-            onDelete={() => removeMetricView(metricViews.length)}
+            onDelete={() => removeMetricView(`${generatedMetrics}`)}
         />
         setMetricViews(prev => [newView, ...prev]);
+        setGeneratedMetrics(prev => prev + 1)
     };
 
     useEffect(() => {
@@ -42,6 +47,9 @@ export default function PlayerDataView() {
 
     if (loading)
         return <LoadingView/>;
+    if (error){
+        return <ContentView title={"Zawodnik nie istnieje"}></ContentView>;
+    }
 
     return (
         <ContentView title={`${data.player.name} ${data.player.surname}`}>

@@ -64,7 +64,8 @@ export function LinearChartView({data, argumentKey, valuesKeys}) {
                     <YAxis/>
                     {
                         valuesKeys.map(valueKey => (
-                            <Line 
+                            <Line
+                                key={valueKey}
                                 dataKey={valueKey} 
                                 activeDot={{r: 5}} 
                                 stroke={getRandomColorInRange("#0E341E", "#29A378")}

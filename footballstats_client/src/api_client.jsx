@@ -265,7 +265,9 @@ query(
   $metricFilters: [MetricFilterType],
   $sorting: SortingType,
   $startDate: Date!,
-  $endDate: Date!
+  $endDate: Date!,
+  $matchId: Int,
+  $playerId: Int
 ){
   teamsList(
     page: $page, 
@@ -273,7 +275,9 @@ query(
     sorting: $sorting,
     metricFilters: $metricFilters,
     startDate: $startDate
-    endDate: $endDate
+    endDate: $endDate,
+    playingInMatch: $matchId,
+    representedByPlayer: $playerId
   ) {
     id,
     name,
@@ -286,7 +290,9 @@ query(
     textualFilters: $textualFilters, 
     metricFilters: $metricFilters,
     startDate: $startDate
-    endDate: $endDate
+    endDate: $endDate,
+    playingInMatch: $matchId,
+    representedByPlayer: $playerId
   ) {
     id
   },
@@ -303,6 +309,8 @@ query(
   $sorting: SortingType,
   $startDate: Date!,
   $endDate: Date!
+  $teamId: Int,
+  $playerId: Int
 ){
   matchesList(
     page: $page, 
@@ -310,7 +318,9 @@ query(
     sorting: $sorting,
     metricFilters: $metricFilters,
     startDate: $startDate
-    endDate: $endDate
+    endDate: $endDate,
+    teamInvolved: $teamId,
+    playerInvolved: $playerId
   ) {
     id,
     gameDate,
@@ -326,7 +336,17 @@ query(
   },
   matchSortingAttributes,
   matchFilteringAttributes,
-  matchListLength
+  matchListLength: matchesList(
+    page: -1, 
+    textualFilters: $textualFilters, 
+    metricFilters: $metricFilters,
+    startDate: $startDate
+    endDate: $endDate,
+    teamInvolved: $teamId,
+    playerInvolved: $playerId
+  ) {
+    id
+  }
 }
 `
 

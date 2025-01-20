@@ -15,7 +15,7 @@ const QUERY_TEAMS_LIST = (sorting, filters, page, startDate, endDate) => {
                 metricFilters: metricFilters,
                 sorting: convertSortingToBackendFormat(sorting),
                 startDate: startDate,
-                endDate: endDate
+                endDate: endDate,
             },
         }
     ]

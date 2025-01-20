@@ -5,12 +5,33 @@ import { LoadingView } from "../../views/utilities/LoadingView";
 import {List} from "../List";
 import {ListItem} from "../ListItem";
 import { DateRangeContext, UserContext } from "../../App";
-import { isAuthenticated } from "../../data_processing";
+import { convertFiltersToBackendFormat, convertSortingToBackendFormat, isAuthenticated } from "../../data_processing";
 import { TOKEN_EXPIRED_ERROR } from "../../constants";
 import { Body } from "../Body";
+import { GET_MATCHES } from "../../api_client";
 
 
-export function MatchesList({buildQueryFunction, title, subtitle}) {
+const QUERY_MATCH_LIST = (sorting, filters, page, startDate, endDate, teamId, playerId) => {
+    const [textualFilters, metricFilters] = convertFiltersToBackendFormat(filters);
+    return [
+        GET_MATCHES,
+        {
+            variables: {
+                page: page - 1,
+                textualFilters: textualFilters,
+                metricFilters: metricFilters,
+                sorting: convertSortingToBackendFormat(sorting),
+                startDate: startDate,
+                endDate: endDate,
+                playerId: playerId,
+                teamId: teamId
+            },
+        }
+    ]
+}
+
+
+export function MatchesList({title, subtitle, teamId, playerId}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
@@ -24,8 +45,8 @@ export function MatchesList({buildQueryFunction, title, subtitle}) {
             metricParams: []
         }
     });
-    const listQuery = useQuery(...buildQueryFunction(
-        sorting, filters, page, dateRangeContext.startDate, dateRangeContext.endDate
+    const listQuery = useQuery(...QUERY_MATCH_LIST(
+        sorting, filters, page, dateRangeContext.startDate, dateRangeContext.endDate, teamId, playerId
     ));
 
     useEffect(() => {
@@ -74,7 +95,7 @@ export function MatchesList({buildQueryFunction, title, subtitle}) {
             sortingAttributes={listQuery.data ? listQuery.data.matchSortingAttributes : []}
 
             page={page}
-            maxPage={listQuery.data ? listQuery.data.matchListLength + 1 : 1}
+            maxPage={listQuery.data ? Math.floor(listQuery.data.matchListLength.length / 25) + 1 : 1}
             setPage={setPage}
         >
             {getItems()}

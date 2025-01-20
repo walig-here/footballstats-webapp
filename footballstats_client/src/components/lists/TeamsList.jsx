@@ -7,9 +7,31 @@ import { TOKEN_EXPIRED_ERROR } from "../../constants";
 import { Body } from "../Body";
 import { ListItem } from "../ListItem";
 import { List } from "../List";
-import { isAuthenticated } from "../../data_processing";
+import { convertFiltersToBackendFormat, convertSortingToBackendFormat, isAuthenticated } from "../../data_processing";
+import { GET_TEAMS } from "../../api_client";
 
-export function TeamsList({buildQueryFunction, title, subtitle}) {
+
+const BUILD_TEAMS_QUERY = (sorting, filters, page, startDate, endDate, matchId, playerId) => {
+    const [textualFilters, metricFilters] = convertFiltersToBackendFormat(filters);
+    return [
+        GET_TEAMS,
+        {
+            variables: {
+                page: page - 1,
+                textualFilters: textualFilters,
+                metricFilters: metricFilters,
+                sorting: convertSortingToBackendFormat(sorting),
+                startDate: startDate,
+                endDate: endDate,
+                playerId: playerId,
+                matchId: matchId
+            },
+        }
+    ]
+}
+
+
+export function TeamsList({title, subtitle, matchId, playerId}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
@@ -23,8 +45,8 @@ export function TeamsList({buildQueryFunction, title, subtitle}) {
             metricParams: []
         }
     });
-    const listQuery = useQuery(...buildQueryFunction(
-        sorting, filters, page, dateRangeContext.startDate, dateRangeContext.endDate
+    const listQuery = useQuery(...BUILD_TEAMS_QUERY(
+        sorting, filters, page, dateRangeContext.startDate, dateRangeContext.endDate, matchId, playerId
     ));
 
     useEffect(() => {

@@ -16,20 +16,24 @@ export default function PlayerThroughTimeView() {
     const DEFAULT_PATH = `/player/${id}/through_time`;
     const [currentTab, setCurrentTab] = useState(DEFAULT_PATH);
     const [metricViews, setMetricViews] = useState([]);
+    const [generatedMetrics, setGeneratedMetrics] = useState(0);
 
     const removeMetricView = (removeIndex) => {
-        setMetricViews(prev => prev.filter((element, index) => index !== removeIndex));
+        console.log(`usuwam zestawienie ${removeIndex}`)
+        setMetricViews(prev => prev.filter((element, index) => element.key !== removeIndex));
     };
     const addMetricView = () => {
         const newView = <MetricView
             type={MetricViewTypes.HISTORY}
             targetType={MetricTargetObject.PLAYER}
+            objectId={Number.parseInt(id)}
+            key={generatedMetrics}
             match={-1}
             team={-2}
-            objectId={Number.parseInt(id)}
-            onDelete={() => removeMetricView(metricViews.length)}
+            onDelete={() => removeMetricView(`${generatedMetrics}`)}
         />
         setMetricViews(prev => [newView, ...prev]);
+        setGeneratedMetrics(prev => prev + 1)
     };
 
     useEffect(() => {
@@ -38,6 +42,9 @@ export default function PlayerThroughTimeView() {
 
     if (loading)
         return <LoadingView/>;
+    if (error){
+        return <ContentView title={"Zawodnik nie istnieje"}></ContentView>;
+    }
 
     return (
         <ContentView title={`${data.player.name} ${data.player.surname}`}>
