@@ -99,6 +99,12 @@ export function getMatchEventWithName(name) {
     return constants.MatchEvents[MatchEventId];
 }
 
+export function serializeTeamPlayers(teamPlayers) {
+    console.log(teamPlayers)
+    console.log(teamPlayers.map(playerData => `${playerData.playerId}=${playerData.minutesPlayed}`))
+    return teamPlayers.map(playerData => `${playerData.playerId}=${playerData.minutesPlayed}`).join(" ");
+}
+
 export function convertSortingToBackendFormat(sorting) {
     const metricParameters = sorting.metric.metricParams.join(' ');
     let targetAttributeName = (

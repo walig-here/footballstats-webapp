@@ -201,7 +201,9 @@ class CreateMatch(DjangoFormMutation):
             "home_team": [None, []],
             "away_team": [None, []]
         }
-        players_ids: set[int] = set() 
+        players_ids: set[int] = set()
+        if form.cleaned_data["away_team"] == form.cleaned_data["home_team"]:
+            raise ValueError("Can't assign only one team to match!")
 
         for team in ("home_team", "away_team"):
             try:

@@ -62,14 +62,14 @@ export default function MatchParticipantsView() {
                 subtitle={PLAYER_LIST_DESC}
                 buildQueryFunction={QUERY_PLAYERS}
                 team={data.match.teamsScores[0].teamId}
-                match={data.match.id}
+                match={Number.parseInt(id)}
             />
             <PlayersList
                 title={`Zawodnicy drużyny ${data.match.teamsScores[1].teamName}`}
                 subtitle={PLAYER_LIST_DESC}
                 buildQueryFunction={QUERY_PLAYERS}
                 team={data.match.teamsScores[1].teamId}
-                match={data.match.id}
+                match={Number.parseInt(id)}
             />
         </ContentView>
     )

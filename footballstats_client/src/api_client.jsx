@@ -7,6 +7,31 @@ import { LoadingView } from './views/utilities/LoadingView.jsx';
 import { getMatchEventWithName, getMetricWithName, isAuthenticated, isOwner } from './data_processing.js';
 import { toast } from 'react-toastify';
 
+export const CREATE_MATCH_MUTATION = gql`
+mutation(
+  $accessToken: String!
+  $gameDate: Date!,
+  $leagueSeasonId: ID!
+  $homeTeamId: Int!,
+  $awayTeamId: Int!
+  $homeTeamPlayers: String!
+  $awayTeamPlayers: String!
+){
+  createMatch(input: {
+    gameDate: $gameDate,
+    leagueSeason: $leagueSeasonId
+    homeTeam: $homeTeamId,
+    awayTeam: $awayTeamId,
+    token: $accessToken,
+    homeTeamPlayers: $homeTeamPlayers,
+    awayTeamPlayers: $awayTeamPlayers
+  }) {
+    errors {
+      messages
+    }
+  }
+}`
+
 export const REFRESH_TOKEN_MUTATION = gql`
     mutation(
         $refreshToken: String!
@@ -36,6 +61,22 @@ export const VERIFY_TOKEN_MUTATION = gql`
         }
     }
 `;
+
+export const CREATE_COUNTRY = gql`
+mutation(
+  $accessToken: String!
+  $name: String!
+){
+  createCountry(input: {
+    token: $accessToken,
+    name: $name,
+  }) {
+    errors {
+      messages
+    }
+  }
+}
+`
 
 function calculateTeamMetricForDataSeries(dataSeries, metricName) {
   let queryBody = ``;
@@ -516,7 +557,24 @@ export const USER_FILTERING_ATTRIBUTES = gql`
 }
 `
 
-const GET_ALL_USERNAMES = gql`
+export const GET_ALL_PLAYERS = gql`
+query(
+  $startDate: Date,
+  $endDate: Date,
+){
+  playersList(
+    startDate: $startDate,
+    endDate: $endDate,
+    page: -1,
+	) {
+    id,
+    name,
+    surname
+  },
+}
+`
+
+export const GET_ALL_USERNAMES = gql`
 query(
   $accessToken: String!,
 ){
@@ -529,7 +587,7 @@ query(
 }
 `
 
-const GET_ALL_PLAYERS_NAMES = gql`
+export const GET_ALL_PLAYERS_NAMES = gql`
 query(
   $startDate: Date!,
   $endDate: Date!,
@@ -545,7 +603,7 @@ query(
 }
 `
 
-const GET_ALL_PLAYERS_SURNAMES = gql`
+export const GET_ALL_PLAYERS_SURNAMES = gql`
 query(
   $startDate: Date!,
   $endDate: Date!,
@@ -561,10 +619,83 @@ query(
 }
 `
 
+export const CREATE_TEAM = gql`
+mutation(
+  $accessToken: String!
+  $name: String!
+  $countryId: ID!
+){
+  createTeam(input: {
+    token: $accessToken,
+    name: $name,
+    countryOfOrigin: $countryId
+  }) {
+    errors {
+      messages
+    }
+  }
+}`
+
+export const CREATE_SEASON = gql`
+mutation(
+  $accessToken: String!
+  $name: String!
+  $leagueId: ID!
+){
+  createLeagueSeason(input: {
+    token: $accessToken,
+    name: $name,
+    league: $leagueId
+  }) {
+    errors {
+      messages
+    }
+  }
+}
+`
+
+export const CREATE_LEAGUE = gql`
+mutation(
+  $accessToken: String!
+  $name: String!
+  $countryId: ID!
+){
+  createLeague(input: {
+    token: $accessToken,
+    name: $name,
+    countryOfOrigin: $countryId
+  }) {
+    errors {
+      messages
+    }
+  }
+}`
+
+export const CREATE_PLAYER = gql`
+mutation(
+  $accessToken: String!
+  $name: String!
+  $countryId: ID!
+  $surname: String!,
+  $nickname: String
+){
+  createPlayer(input: {
+    token: $accessToken,
+    name: $name,
+    countryOfOrigin: $countryId
+    surname: $surname,
+    nickname: $nickname
+  }) {
+    errors {
+      messages
+    }
+  }
+}`
+
 export const GET_ALL_TEAMS = gql`
 query(
-  $startDate: Date!,
-  $endDate: Date!,
+  $startDate: Date,
+  $endDate: Date,
 ){
   teamsList(
     startDate: $startDate,
@@ -604,6 +735,21 @@ export const GET_ALL_EVENT_TYPES = gql`
 }
 `
 
+export const GET_ALL_LEAGUE_SEASONS = gql`
+query(
+  $leagueId: Int!
+){
+  leagueSeasonsList(leagueId: $leagueId) {
+    name,
+    id
+  }
+}`
+export const buildLeagueSeasonsQuery = (leagueId) => [
+  GET_ALL_LEAGUE_SEASONS,
+  {
+    variables: {leagueId: leagueId}
+  }
+];
 
 export const CURRENT_USER = {
     name: null
@@ -616,17 +762,23 @@ export const apiClient = new ApolloClient({
 });
 
 
-export async function requestMutation(variables, mutation, successMessage, errorMessage){
+export async function requestMutation(variables, mutation, successMessage, errorMessage, mutationName){
     const accessToken = localStorage.getItem(constants.ACCESS_TOKEN);
     try{
-        await mutation({variables: {
+        const {data} = await mutation({variables: {
             accessToken: accessToken, ...variables
         }});
-        toast.success(successMessage);
+        console.log(data[mutationName])
+        if (mutationName && data[mutationName].errors.length > 0)
+          toast.error(errorMessage);
+        else
+          toast.success(successMessage);
+        return data;
     } catch (error) {
         console.log(`Error occurred while executing mutation. Error\n${error}`);
         toast.error(errorMessage);
     }
+    return null;
 }
 
 

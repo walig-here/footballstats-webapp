@@ -21,7 +21,7 @@ function getDataForNavigationList(username){
             {icon: 'sports_soccer', name: "Lista meczów", route: constants.MATCH_LIST_PAGE_PATH},
             {icon: 'man', name: "Lista zawodników", route: constants.PLAYERS_LIST_PAGE_PATH},
             {icon: 'group', name: "Lista drużyn", route: constants.TEAM_LIST_PAGE_PATH},
-        ]
+        ],
     };
 
     if (utils.isOwner(username)) {
@@ -29,10 +29,16 @@ function getDataForNavigationList(username){
             {icon: 'shield_person', name: "Administratorzy", route: constants.ADMINS_LIST_PAGE_PATH},
             {icon: 'key_vertical', name: "Generowanie tokenów rejestracji", route: constants.REGISTRATION_TOKENS_PAGE_PATH},
         ]
-    } else if (utils.isAuthenticated(username)) {
-        navigationMenuData['FootballStats'].push(
-            {icon: 'add_circle', name: "Dodaj mecz", route: constants.ADD_MATCH_PAGE_PATH}
-        )
+    }
+    if (utils.isAuthenticated(username)) {
+        navigationMenuData['Administrator'] = [
+            {icon: 'add_circle', name: "Dodaj mecz", route: constants.ADD_MATCH_PAGE_PATH},
+            {icon: 'add_circle', name: "Dodaj ligę", route: "/form/add_league"},
+            {icon: 'add_circle', name: "Dodaj kraj", route: "/form/add_country"},
+            {icon: 'add_circle', name: "Dodaj sezon ligi", route: "/form/add_season"},
+            {icon: 'add_circle', name: "Dodaj drużynę", route: "/form/add_team"},
+            {icon: 'add_circle', name: "Dodaj zawodnika", route: "/form/add_player"},
+        ]
     }
     return navigationMenuData;
 }
@@ -45,11 +51,11 @@ export default function AppNavigation({ children }) {
 
     const navigationList = Object.entries(getDataForNavigationList(user.username)).map(([title, elements], index) => (
         <div key={index}>
-            <Label style="title-small px-4 py-4" text={title}/>
+            <Label style="title-small px-3 py-1" text={title}/>
             {
                 elements.map((item) => (
                     <div
-                        className={`px-4 py-4 space-x-3 w-full flex flex-row hover:bg-secondary-container hover:cursor-pointer rounded-full 
+                        className={`px-3 py-3 space-x-3 w-full flex flex-row hover:bg-secondary-container hover:cursor-pointer rounded-full 
                             ${location.pathname === item.route ? "bg-secondary-container text-on-surface" : "text-on-surface-variant"}`}
                         key={item.route}
                         onClick={() => {navigate(item.route)}}

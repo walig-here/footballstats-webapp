@@ -9,6 +9,11 @@ import ModifyCountryView from "../views/forms/ModifyCountryView.jsx";
 import ModifyLeagueAndSeasonView from "../views/forms/ModifyLeagueAndSeasonView.jsx";
 import ModifyEventView from "../views/forms/ModifyEventView.jsx";
 import PageNotFoundView from "../views/utilities/PageNotFoundView.jsx";
+import { AddLeagueView } from "../views/forms/AddLeagueView.jsx";
+import { AddCountryView } from "../views/forms/AddCountryView.jsx";
+import { AddSeasonView } from "../views/forms/AddSeasonView.jsx";
+import { AddTeamView } from "../views/forms/AddTeamView";
+import { AddPlayerView } from "../views/forms/AddPlayerView.jsx";
 
 
 export default function FormsRouter() {
@@ -22,6 +27,11 @@ export default function FormsRouter() {
             <Route path="modify_country" element={<ModifyCountryView/>}/>
             <Route path="modify_league_and_season" element={<ModifyLeagueAndSeasonView/>}/>
             <Route path="modify_event" element={<ModifyEventView/>}/>
+            <Route path="add_league" element={<AddLeagueView/>}/>
+            <Route path="add_country" element={<AddCountryView/>}/>
+            <Route path="add_season" element={<AddSeasonView/>}/>
+            <Route path="add_team" element={<AddTeamView/>}/>
+            <Route path="add_player" element={<AddPlayerView/>}/>
             <Route path="*" element={<PageNotFoundView/>}/>
         </Routes>
     )

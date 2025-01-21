@@ -54,8 +54,8 @@ class PlayerQuery(graphene.ObjectType):
 
     players_list = graphene.List(
         PlayerType,
-        start_date=graphene.Date(),
-        end_date=graphene.Date(),
+        start_date=graphene.Date(default_value=None),
+        end_date=graphene.Date(default_value=None),
         page=graphene.Int(),
         textual_filters=graphene.List(TextualFilterType, default_value=[]),
         metric_filters=graphene.List(MetricFilterType, default_value=[]),
@@ -67,8 +67,8 @@ class PlayerQuery(graphene.ObjectType):
     def resolve_players_list(
         root,
         info: graphene.ResolveInfo,
-        start_date: date,
-        end_date: date,
+        start_date: date | None,
+        end_date: date | None,
         page: int,
         textual_filters: list[TextualFilterType],
         metric_filters: list[MetricFilterType],
@@ -80,7 +80,8 @@ class PlayerQuery(graphene.ObjectType):
         players = (
             Player.objects
             .filter(playerinmatch__match__game_date__range=(start_date, end_date))
-            .distinct()
+            .distinct() if start_date is not None and end_date is not None
+            else Player.objects.all().distinct()
         )
         if representing_team is not None:
             team = Team.objects.get(pk=representing_team)
@@ -202,8 +203,8 @@ class TeamQuery(graphene.ObjectType):
 
     teams_list: graphene.List = graphene.List(
         TeamType,
-        start_date=graphene.Date(), 
-        end_date=graphene.Date(),
+        start_date=graphene.Date(default_value=None), 
+        end_date=graphene.Date(default_value=None),
         page=graphene.Int(),
         textual_filters=graphene.List(TextualFilterType, default_value=[]),
         metric_filters=graphene.List(MetricFilterType, default_value=[]),
@@ -215,8 +216,8 @@ class TeamQuery(graphene.ObjectType):
     def resolve_teams_list(
         root,
         info: graphene.ResolveInfo, 
-        start_date: date, 
-        end_date: date,
+        start_date: date | None, 
+        end_date: date | None,
         page: int,
         textual_filters: list[TextualFilterType],
         metric_filters: list[MetricFilterType],
@@ -228,7 +229,8 @@ class TeamQuery(graphene.ObjectType):
         teams: QuerySet[Team] = (
             Team.objects
             .filter(playerinmatch__match__game_date__range=(start_date, end_date))
-            .distinct()
+            .distinct() if start_date is not None and end_date is not None
+            else Team.objects.all().distinct()
         )
         if represented_by_player is not None:
             player = Player.objects.get(pk=represented_by_player)
