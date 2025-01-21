@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { DELETE_TEAM, GET_TEAMS, requestMutation } from "../../api_client";
 import ContentView from "../../components/ContentView";
 import { DataRangeControl } from "../../components/DataRangeControl";
-import { PlayersList } from "../../components/lists/pLAYERSList";
+import { PlayersList } from "../../components/lists/PlayersList";
 import { TeamsList } from "../../components/lists/TeamsList";
 import { convertFiltersToBackendFormat, convertSortingToBackendFormat } from "../../data_processing";
 import { ModalContext } from "../../components/modals/ModalManager";

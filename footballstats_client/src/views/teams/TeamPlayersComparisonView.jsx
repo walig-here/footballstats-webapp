@@ -6,7 +6,7 @@ import { LoadingView } from "../utilities/LoadingView";
 import ContentView from "../../components/ContentView";
 import { TabItem, Tabs } from "actify";
 import { DataRangeControl } from "../../components/DataRangeControl";
-import { PlayersList } from "../../components/lists/pLAYERSList";
+import { PlayersList } from "../../components/lists/PlayersList";
 import { MatchesList } from "../../components/lists/MatchesList";
 
 export default function TeamPlayersComparisonView() {

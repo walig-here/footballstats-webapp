@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router";
 import { LoadingView } from "../utilities/LoadingView";
 import ContentView from "../../components/ContentView";
 import { DataRangeControl } from "../../components/DataRangeControl";
-import { PlayersList } from "../../components/lists/pLAYERSList";
+import { PlayersList } from "../../components/lists/PlayersList";
 import { TeamsList } from "../../components/lists/TeamsList";
 import { DELETE_PLAYER_FROM_MATCH, GET_MATCH_CRUCIAL_DATA, GET_PLAYERS, requestMutation } from "../../api_client";
 import { convertFiltersToBackendFormat, convertSortingToBackendFormat, isAuthenticated } from "../../data_processing";

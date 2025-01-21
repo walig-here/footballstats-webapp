@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { DELETE_PLAYER, GET_PLAYERS, requestMutation } from "../../api_client";
 import ContentView from "../../components/ContentView";
 import { DataRangeControl } from "../../components/DataRangeControl";
-import { PlayersList } from "../../components/lists/pLAYERSList";
+import { PlayersList } from "../../components/lists/PlayersList";
 import { convertFiltersToBackendFormat, convertSortingToBackendFormat } from "../../data_processing";
 import { ModalContext } from "../../components/modals/ModalManager";
 import { useMutation } from "@apollo/client";
