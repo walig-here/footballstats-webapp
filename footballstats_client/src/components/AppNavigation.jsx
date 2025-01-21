@@ -79,9 +79,13 @@ export default function AppNavigation({ children }) {
             <div className="mt-16 flex flex-row">
                 {   
                     !navigationHidden &&
-                    <div className="fixed w-72 h-screen bg-surface-container-low flex-none flex-col px-3 py-3 rounded-2xl">
+                    <div
+                        className="fixed w-72 overflow-y-auto bg-surface-container-low flex-none flex-col px-3 py-3 rounded-2xl"
+                        style={{ height: "calc(100vh - 4rem)" }} // Odejmij wysokość marginesu
+                    >
                         {navigationList}
                     </div>
+
                 }
                 <div
                     className="flex overflow-y-auto"
