@@ -126,7 +126,7 @@ export default function AddMatchView() {
                     <Body 
                         text={
                             data?.createMatch?.errors ? 
-                            data.createMatch.errors.map(err => err.messages.join("\n")) : 
+                            data?.createMatch?.errors.map(err => err.messages.join("\n")) : 
                             error.cause.message
                         }
                         style={"text-error"}

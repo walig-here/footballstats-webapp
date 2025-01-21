@@ -36,7 +36,7 @@ export function AddCountryView() {
                     &&
                     <Body 
                         text={
-                            data.createCountry.errors ? 
+                            data?.createCountry?.errors ? 
                             data.createCountry.errors.map(err => err.messages.join("\n")) : 
                             error.cause.message
                         }

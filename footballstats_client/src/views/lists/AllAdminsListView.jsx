@@ -6,10 +6,11 @@ import { ACCESS_TOKEN, ERROR_OCCURRED_TOAST, PermissionTypes, TOKEN_EXPIRED_ERRO
 import { LoadingView } from "../utilities/LoadingView";
 import { Body } from "../../components/Body";
 import { Checkbox, Divider, Icon, IconButton } from "actify";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {ConfirmModal} from "../../components/modals/ConfirmModal"
 import { convertFiltersToBackendFormat, convertSortingToBackendFormat } from "../../data_processing";
 import { toast } from "react-toastify";
+import { ModalContext, ModalManager } from "../../components/modals/ModalManager";
 
 const ALL_ADMINS_LIST_DESC = "Zarządzaj wszystkimi administratorami zarejestrowanymi w systemie.";
 const CLOSED_MODAL_DATA = {
@@ -74,7 +75,7 @@ export default function AllAdminsListView() {
             metricParams: []
         }
     })
-    const [modalData, setModalData] = useState(CLOSED_MODAL_DATA);
+    const modalContext = useContext(ModalContext);
     const listQuery = useQuery(...GET_LIST_QUERY(page, filters, sorting));
 
     const [deleteAdminMutation, deleteAdminMutationResponse] = useMutation(REMOVE_ADMIN);
@@ -96,15 +97,6 @@ export default function AllAdminsListView() {
 
     if (isLoading)
         return <LoadingView className="flex flex-col w-full h-full"/>;
-
-    const openModal = (message, onConfirm) => {
-        setModalData({
-            open: true, onConfirm: onConfirm, message: message
-        });
-    };
-    const closeModal = () => {
-        setModalData(CLOSED_MODAL_DATA);
-    };
 
     const deleteAdmin = async (username) => {
         await requestMutation(
@@ -143,29 +135,30 @@ export default function AllAdminsListView() {
                 return <Body text={listQuery.error}/>
             }
         }
+        console.log(modalContext)
         return listQuery.data.usersList.map(user => (
             <AdminListItem 
                 key={user.id}
                 user={user}
-                onCreatePermissionChange={() => openModal(
+                onCreatePermissionChange={() => modalContext.openModal(
                     `Czy chcesz zmienić uprawnienia "${user.username}"?`,
                     () => changePermission(
                         user.hasCreatePermission, user.username, PermissionTypes.CREATE
                     )
                 )}
-                onEditPermissionChange={() => openModal(
+                onEditPermissionChange={() => modalContext.openModal(
                     `Czy chcesz zmienić uprawnienia "${user.username}"?`,
                     () => changePermission(
                         user.hasModifyPermission, user.username, PermissionTypes.EDIT
                     )
                 )}
-                onDeletePermissionChange={() => openModal(
+                onDeletePermissionChange={() => modalContext.openModal(
                     `Czy chcesz zmienić uprawnienia "${user.username}"?`,
                     () => changePermission(
                         user.hasDeletePermission, user.username, PermissionTypes.DELETE
                     )
                 )}
-                onDelete={() => openModal(
+                onDelete={() => modalContext.openModal(
                     `Czy chcesz usunąć administratora "${user.username}"?`,
                     () => deleteAdmin(user.username)
                 )}
@@ -175,10 +168,6 @@ export default function AllAdminsListView() {
 
     return (
         <SuperUserRequired>
-            {
-                modalData.open &&
-                <ConfirmModal onConfirm={() => { closeModal(); modalData.onConfirm(); }} message={modalData.message} onClose={closeModal}/>
-            }
             <ContentView title={"Administratorzy"}>
                 <List
                     title={"Wszyscy administratorzy"} 

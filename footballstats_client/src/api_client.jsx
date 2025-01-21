@@ -7,6 +7,22 @@ import { LoadingView } from './views/utilities/LoadingView.jsx';
 import { getMatchEventWithName, getMetricWithName, isAuthenticated, isOwner } from './data_processing.js';
 import { toast } from 'react-toastify';
 
+export const DELETE_MATCH_MUTATION = gql`
+mutation(
+  $accessToken: String!,
+  $matchId: Int!,
+){
+  removeMatch(input: {
+    matchId: $matchId,
+    token: $accessToken,
+  }) {
+    errors {
+      messages
+    }
+  }
+}
+`
+
 export const CREATE_MATCH_MUTATION = gql`
 mutation(
   $accessToken: String!
@@ -276,7 +292,8 @@ query (
 export const buildTeamQuery = (id) => [
   GET_TEAM,
   {
-    variables: {id: id}
+    variables: {id: id},
+    fetchPolicy: "network-only"
   }
 ];
 
@@ -297,7 +314,8 @@ query (
 export const buildPlayerQuery = (id) => [
   GET_PLAYER,
   {
-    variables: {id: id}
+    variables: {id: id},
+    fetchPolicy: "network-only"
   }
 ];
 
@@ -726,6 +744,21 @@ export const GET_ALL_LEAGUES = gql`
 }
 `
 
+export const DELETE_PLAYER = gql`
+mutation(
+  $accessToken: String!,
+  $playerId: Int!,
+){
+  removePlayer(input: {
+    playerId: $playerId,
+    token: $accessToken,
+  }) {
+    errors {
+      messages
+    }
+  }
+}`
+
 export const GET_ALL_EVENT_TYPES = gql`
 {
   eventTypesList{
@@ -734,6 +767,39 @@ export const GET_ALL_EVENT_TYPES = gql`
   }
 }
 `
+
+export const DELETE_PLAYER_FROM_MATCH = gql`
+mutation(
+  $accessToken: String!,
+  $matchId: ID!,
+  $playerId: ID!,
+){
+  removePlayerFromMatch(input: {
+    token: $accessToken,
+    match: $matchId,
+    player: $playerId
+  }) {
+    errors {
+      messages
+    }
+  }
+}
+`
+
+export const DELETE_TEAM = gql`
+mutation(
+  $accessToken: String!,
+  $teamId: Int!,
+){
+  removeTeam(input: {
+    teamId: $teamId,
+    token: $accessToken,
+  }) {
+    errors {
+      messages
+    }
+  }
+}`
 
 export const GET_ALL_LEAGUE_SEASONS = gql`
 query(
@@ -775,6 +841,11 @@ export async function requestMutation(variables, mutation, successMessage, error
           toast.success(successMessage);
         return data;
     } catch (error) {
+        if (error?.cause?.message === constants.TOKEN_EXPIRED_ERROR){
+          const authenticated = await tryAuthenticate();
+          if (authenticated)
+            return await requestMutation(variables, mutation, successMessage, errorMessage, mutationName)
+        }
         console.log(`Error occurred while executing mutation. Error\n${error}`);
         toast.error(errorMessage);
     }
@@ -788,6 +859,40 @@ export function logOut() {
 }
 
 
+async function tryRefreshToken(){
+  const refreshToken = localStorage.getItem(constants.REFRESH_TOKEN);
+  if (!refreshToken){
+      return false;
+  }
+  try {
+      const {data} = await apiClient.mutate({mutation: REFRESH_TOKEN_MUTATION, variables: {refreshToken: refreshToken}});
+      localStorage.setItem(constants.ACCESS_TOKEN, data.refreshToken.token);
+      return true;
+  } catch (error) {
+      return false;
+  }
+}
+
+async function tryAuthenticate() {
+  const accessToken = localStorage.getItem(constants.ACCESS_TOKEN);
+  if (!accessToken) {
+      return false;
+  }
+  try {
+      await apiClient.mutate({mutation: VERIFY_TOKEN_MUTATION, variables: {token: accessToken}});
+      return true;
+  } catch (error) {
+      if (error?.cause?.message === constants.TOKEN_EXPIRED_ERROR) {
+          const refreshed = await tryRefreshToken();
+          if (refreshed) {
+              return await tryAuthenticate();
+          }
+      }
+      return false;
+  }
+}
+
+
 /**
  *  Wraps its child components and renders them to only the authenticated user.
  *  When user is not authenticated, then redirection to login page is performed.
@@ -797,47 +902,12 @@ export function LoginRequired({children}) {
     const navigate = useNavigate()
     const [isAuthenticating, setIsAuthenticating] = useState(true);
 
-    const [verifyToken] = useMutation(VERIFY_TOKEN_MUTATION);
-    const [refreshAccessToken] = useMutation(REFRESH_TOKEN_MUTATION);
-
-    async function tryRefreshToken(){
-        const refreshToken = localStorage.getItem(constants.REFRESH_TOKEN);
-        if (!refreshToken){
-            return false;
-        }
-        try {
-            const {data} = await refreshAccessToken({variables: {refreshToken: refreshToken}});
-            localStorage.setItem(constants.ACCESS_TOKEN, data.refreshToken.token);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    async function tryAuthenticate() {
-        const accessToken = localStorage.getItem(constants.ACCESS_TOKEN);
-        if (!accessToken) {
-            return false;
-        }
-        try {
-            await verifyToken({variables: {token: accessToken}});
-            return true;
-        } catch (error) {
-            if (error.cause.message === constants.TOKEN_EXPIRED_ERROR) {
-                const refreshed = await tryRefreshToken();
-                if (refreshed) {
-                    return await tryAuthenticate();
-                }
-            }
-            return false;
-        }
-    }
-
     useEffect(() => {
         tryAuthenticate().then((isAuthenticated) => {
             setIsAuthenticating(false);
-            if (!isAuthenticated)
-                navigate(`${constants.LOGIN_PAGE_PATH}?redirect=${location.pathname}`);
+            if (!isAuthenticated){
+              navigate(`${constants.LOGIN_PAGE_PATH}?redirect=${location.pathname}`);
+            }
         });
     }, []);
 

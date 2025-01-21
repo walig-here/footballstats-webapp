@@ -38,8 +38,8 @@ export function AddPlayerView() {
                     &&
                     <Body 
                         text={
-                            data.createPlayer.errors ? 
-                            data.createPlayer.errors.map(err => err.messages.join("\n")) : 
+                            data?.createPlayer?.errors ? 
+                            data?.createPlayer?.errors.map(err => err.messages.join("\n")) : 
                             error.cause.message
                         }
                         style={"text-error"}

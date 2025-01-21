@@ -31,7 +31,7 @@ const BUILD_TEAMS_QUERY = (sorting, filters, page, startDate, endDate, matchId, 
 }
 
 
-export function TeamsList({title, subtitle, matchId, playerId}) {
+export function TeamsList({title, subtitle, matchId, playerId, onEdit, onDelete}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
@@ -72,8 +72,8 @@ export function TeamsList({title, subtitle, matchId, playerId}) {
                 bottomText={""}
                 sideText={""}
                 key={team.id}
-                onEdit={isAuthenticated(user.username) ? () => console.log(team.id) : null}
-                onDelete={isAuthenticated(user.username) ? () => console.log(team.id) : null}
+                onEdit={onEdit && isAuthenticated(user.username) ? () => onEdit(team.id) : null}
+                onDelete={onDelete && isAuthenticated(user.username) ? () => onDelete(team.id) : null}
                 onOpen={() => navigate(`/team/${team.id}/data`)}
             />
         ));

@@ -31,6 +31,9 @@ function MatchDataView() {
 
     if (error)
         console.log(error);
+    if (error){
+        return <ContentView title={"Mecz nie istnieje"}></ContentView>;
+    }
 
     return (
         <ContentView title={`${data.match.teamsScores[0].teamName} vs ${data.match.teamsScores[1].teamName}`}>

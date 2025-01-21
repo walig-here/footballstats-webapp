@@ -37,8 +37,8 @@ export function AddSeasonView() {
                     &&
                     <Body 
                         text={
-                            data.createLeagueSeason.errors ? 
-                            data.createLeagueSeason.errors.map(err => err.messages.join("\n")) : 
+                            data?.createLeagueSeason?.errors ? 
+                            data?.createLeagueSeason?.errors.map(err => err.messages.join("\n")) : 
                             error.cause.message
                         }
                         style={"text-error"}

@@ -31,7 +31,7 @@ const QUERY_MATCH_LIST = (sorting, filters, page, startDate, endDate, teamId, pl
 }
 
 
-export function MatchesList({title, subtitle, teamId, playerId}) {
+export function MatchesList({title, subtitle, teamId, playerId, onEdit, onDelete}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
@@ -72,8 +72,8 @@ export function MatchesList({title, subtitle, teamId, playerId}) {
                 bottomText={`${match.teamsScores[0].score} - ${match.teamsScores[1].score}`}
                 sideText={match.leagueSeason.league.name}
                 key={match.id}
-                onEdit={isAuthenticated(user.username) ? () => console.log(match.id) : null}
-                onDelete={isAuthenticated(user.username) ? () => console.log(match.id) : null}
+                onEdit={onEdit && isAuthenticated(user.username) ? () => onEdit(match.id) : null}
+                onDelete={onDelete && isAuthenticated(user.username) ? () => onDelete(match.id) : null}
                 onOpen={() => navigate(`/match/${match.id}/data`)}
             />
         ));

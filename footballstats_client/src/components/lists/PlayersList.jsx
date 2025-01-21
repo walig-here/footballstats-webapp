@@ -25,11 +25,12 @@ const QUERY_PLAYER_LIST = (sorting, filters, page, startDate, endDate, match, te
                 match: match,
                 team: team
             },
+            fetchPolicy: "cache-and-network"
         }
     ]
 }
 
-export function PlayersList ({title, subtitle, match, team}) {
+export function PlayersList ({title, subtitle, match, team, onDelete, onEdit}) {
     const user = useContext(UserContext);
     const navigate = useNavigate();
     const dateRangeContext = useContext(DateRangeContext);
@@ -71,8 +72,8 @@ export function PlayersList ({title, subtitle, match, team}) {
                 bottomText={player.nickname}
                 sideText={""}
                 key={player.id}
-                onEdit={isAuthenticated(user.username) ? () => console.log("a") : null}
-                onDelete={isAuthenticated(user.username) ? () => console.log("a") : null}
+                onEdit={onEdit && isAuthenticated(user.username) ? () => onEdit(player.id) : null}
+                onDelete={onDelete && isAuthenticated(user.username) ? () => onDelete(player.id) : null}
                 onOpen={() => navigate(`/player/${player.id}/data`)}
             />
         ));

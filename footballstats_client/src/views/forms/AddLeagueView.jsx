@@ -35,7 +35,7 @@ export function AddLeagueView() {
                     &&
                     <Body 
                         text={
-                            data.createLeague.errors ? 
+                            data?.createLeague?.errors ? 
                             data.createLeague.errors.map(err => err.messages.join("\n")) : 
                             error.cause.message
                         }

@@ -35,8 +35,8 @@ export function AddTeamView() {
                     &&
                     <Body 
                         text={
-                            data.createTeam.errors ? 
-                            data.createTeam.errors.map(err => err.messages.join("\n")) : 
+                            data?.createTeam?.errors ? 
+                            data?.createTeam?.errors.map(err => err.messages.join("\n")) : 
                             error.cause.message
                         }
                         style={"text-error"}
