@@ -40,7 +40,7 @@ class MetricHistoryPointType(graphene.ObjectType):
 class MatchEventType(DjangoObjectType):
     class Meta:
         model: Model = MatchEvent
-        exclude: str = ("match", "id")
+        exclude: str = ("match",)
 
 
 class LeagueType(DjangoObjectType):

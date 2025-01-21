@@ -1,32 +1,46 @@
 import { useNavigate, useParams } from "react-router";
 import ContentView from "../../components/ContentView";
-import { useQuery } from "@apollo/client";
-import { GET_MATCH } from "../../api_client";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_MATCH, REMOVE_EVENT_FROM_MATCH, requestMutation } from "../../api_client";
 import { LoadingView } from "../utilities/LoadingView";
-import { Divider, TabItem, Tabs } from "actify";
+import { Button, Divider, Icon, TabItem, Tabs } from "actify";
 import { DataRangeControl } from "../../components/DataRangeControl";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Section from "../../components/Section";
 import { Body } from "../../components/Body";
 import { ListItem } from "../../components/ListItem";
+import { ModalContext } from "../../components/modals/ModalManager";
 
 const GET_MATCH_QUERY = (matchId) => [
     GET_MATCH,
-    {variables: {id: matchId}}
+    {variables: {id: matchId}, fetchPolicy: "network-only"}
 ];
 
 function MatchDataView() {
     const navigate = useNavigate();
     const {id} = useParams();
     const [currentTab, setCurrentTab] = useState(`/match/${id}/data`);
-    const {loading, data, error} = useQuery(...GET_MATCH_QUERY(Number.parseInt(id)));
+    const {loading, data, error, refetch} = useQuery(...GET_MATCH_QUERY(Number.parseInt(id)));
+    const modalContext = useContext(ModalContext);
+    const [removeEventMutation, removeEventResponse] = useMutation(REMOVE_EVENT_FROM_MATCH);
 
 
     useEffect(() => {
         navigate(currentTab);
     }, [currentTab])
 
-    if (loading)
+    const removeEvent = (eventId) => {
+        requestMutation(
+            {eventId: Number.parseInt(eventId)},
+            removeEventMutation,
+            "Usunięto zdarzenie!",
+            "Nie udało się usunąć zdarzenia!",
+            "removeEventFromMatch"
+        )
+        refetch({fetchPolicy: "network-only"});
+    }
+
+    if (loading || removeEventResponse.loading)
         return <LoadingView/>;
 
     if (error)
@@ -77,6 +91,15 @@ function MatchDataView() {
                 title={"Zdarzenia z meczu"}
                 iconName={"local_activity"}
                 subtitle={"Przeglądaj chronologiczny spis zdarzeń, które wystąpiły w meczu."}
+                topRightContent={
+                    <Button
+                        variant="filled"
+                        onPress={() => setCurrentTab(`/form/add_event/${id}`)}
+                    >
+                        <Icon>add_circle</Icon>
+                        Dodaj zdarzenie
+                    </Button>
+                }
             >
                 {
                     data.match.events.map((event) => (
@@ -84,6 +107,11 @@ function MatchDataView() {
                             topText={`${event.occurrenceMinute} '`}
                             mainText={event.eventType.name}
                             bottomText={`${event.player.name} ${event.player.surname}`}
+                            key={event.id}
+                            onDelete={() => modalContext.openModal(
+                                "Czy na pewno chcesz usunąć zdarzenie?",
+                                () => removeEvent(event.id)
+                            )}
                         />
                     ))
                 }

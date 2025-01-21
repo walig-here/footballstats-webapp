@@ -8,13 +8,15 @@ import { LoadingView } from "../utilities/LoadingView";
 import { Body } from "../../components/Body";
 import { LeagueSelector } from "../../components/selections/LeagueSelector";
 import { SeasonForm } from "../../components/forms/SeasonForm";
+import { useNavigate } from "react-router";
 
 export function AddSeasonView() {
+    const navigate = useNavigate()
     const [season, setSeason] = useState(null);
     const [createSeasonMutation, {loading, error, data}] = useMutation(CREATE_SEASON);
 
     const createSeason = async () => {
-        await requestMutation(
+        const response = await requestMutation(
             {
                 name: season.name,
                 leagueId: Number.parseInt(season.league)
@@ -24,6 +26,9 @@ export function AddSeasonView() {
             "Nie udało się dodać sezonu!",
             "createLeagueSeason"
         )
+        if (!response || error || response?.createLeagueSeason?.errors?.length > 0)
+            return;
+        navigate("/")
     }
 
     if (loading)

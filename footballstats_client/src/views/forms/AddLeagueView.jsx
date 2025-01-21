@@ -6,8 +6,10 @@ import { useMutation } from "@apollo/client";
 import { Button, Icon } from "actify";
 import { LoadingView } from "../utilities/LoadingView";
 import { Body } from "../../components/Body";
+import { useNavigate } from "react-router";
 
 export function AddLeagueView() {
+    const navigate = useNavigate();
     const [league, setLeague] = useState(null);
     const [createLeagueMutation, {loading, error, data}] = useMutation(CREATE_LEAGUE);
 
@@ -22,6 +24,9 @@ export function AddLeagueView() {
             "Nie udało się dodać ligi!",
             "createLeague"
         )
+        if (error || data?.createLeague?.errors?.length > 0)
+            return;
+        navigate("/");
     }
 
     if (loading)

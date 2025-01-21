@@ -6,13 +6,15 @@ import { useMutation } from "@apollo/client";
 import { Button, Icon } from "actify";
 import { LoadingView } from "../utilities/LoadingView";
 import { Body } from "../../components/Body";
+import { useNavigate } from "react-router";
 
 export function AddTeamView() {
+    const navigate = useNavigate();
     const [team, setTeam] = useState(null);
     const [createTeamMutation, {loading, error, data}] = useMutation(CREATE_TEAM);
 
     const createLeague = async () => {
-        await requestMutation(
+        const response = await requestMutation(
             {
                 name: team.name,
                 countryId: Number.parseInt(team.country)
@@ -22,6 +24,9 @@ export function AddTeamView() {
             "Nie udało się dodać druzyny!",
             "createTeam"
         )
+        if (!response || error || response?.createTeam?.errors?.length > 0)
+            return;
+        navigate("/");
     }
 
     if (loading)

@@ -6,17 +6,18 @@ import { LoadingView } from "../../views/utilities/LoadingView";
 import { Body } from "../Body";
 import { Autocomplete, AutocompleteItem } from "actify";
 
-export function PlayerSelector ({nameIsKey, playerKey, setPlayerKey}) {
+export function PlayerSelector ({nameIsKey, playerKey, setPlayerKey, match}) {
     const [selectedKey, setSelectedKey] = useState(playerKey);
     const playersQuery = useQuery(
         GET_ALL_PLAYERS, 
-        {variables: {startDate: null, endDate: null}}
+        {variables: {startDate: null, endDate: null, match: match}}
     );
 
     if (playersQuery.loading)
         return <LoadingView/>;
     if (playersQuery.error)
         return <Body text={playersQuery.error.cause.message}/>;
+    console.log(`Fetched ${playersQuery.data.playersList.length} players`)
 
     const onKeySelected = (newKey) => {
         setSelectedKey(newKey);

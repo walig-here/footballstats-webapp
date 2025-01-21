@@ -15,6 +15,7 @@ import { useMutation } from '@apollo/client';
 import { LoadingView } from '../utilities/LoadingView';
 import { Body } from '../../components/Body';
 import { serializeTeamPlayers } from '../../data_processing';
+import { useNavigate } from 'react-router';
 
 function AddPlayerForm({minutesPlayed, playerKey, setMinutesPlayed, setPlayerKey, onDelete}) {
     return (
@@ -38,6 +39,7 @@ function AddPlayerForm({minutesPlayed, playerKey, setMinutesPlayed, setPlayerKey
 }
 
 export default function AddMatchView() {
+    const navigate = useNavigate();
     const [createMatchMutation, {data, loading, error}] = useMutation(CREATE_MATCH_MUTATION)
     const [ownData, setOwnData] = useState(null);
     const [league, setLeague] = useState("");
@@ -95,7 +97,7 @@ export default function AddMatchView() {
     }
 
     const createMatch = async () => {
-        await requestMutation(
+        const response = await requestMutation(
             {
                 gameDate: ownData.date,
                 leagueSeasonId: Number.parseInt(season),
@@ -109,6 +111,9 @@ export default function AddMatchView() {
             "Nie udało się dodać meczu!",
             "createMatch"
         )
+        if (!response || error || response?.createMatch?.errors?.length > 0)
+            return;
+        navigate("/list/matches")
     }
 
     if (loading)

@@ -23,6 +23,27 @@ mutation(
 }
 `
 
+export const ADD_EVENT_TO_MATCH = gql`
+mutation(
+  $accessToken: String!
+  $playerId: ID!,
+  $matchId: ID!
+  $typeId: ID!
+  $minute: Decimal!
+){
+  addEventToMatch(input: {
+    token: $accessToken,
+    player: $playerId,
+    match: $matchId,
+    eventType: $typeId,
+    occurrenceMinute: $minute
+  }) {
+    errors {
+      messages
+    }
+  }
+}`
+
 export const CREATE_MATCH_MUTATION = gql`
 mutation(
   $accessToken: String!
@@ -341,6 +362,7 @@ query(
       }
     },
     events {
+      id,
       occurrenceMinute,
       eventType {
         name
@@ -579,11 +601,13 @@ export const GET_ALL_PLAYERS = gql`
 query(
   $startDate: Date,
   $endDate: Date,
+  $match: Int
 ){
   playersList(
     startDate: $startDate,
     endDate: $endDate,
     page: -1,
+    playingInMatch: $match
 	) {
     id,
     name,
@@ -759,6 +783,21 @@ mutation(
   }
 }`
 
+export const REMOVE_EVENT_FROM_MATCH = gql`
+mutation(
+  $accessToken: String!,
+  $eventId: Int!,
+){
+  removeEventFromMatch(input: {
+    token: $accessToken,
+    eventId: $eventId
+  }) {
+    errors {
+      messages
+    }
+  }
+}`
+
 export const GET_ALL_EVENT_TYPES = gql`
 {
   eventTypesList{
@@ -798,6 +837,27 @@ mutation(
     errors {
       messages
     }
+  }
+}`
+
+export const ADD_PLAYER_TO_MATCH = gql`
+mutation(
+  $accessToken: String!
+  $teamId: ID!,
+  $playerId: ID!
+  $matchId: ID!,
+  $minutes: Decimal!
+){
+  addExistingPlayerToMatch(input: {
+    team: $teamId,
+    match: $matchId,
+    player: $playerId,
+    minutesPlayed: $minutes,
+    token: $accessToken
+  }) {
+    errors {
+      messages
+    },
   }
 }`
 

@@ -7,13 +7,15 @@ import { Button, Icon } from "actify";
 import { LoadingView } from "../utilities/LoadingView";
 import { Body } from "../../components/Body";
 import { PlayerForm } from "../../components/forms/PlayerForm";
+import { useNavigate } from "react-router";
 
 export function AddPlayerView() {
+    const navigate = useNavigate()
     const [player, setPlayer] = useState(null);
     const [createPlayerMutation, {loading, error, data}] = useMutation(CREATE_PLAYER);
 
     const createPlayer = async () => {
-        await requestMutation(
+        const response = await requestMutation(
             {
                 name: player.name,
                 countryId: Number.parseInt(player.country),
@@ -25,6 +27,9 @@ export function AddPlayerView() {
             "Nie udało się dodać zawodnika!",
             "createPlayer"
         )
+        if (!response || error || response?.createPlayer?.errors?.length > 0)
+            return
+        navigate("/list/players")
     }
 
     if (loading)

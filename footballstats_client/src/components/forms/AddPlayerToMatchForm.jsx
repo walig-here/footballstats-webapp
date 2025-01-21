@@ -13,7 +13,7 @@ export function AddPlayerToMatchForm({setPlayerKey, playerKey, minutesPlayed, se
             <TextField
                 label="Czas gry (w minutach)"
                 variant="outlined"
-                type="decimal"
+                type="number"
                 value={minutesPlayed}
                 onChange={(value) => setMinutesPlayed(value)}
             />

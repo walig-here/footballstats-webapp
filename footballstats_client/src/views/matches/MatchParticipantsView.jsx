@@ -7,9 +7,10 @@ import { DataRangeControl } from "../../components/DataRangeControl";
 import { PlayersList } from "../../components/lists/pLAYERSList";
 import { TeamsList } from "../../components/lists/TeamsList";
 import { DELETE_PLAYER_FROM_MATCH, GET_MATCH_CRUCIAL_DATA, GET_PLAYERS, requestMutation } from "../../api_client";
-import { convertFiltersToBackendFormat, convertSortingToBackendFormat } from "../../data_processing";
-import { TabItem, Tabs } from "actify";
+import { convertFiltersToBackendFormat, convertSortingToBackendFormat, isAuthenticated } from "../../data_processing";
+import { Button, Icon, TabItem, Tabs } from "actify";
 import { ModalContext } from "../../components/modals/ModalManager";
+import { UserContext } from "../../App";
 
 const PLAYER_LIST_DESC = "Przeglądaj zawodników reprezentujących drużynę w meczu.";
 
@@ -39,6 +40,7 @@ const GET_MATCH_QUERY = (matchId) => [
 
 export default function MatchParticipantsView() {
     const modalContext = useContext(ModalContext);
+    const userContext = useContext(UserContext)
     const navigate = useNavigate();
     const {id} = useParams();
     const [currentTab, setCurrentTab] = useState(`/match/${id}/participants`);
@@ -79,6 +81,27 @@ export default function MatchParticipantsView() {
                 subtitle={"Przeglądaj uczestniczące w meczu drużyny"}
                 matchId={Number.parseInt(id)}
             />
+            {
+                isAuthenticated(userContext.username) &&
+                <div className="flex flex-row space-x-2 px-2">
+                    <Button
+                        variant="outlined"
+                        className="w-full"
+                        onPress={() => setCurrentTab(`/form/add_player_to_match/${id}/${data.match.teamsScores[0].teamId}`)}
+                    >
+                        <Icon>add_circle</Icon>
+                        {`Dodaj zawodnika ${data.match.teamsScores[0].teamName}`}
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        className="w-full"
+                        onPress={() => setCurrentTab(`/form/add_player_to_match/${id}/${data.match.teamsScores[1].teamId}`)}
+                    >
+                        <Icon>add_circle</Icon>
+                        {`Dodaj zawodnika ${data.match.teamsScores[1].teamName}`}
+                    </Button>
+                </div>
+            }
             <PlayersList
                 title={`Zawodnicy drużyny ${data.match.teamsScores[0].teamName}`}
                 subtitle={PLAYER_LIST_DESC}

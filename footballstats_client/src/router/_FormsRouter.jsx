@@ -14,6 +14,7 @@ import { AddCountryView } from "../views/forms/AddCountryView.jsx";
 import { AddSeasonView } from "../views/forms/AddSeasonView.jsx";
 import { AddTeamView } from "../views/forms/AddTeamView";
 import { AddPlayerView } from "../views/forms/AddPlayerView.jsx";
+import { AddPlayerToMatchView } from "../views/forms/AddPlayerToMatchView.jsx";
 
 
 export default function FormsRouter() {
@@ -26,12 +27,13 @@ export default function FormsRouter() {
             <Route path="modify_player_contribution" element={<ModifyPlayerContributionInMatchView/>}/>
             <Route path="modify_country" element={<ModifyCountryView/>}/>
             <Route path="modify_league_and_season" element={<ModifyLeagueAndSeasonView/>}/>
-            <Route path="modify_event" element={<ModifyEventView/>}/>
+            <Route path="add_event/:matchId" element={<ModifyEventView/>}/>
             <Route path="add_league" element={<AddLeagueView/>}/>
             <Route path="add_country" element={<AddCountryView/>}/>
             <Route path="add_season" element={<AddSeasonView/>}/>
             <Route path="add_team" element={<AddTeamView/>}/>
             <Route path="add_player" element={<AddPlayerView/>}/>
+            <Route path="add_player_to_match/:matchId/:teamId" element={<AddPlayerToMatchView/>}/>
             <Route path="*" element={<PageNotFoundView/>}/>
         </Routes>
     )
